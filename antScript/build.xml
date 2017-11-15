@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="euc-kr"?>
+<project name="siteBuildFile">
+    <!-- added part.0 start-->
+    <property file="mcBin/mccabe.properties" />
+    <!-- added part.0 end-->
+    <!-- 1.jobs에서 수정된 소스를 copy -->
+    <target name="jobs.copy">
+        <mkdir dir="${build.temp.dir}"/>
+        <copy todir="${build.temp.dir}" verbose="yes">
+            <fileset dir="${hudson.job.workspace}">
+                <exclude name="**/.svn/**/*.*" />
+                <exclude name="src/kv3/test/**/*.java" />
+                <!-- 센터컷 소스 경로 변경 시, 수정 -->
+                <!--<exclude name="src/devon/ent/centercut/**/*.java" />-->
+                <include name="web/WEB-INF/devonhome/xmlquery/**/*.xml" />
+                <include name="src/**/*.java" />
+                <include name="web/**/*.jsp" />
+                <!--include name="web/WEB-INF/web.xml" /-->
+                <modified />
+            </fileset>
+        </copy>
+        <!-- added part.1 start-->
+        <antcall target="mccabe.ant.copy"/>
+        <antcall target="mccabe.ant.run"/>
+        <!-- added part.1 end-->
+    </target>
+
+    <!-- added part.2 start-->
+    <target name="mccabe.ant.copy">
+        <mkdir dir="${WORK_HOME}/build"/>
+        <copy todir="${WORK_HOME}/build" verbose="yes">
+            <fileset dir="${build.temp.dir}"/>
+        </copy>
+    </target>
+
+
+    <target name="mccabe.ant.run">
+        <taskdef name="mccabeproject" classname="com.mccabe.anttasks.MccabeProject" classpath="${WORK_HOME}/mcBin/mccabeant.jar">
+        </taskdef>
+        <mkdir dir="projects"/>
+        <mccabeproject
+                programName="${programName}"
+                pcfTemplate="${WORK_HOME}/mcBin/pcfTemplate.pcf"
+                instDir="${WORK_HOME}/projects/${programName}"
+                projectDir="${WORK_HOME}/projects/${programName}"
+                clean="false"
+                export="true">
+            <fileset dir="${WORK_HOME}/build" includes="**\*.java" />
+        </mccabeproject>
+        <antcall target="mccabe.fix.pathvec"/>
+    </target>
+
+    <target name="mccabe.build.report">
+        <java jar="${WORK_HOME}/mcBin/mccabe_exec.jar" fork="true">
+            <arg line="${WORK_HOME}/mcBin/mccabe.properties report"/>
+        </java>
+        <antcall target="mccabe.addedPackageName"/>
+    </target>
+
+    <target name="mccabe.fix.pathvec">
+        <java jar="${WORK_HOME}/mcBin/mccabe_exec.jar" fork="true">
+            <arg line="${WORK_HOME}/mcBin/mccabe.properties pathvec"/>
+        </java>
+    </target>
+
+    <target name="mccabe.download">
+        <java jar="${WORK_HOME}/mcBin/mccabe_exec.jar" fork="true">
+            <arg line="${WORK_HOME}/mcBin/mccabe.properties sftp"/>
+        </java>
+    </target>
+
+    <target name="mccabe.addedPackageName">
+        <java jar="${WORK_HOME}/mcBin/mccabe_exec.jar" fork="true">
+            <arg line="${WORK_HOME}/mcBin/mccabe.properties PackageAdd"/>
+        </java>
+    </target>
+    <!-- added part.2 end-->
+</project>

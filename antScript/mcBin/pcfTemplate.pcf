@@ -1,0 +1,9 @@
+PROGRAM %programname%
+INSTDIR "%instdir%"
+INSTOUT "%instfile%"
+COMDIR "%comdir%"
+EXPORTTREE
+SCOPEINST
+DIR "%sourcedir%"
+%coverageserver%
+cw_Java_inst "%sourcefile%"  -NOCLASSMSGS -PATHVEC -HALSTEAD -CLASSDIRTREE -PARAM -OVERLOAD -MODE %jre%
