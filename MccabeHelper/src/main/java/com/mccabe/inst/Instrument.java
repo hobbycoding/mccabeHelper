@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 public class Instrument extends McCabeConfig {
 
@@ -133,9 +134,9 @@ public class Instrument extends McCabeConfig {
         try {
             fw = new FileWriter(filePath, false);
             fw.append("PROGRAM " + prop.getProperty("projectName") + "_" + prop.getProperty("fileName"));
-            fw.append(System.getProperty("line.separator") + "INSTDIR " + prop.getProperty("instDir") + fs + prop.getProperty("fileName"));
-            fw.append(System.getProperty("line.separator") + "INSTOUT " + prop.getProperty("instDir") + fs + prop.getProperty("fileName") + prop.getProperty("fs") + "inst.out");
-            fw.append(System.getProperty("line.separator") + "COMDIR " + prop.getProperty("instDir") + fs + prop.getProperty("fileName"));
+            fw.append(System.getProperty("line.separator") + "INSTDIR " + prop.getProperty("instDir"));
+            fw.append(System.getProperty("line.separator") + "INSTOUT " + prop.getProperty("instDir") + prop.getProperty("fs") + "inst.out");
+            fw.append(System.getProperty("line.separator") + "COMDIR " + prop.getProperty("COMDIR"));
             fw.append(System.getProperty("line.separator") + "METRICS_LEVEL 3");
             fw.append(System.getProperty("line.separator") + "EXPORTTREE");
             fw.append(System.getProperty("line.separator") + "SCOPEINST");

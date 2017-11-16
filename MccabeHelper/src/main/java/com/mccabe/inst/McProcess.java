@@ -34,6 +34,7 @@ public class McProcess extends McCabeConfig {
                     new File( instDir).mkdirs();
                     prop.setProperty("fileName", fileName);
                     prop.setProperty("instDir", instDir);
+                    prop.setProperty("COMDIR", instDir + fs + fileName.split("_")[0]);
                     inst.pcfCreate(prop, file);
                     prop.setProperty("fileName", fileName);
                     inst.cliExport(prop);
