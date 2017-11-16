@@ -132,10 +132,10 @@ public class Instrument extends McCabeConfig {
         String filePath = prop.getProperty("instDir") + fs + prop.getProperty("fileName") + fs + pcfFile;
         try {
             fw = new FileWriter(filePath, false);
-            fw.append("PROGRAM " + prop.getProperty("projectName") + fs + prop.getProperty("fileName"));
-            fw.append(System.getProperty("line.separator") + "INSTDIR " + prop.getProperty("instDir"));
-            fw.append(System.getProperty("line.separator") + "INSTOUT " + prop.getProperty("instDir") + prop.getProperty("fs") + "inst.out");
-            fw.append(System.getProperty("line.separator") + "COMDIR " + prop.getProperty("instDir"));
+            fw.append("PROGRAM " + prop.getProperty("projectName") + "_" + prop.getProperty("fileName"));
+            fw.append(System.getProperty("line.separator") + "INSTDIR " + prop.getProperty("instDir") + fs + prop.getProperty("fileName"));
+            fw.append(System.getProperty("line.separator") + "INSTOUT " + prop.getProperty("instDir") + fs + prop.getProperty("fileName") + prop.getProperty("fs") + "inst.out");
+            fw.append(System.getProperty("line.separator") + "COMDIR " + prop.getProperty("instDir") + fs + prop.getProperty("fileName"));
             fw.append(System.getProperty("line.separator") + "METRICS_LEVEL 3");
             fw.append(System.getProperty("line.separator") + "EXPORTTREE");
             fw.append(System.getProperty("line.separator") + "SCOPEINST");
@@ -194,7 +194,7 @@ public class Instrument extends McCabeConfig {
 
     public void cliExport(Properties prop) {
         try {
-            String pcfFile = prop.getProperty("projectDir") + prop.getProperty("fs") + prop.getProperty("projectName") + ".pcf";
+            String pcfFile = prop.getProperty("fileName") + ".pcf";
             log.write(prop.getProperty("cliExport") + pcfFile);
             Process p = Runtime.getRuntime().exec(prop.getProperty("cliExport") + pcfFile);
             p.waitFor();

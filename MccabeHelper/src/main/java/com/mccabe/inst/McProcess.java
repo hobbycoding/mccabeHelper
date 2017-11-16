@@ -1,6 +1,7 @@
 package com.mccabe.inst;
 
 import com.mccabe.McCabeConfig;
+import com.mccabe.temp.PathVecChanger;
 import com.mccabe.temp.WLog;
 
 import java.io.File;
@@ -25,18 +26,23 @@ public class McProcess extends McCabeConfig {
             prop = setConfig();
             Instrument inst = new Instrument(prop, log);
             List<File> fileList = inst.gathering(prop, "");
+            //TODO : shit code...but i don't really do anything
             if (SPLIT_FILE) {
                 for (File file : fileList) {
                     String fileName = file.getAbsolutePath().replace(prop.getProperty("srcDir") + fs, "").replace(fs, "_").replace(".java", "");
                     String instDir = prop.getProperty("projectDir") + fs + fileName;
                     new File( instDir).mkdirs();
                     prop.setProperty("fileName", fileName);
-                    prop.setProperty("INSTDIR", instDir);
+                    prop.setProperty("instDir", instDir);
                     inst.pcfCreate(prop, file);
+                    prop.setProperty("fileName", fileName);
                     inst.cliExport(prop);
+                    PathVecChanger changer = new PathVecChanger(prop);
+                    changer.start();
                 }
             } else {
                 List<File> fileListAll = inst.gatheringAll(prop, "");
+                prop.setProperty("fileName", prop.getProperty("projectDir") + prop.getProperty("fs") + prop.getProperty("projectName"));
                 inst.copySrcToInst(prop, fileListAll);    // src 에서 java를 제외한 나머지를 inst에 복사 해 둠.
                 inst.pcfCreate(prop, fileList);
                 inst.cliExport(prop);
