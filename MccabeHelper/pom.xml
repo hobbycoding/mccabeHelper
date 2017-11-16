@@ -35,7 +35,7 @@
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
                             </descriptorRefs>
-                            <finalName>MccabeHelper-${pom.version}</finalName>
+                            <finalName>mccabeHelper-${pom.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>
