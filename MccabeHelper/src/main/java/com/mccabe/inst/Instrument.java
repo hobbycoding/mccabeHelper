@@ -129,7 +129,7 @@ public class Instrument extends McCabeConfig {
     public void pcfCreate(Properties prop, File file) throws Exception {
         String pcfFile = prop.getProperty("fileName") + ".pcf";
         FileWriter fw = null;
-        String filePath = prop.getProperty("instDir") + fs + prop.getProperty("fileName") + fs + pcfFile;
+        String filePath = prop.getProperty("instDir") + fs + pcfFile;
         try {
             fw = new FileWriter(filePath, false);
             fw.append("PROGRAM " + prop.getProperty("projectName") + "_" + prop.getProperty("fileName"));
@@ -194,7 +194,7 @@ public class Instrument extends McCabeConfig {
 
     public void cliExport(Properties prop) {
         try {
-            String pcfFile = prop.getProperty("fileName") + ".pcf";
+            String pcfFile = prop.getProperty("instDir") + fs + prop.getProperty("fileName") + ".pcf";
             log.write(prop.getProperty("cliExport") + pcfFile);
             Process p = Runtime.getRuntime().exec(prop.getProperty("cliExport") + pcfFile);
             p.waitFor();
