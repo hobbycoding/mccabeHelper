@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -23,11 +24,23 @@ public class McProcess extends McCabeConfig {
         try {
             prop = setConfig();
             Instrument inst = new Instrument(prop, log);
-            List<File> fileListAll = inst.gatheringAll(prop, "");
-            inst.copySrcToInst(prop, fileListAll);    // src 에서 java를 제외한 나머지를 inst에 복사 해 둠.
             List<File> fileList = inst.gathering(prop, "");
-            inst.pcfCreate(prop, fileList);
-            inst.cliExport(prop);
+            if (SPLIT_FILE) {
+                for (File file : fileList) {
+                    String fileName = file.getAbsolutePath().replace(prop.getProperty("srcDir") + fs, "").replace(fs, "_").replace(".java", "");
+                    String instDir = prop.getProperty("projectDir") + fs + fileName;
+                    new File( instDir).mkdirs();
+                    prop.setProperty("fileName", fileName);
+                    prop.setProperty("INSTDIR", instDir);
+                    inst.pcfCreate(prop, file);
+                    inst.cliExport(prop);
+                }
+            } else {
+                List<File> fileListAll = inst.gatheringAll(prop, "");
+                inst.copySrcToInst(prop, fileListAll);    // src 에서 java를 제외한 나머지를 inst에 복사 해 둠.
+                inst.pcfCreate(prop, fileList);
+                inst.cliExport(prop);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

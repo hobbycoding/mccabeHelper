@@ -40,6 +40,7 @@ public class McCabeConfig {
     public static String FLAG_PUBLISH_ON = "ON";
     public static String FLAG_PUBLISH_OFF = "OFF";
     public static boolean REMOVE_REPORT_DIR = true;
+    public static boolean SPLIT_FILE = true;
 
     public static String HUDSON_JOB_DIR = "/scourt/application/eup/ci/jenkins/jobs";
     public static String JENKINS_JOB_DIR = "/scourt/application/eup/ci/jenkins/jobs";
@@ -108,6 +109,9 @@ public class McCabeConfig {
                         break;
                     case "programName" :
                         PROGRAM_NAME = entry.getValue().toString();
+                        break;
+                    case "SPLIT_FILE" :
+                        SPLIT_FILE = Boolean.parseBoolean(entry.getValue().toString());
                         break;
                 }
             }
