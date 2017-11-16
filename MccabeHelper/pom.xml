@@ -53,6 +53,14 @@
                         </goals>
                         <configuration>
                             <outputDirectory>/svn/mccabe/helper</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${pom.build.directory}</directory>
+                                    <includes>
+                                        <include>${pom.build.finalName}.jar</include>
+                                    </includes>
+                                </resource>
+                            </resources>
                         </configuration>
                     </execution>
                 </executions>
