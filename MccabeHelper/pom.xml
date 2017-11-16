@@ -52,7 +52,7 @@
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>/svn/mccabe/helper</outputDirectory>
+                            <outputDirectory>/usr/mccabe/helper</outputDirectory>
                             <resources>
                                 <resource>
                                     <directory>${pom.build.directory}</directory>
