@@ -1,7 +1,5 @@
 package com.mccabe;
 
-import com.mccabe.inst.Instrument;
-import com.mccabe.inst.InstrumentWorks;
 import com.mccabe.inst.McProcess;
 import com.mccabe.report.ReportWorks;
 import com.mccabe.temp.PathVecChanger;
