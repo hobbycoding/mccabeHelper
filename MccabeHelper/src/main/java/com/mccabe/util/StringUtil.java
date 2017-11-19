@@ -1,6 +1,5 @@
 package com.mccabe.util;
 
-//import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.MessageDigest;
@@ -9,9 +8,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.Vector;
-
-//import javax.servlet.http.HttpServletRequest;
-//import javax.servlet.http.HttpServletResponse;
 
 /**
  * 공통적으로 필요한 데이터 변환기능 및 문자열 조작기능등이 구현되어 있음
@@ -637,7 +633,7 @@ public class StringUtil {
      * </pre></blockquote>
      *
      * @param     sStr         원 문자열
-     * @param     Chr         삭제할 문자 캐릭터인경우
+     * @param     sChr         삭제할 문자 캐릭터인경우
      * @return    retr         charValue가 삭제된 문자열
      *
      */

@@ -3,15 +3,13 @@ package com.mccabe.inst;
 import com.mccabe.McCabeConfig;
 import com.mccabe.temp.PathVecChanger;
 import com.mccabe.temp.WLog;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 public class McProcess extends McCabeConfig {
     public Properties prop = null;
@@ -28,10 +26,11 @@ public class McProcess extends McCabeConfig {
             List<File> fileList = inst.gathering(prop, "");
             //TODO : shit code...but i don't really do anything
             if (SPLIT_FILE) {
+                HashSet<String> fileNameList = new HashSet<>();
                 for (File file : fileList) {
                     String fileName = file.getAbsolutePath().replace(prop.getProperty("srcDir") + fs, "").replace(fs, "_").replace(".java", "");
                     String instDir = prop.getProperty("projectDir") + fs + fileName;
-                    new File( instDir).mkdirs();
+                    new File(instDir).mkdirs();
                     prop.setProperty("fileName", fileName);
                     prop.setProperty("instDir", instDir);
                     prop.setProperty("COMDIR", instDir + fs + fileName.split("_")[0]);
@@ -40,7 +39,9 @@ public class McProcess extends McCabeConfig {
                     inst.cliExport(prop);
                     PathVecChanger changer = new PathVecChanger(prop);
                     changer.start();
+                    fileNameList.add(fileName);
                 }
+                makeFileList(fileNameList);
             } else {
                 List<File> fileListAll = inst.gatheringAll(prop, "");
                 prop.setProperty("fileName", prop.getProperty("projectDir") + prop.getProperty("fs") + prop.getProperty("projectName"));
@@ -58,6 +59,23 @@ public class McProcess extends McCabeConfig {
         }
 
     }
+
+    private void makeFileList(HashSet<String> nameList) throws Exception {
+        File fileList = new File(prop.getProperty("projectDir") + fs + "fileList.json");
+        JSONArray jsonArray;
+        if (fileList.exists()) {
+            JSONParser parser = new JSONParser();
+            jsonArray = (JSONArray) parser.parse(new FileReader(fileList));
+        } else {
+            jsonArray = new JSONArray();
+        }
+        nameList.addAll(jsonArray);
+        FileWriter writer = new FileWriter(fileList, false);
+        JSONArray result = new JSONArray();
+        result.addAll(nameList);
+        result.writeJSONString(writer);
+        writer.close();
+     }
 
     public Properties setConfig() {
         if (prop.getProperty("mcHome") == null) prop.put("mcHome", MCCABE_HOME);        // 파라메타 받아야 함
@@ -93,42 +111,6 @@ public class McProcess extends McCabeConfig {
         }
         return prop;
     }
-
-    public void rmMkDir(Properties prop) {
-        try {
-            // 기존 copy Dir 삭제
-            // 잘못하여 형상관리꺼 삭제 하지 않기 위해서.
-//			if(prop.getProperty("srcDir").toLowerCase().indexOf("mccabe") > -1){
-//				try{ Runtime.getRuntime().exec(prop.getProperty("rmDir") + prop.getProperty("srcDir"	) ); }catch(Exception e){System.out.println(e);}
-//				try{ Runtime.getRuntime().exec(prop.getProperty("rmDir") + prop.getProperty("instDir"	) ); }catch(Exception e){System.out.println(e);}
-//				try{ Runtime.getRuntime().exec(prop.getProperty("mkDir") + prop.getProperty("srcDir"	) ); }catch(Exception e){System.out.println(e);}
-//				try{ Runtime.getRuntime().exec(prop.getProperty("mkDir") + prop.getProperty("instDir"	) ); }catch(Exception e){System.out.println(e);}
-            deleteFolder(new File(prop.getProperty("projectDir")));
-            new File(prop.getProperty("instDir")).mkdirs();
-
-//			}
-        } catch (Exception e) {
-            System.out.println(this.getClass().getName() + "\n" + e);
-        }
-    }
-
-    public void deleteFolder(File targetFolder) {
-        File[] childFile = targetFolder.listFiles();
-        int size = childFile.length;
-        if (size > 0) {
-            for (int i = 0; i < size; i++) {
-                if (childFile[i].isFile()) {
-                    childFile[i].delete();
-                    System.out.println(childFile[i] + " 삭제");
-                } else {
-                    deleteFolder(childFile[i]);
-                }
-            }
-        }
-        targetFolder.delete();
-        System.out.println("deleteFolder " + targetFolder + " 삭제");
-    }
-
 
     public static void main(String args[]) throws Exception {
         Properties properties = changeProperties(args);
