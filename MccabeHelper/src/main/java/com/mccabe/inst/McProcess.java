@@ -3,6 +3,7 @@ package com.mccabe.inst;
 import com.mccabe.McCabeConfig;
 import com.mccabe.temp.PathVecChanger;
 import com.mccabe.temp.WLog;
+import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -19,7 +20,6 @@ public class McProcess extends McCabeConfig {
     }
 
     public void process() {
-        WLog log = new WLog(new File(MCCABE_HOME + fs + "mclog.log"));
         try {
             prop = setConfig();
             Instrument inst = new Instrument(prop, log);
@@ -39,6 +39,7 @@ public class McProcess extends McCabeConfig {
                     inst.cliExport(prop);
                     PathVecChanger changer = new PathVecChanger(prop);
                     changer.start();
+                    FileUtils.copyDirectory(new File(prop.getProperty("COMDIR")), new File(prop.getProperty("projectDir") + fs + fileName.split("_")[0]));
                     fileNameList.add(fileName);
                 }
                 makeFileList(fileNameList);

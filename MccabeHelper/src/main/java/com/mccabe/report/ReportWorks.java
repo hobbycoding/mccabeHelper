@@ -1,6 +1,10 @@
 package com.mccabe.report;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
@@ -21,8 +25,10 @@ import com.mccabe.util.Tasks;
 import com.mccabe.vo.Job;
 import com.mccabe.vo.PCF;
 import com.mccabe.vo.Program;
+import org.apache.commons.io.FileUtils;
 
 public class ReportWorks extends McCabeConfig {
+    private static Properties properties;
 
     private boolean existOriginalSource(PCF pcf) {
         File src = new File(pcf.getSrcDir() + fs + pcf.getSrcFile());
@@ -55,7 +61,7 @@ public class ReportWorks extends McCabeConfig {
         sb.append(CLI);
         sb.append("listing -coverage  -pcf ");
         sb.append(pcf.getPcfFile().getAbsolutePath());
-        sb.append(" -type long -output ");
+        sb.append(" -noparse -coverage -output ");
         sb.append(REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat(".txt"));
         commands.add(sb.toString());
         sb.delete(0, sb.capacity());
@@ -95,7 +101,7 @@ public class ReportWorks extends McCabeConfig {
         if (isAccumulated) {
             pcf.setAccumulateTraceFiles(FileUtil.getFilesRecursive(new File(TRACEFILE_HOME), "", pcf.getProjectNameMinusTrId(), ".out", 0));
         } else {
-            pcf.setAccumulateTraceFiles(FileUtil.getFilesRecursive(new File(TRACEFILE_HOME), "", pcf.getProjectName(), ".out", 0));
+            pcf.setAccumulateTraceFiles(FileUtil.getFilesRecursive(new File(TRACEFILE_HOME + fs + properties.getProperty("programName")), "", pcf.getProjectName(), ".out", 0));
         }
         return pcf;
     }
@@ -231,13 +237,13 @@ public class ReportWorks extends McCabeConfig {
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        Properties ps = changeProperties(args);
+        properties = changeProperties(args);
         ReportWorks works = new ReportWorks();
 
         Job job = new Job();
-        job.setSysName(ps.getProperty("programName", ""));
+        job.setSysName(properties.getProperty("programName", ""));
         try {
-            System.out.println("programName--->" + job.getSysName());
+            log("programName--->" + job.getSysName());
             File projectFolder = new File(PROJECT_DIR);
             if (new File(REPORT_DIR + fs + job.getSysName()).exists() && REMOVE_REPORT_DIR) {
                 System.out.println(REPORT_DIR + fs + job.getSysName() + " exist. delete.");
@@ -246,6 +252,10 @@ public class ReportWorks extends McCabeConfig {
             OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + REPORT_DIR + fs + job.getSysName());
             OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + TRACEFILE_HOME + fs + job.getSysName());
             ArrayList<File> pcfFiles = FileUtil.getFilesRecursive(new File(projectFolder + fs + job.getSysName()), "", "", ".pcf", 0);
+            String branchPath = REPORT_DIR + fs + job.getSysName() + fs + job.getSysName() + "_branch.csv";
+            String codecovPath = REPORT_DIR + fs + job.getSysName() + fs + job.getSysName() + "_codecov.csv";
+            clearFile(new File(branchPath));
+            clearFile(new File(codecovPath));
             for (File file : pcfFiles) {
                 PCF pcf = works.parse(file);
                 if (works.existOriginalSource(pcf)) {
@@ -254,6 +264,11 @@ public class ReportWorks extends McCabeConfig {
                     for (String command : commands) {
                         OSUtil.executeCommand(command);
                     }
+                    log("Read file [" + branchPath + "]");
+                    Files.write(Paths.get(branchPath),
+                            Files.readAllBytes(Paths.get(REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat("_branch").concat(".csv"))), StandardOpenOption.APPEND);
+                    Files.write(Paths.get(codecovPath),
+                            Files.readAllBytes(Paths.get(REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat("_codecov").concat(".csv"))), StandardOpenOption.APPEND);
                 } else {
                     // original src is not exist!
                 }
@@ -268,6 +283,13 @@ public class ReportWorks extends McCabeConfig {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static void clearFile(File file) throws IOException {
+        log("clear file. [" + file.getAbsolutePath() + "]");
+        if (file.exists())
+            file.delete();
+        file.createNewFile();
     }
 
     /**

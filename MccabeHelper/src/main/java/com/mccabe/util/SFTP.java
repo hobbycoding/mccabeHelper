@@ -2,11 +2,8 @@ package com.mccabe.util;
 
 import com.jcraft.jsch.*;
 import com.mccabe.McCabeConfig;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -25,7 +22,7 @@ public class SFTP extends McCabeConfig {
     private Session session;
     private Channel channel;
     private ChannelSftp channelSftp;
-    private String jsonFileName;
+    private boolean importAll = false;
 
     public SFTP(Properties ps) {
         this.ps = ps;
@@ -40,8 +37,7 @@ public class SFTP extends McCabeConfig {
         try {
             connect();
             createFolder();
-            List<String> projectList = getSrcList();
-            getFileFromDst(projectList);
+            getFileFromDst();
             end();
         } catch (Exception e) {
             e.printStackTrace();
@@ -55,28 +51,27 @@ public class SFTP extends McCabeConfig {
 
     private List<String> getSrcList() throws Exception {
         List<String> projectList = new ArrayList<>();
-        String paht = PROJECT_DIR + fs + ps.getProperty("programName");
-        jsonFileName = paht + fs + "fileList.json";
-        File folder = new File(paht);
-        File jsonFile = new File(jsonFileName);
+        File folder = new File(PROJECT_DIR);
         if (!folder.isDirectory())
-            throw new Exception(paht + " is not a directory. please check [MCCABE_HOME] property.");
-        if (!jsonFile.exists())
-            throw new Exception(paht + " not found.");
-        File fileList = new File(jsonFileName);
-        projectList.addAll((JSONArray) new JSONParser().parse(new FileReader(fileList)));
+            throw new Exception(PROJECT_DIR + " is not a directory. please check [MCCABE_HOME] property.");
+        for (File file : folder.listFiles()) {
+            if (file.isDirectory() && isProjectDir(file)) {
+                projectList.add(file.getName());
+            }
+        }
         log("== project List ==");
         log(projectList);
         return projectList;
     }
 
-    private void getFileFromDst(List<String> projectList) throws SftpException {
-        for (String name : projectList) {
-            String file = ps.getProperty("remote.dir") + "/" + name + "_inst.out";
-            channelSftp.get(file, TRACEFILE_HOME + fs + name);
-            log("get [" + ps.getProperty("remote.dir") + fs + name + "_inst.out], put in [" + TRACEFILE_HOME + fs + name + "]");
+    private void getFileFromDst() throws SftpException {
+        for (Object o : channelSftp.ls(ps.getProperty("remote.dir"))) {
+            ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) o;
+            if (entry.getFilename().endsWith(".out")) {
+                log("get [" + entry.getFilename() + "], put in [" + TRACEFILE_HOME + fs + ps.getProperty("programName") + fs +  entry.getFilename() + "]");
+                channelSftp.get(ps.getProperty("remote.dir") + "/" + entry.getFilename(), TRACEFILE_HOME  + fs + ps.getProperty("programName") + fs + entry.getFilename());
+            }
         }
-        new File(jsonFileName).delete();
     }
 
     private boolean isProjectDir(File file) {

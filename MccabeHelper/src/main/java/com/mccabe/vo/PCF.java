@@ -158,6 +158,7 @@ public class PCF extends McCabeConfig {
 	 * @param accumulateTraceFiles the accumulateTraceFiles to set
 	 */
 	public void setAccumulateTraceFiles(ArrayList<File> accumulateTraceFiles) {
+	    log(projectName + " traceFile " + accumulateTraceFiles);
 		this.accumulateTraceFiles = accumulateTraceFiles;
 	}
 

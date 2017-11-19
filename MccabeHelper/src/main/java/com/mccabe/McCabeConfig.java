@@ -1,6 +1,8 @@
 package com.mccabe;
 
 
+import com.mccabe.temp.WLog;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Calendar;
@@ -39,13 +41,13 @@ public class McCabeConfig {
 
     public static String FLAG_PUBLISH_ON = "ON";
     public static String FLAG_PUBLISH_OFF = "OFF";
-    public static boolean REMOVE_REPORT_DIR = true;
+    public static boolean REMOVE_REPORT_DIR = false;
     public static boolean SPLIT_FILE = true;
 
     public static String HUDSON_JOB_DIR = "/scourt/application/eup/ci/jenkins/jobs";
     public static String JENKINS_JOB_DIR = "/scourt/application/eup/ci/jenkins/jobs";
     public static String HUDSON_WEB_ROOT = "/ciserv/tomcat6/webapps/ROOT";
-
+    public static WLog log;
     //fuck code..but There is no time...
     // TODO : remove static values. switch properties.
     public static Properties changeProperties(String[] args) throws Exception {
@@ -71,6 +73,7 @@ public class McCabeConfig {
                         PROJECT_DIR = MCCABE_HOME + fs + "projects";
                         REPORT_DIR = MCCABE_HOME + fs + "report";
                         PCF_TEMPLATE = MCCABE_HOME + fs + "pcfTemplate.pcf";
+                        log = new WLog(new File(MCCABE_HOME + fs + "mclog.log"));
                         break;
                     case "MCCABE_BIN":
                         MCCABE_BIN = entry.getValue().toString();
@@ -120,7 +123,9 @@ public class McCabeConfig {
         return System.getProperties();
     }
 
-    public void log(Object msg) {
-        System.out.println("[" + Calendar.getInstance().getTime().toString() + "] " + msg);
+    public static void log(Object msg) {
+        String v = "[" + Calendar.getInstance().getTime().toString() + "] " + msg;
+        System.out.println(v);
+        log.write(v);
     }
 }

@@ -25,7 +25,7 @@ public class PathVecChanger extends McCabeConfig {
             String program = properties.getProperty("programName");
             String outPath = properties.getProperty("tracefile.outPath").endsWith(fs) ?
                     properties.getProperty("tracefile.outPath") : properties.getProperty("tracefile.outPath") + fs;
-            String pathVecFilePath = properties.getProperty("COMDIR") + fs + "com" + fs + "mccabe" + fs + "PathVec_" + program + "_" + properties.getProperty("fileName")+ ".java";
+            String pathVecFilePath = properties.getProperty("COMDIR") + fs + "com" + fs + "mccabe" + fs + "PathVec_" + program + "_" + properties.getProperty("fileName") + ".java";
             log("[Path] : " + pathVecFilePath);
             log("[OutPath] : " + outPath);
             readFile(pathVecFilePath, outPath);
@@ -37,7 +37,15 @@ public class PathVecChanger extends McCabeConfig {
     private void readFile(String pathVecFilePath, String outPath) throws Exception {
         File file = new File(pathVecFilePath);
         if (!file.exists()) {
-            throw new Exception("file not found. " + pathVecFilePath);
+            log("file not found. try to find PathVec..");
+            String path = properties.getProperty("COMDIR") + fs + "com" + fs + "mccabe";
+            File folder = new File(path);
+            for (File element : folder.listFiles()) {
+                if (element.getName().startsWith("PathVec_") && element.getName().endsWith(".java")) {
+                    file = element;
+                    log("Find! PathVec name is [" + file.getName() + "]");
+                }
+            }
         }
         if (OS.equals("windows"))
             outPath = outPath.replace("\\", "\\\\");

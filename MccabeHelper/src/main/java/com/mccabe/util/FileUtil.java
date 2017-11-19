@@ -74,7 +74,7 @@ public class FileUtil extends McCabeConfig {
 		 */
 		public static ArrayList<File> getFilesRecursive(File path, String startWord, String searchWord, String extension, long beforeSecond) throws Exception {
 			long timeTemp;
-			ArrayList<File> list = new ArrayList<File>();
+			ArrayList<File> list = new ArrayList<>();
 			if (path.isDirectory()) {
 				for (File file : path.listFiles()) {
 					if (file.isDirectory()) {
