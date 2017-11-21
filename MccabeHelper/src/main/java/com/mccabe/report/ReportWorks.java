@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import jxl.Workbook;
@@ -252,10 +253,16 @@ public class ReportWorks extends McCabeConfig {
             OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + REPORT_DIR + fs + job.getSysName());
             OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + TRACEFILE_HOME + fs + job.getSysName());
             ArrayList<File> pcfFiles = FileUtil.getFilesRecursive(new File(projectFolder + fs + job.getSysName()), "", "", ".pcf", 0);
-            String branchPath = REPORT_DIR + fs + job.getSysName() + fs + job.getSysName() + "_branch.csv";
-            String codecovPath = REPORT_DIR + fs + job.getSysName() + fs + job.getSysName() + "_codecov.csv";
-            clearFile(new File(branchPath));
-            clearFile(new File(codecovPath));
+            FileJob defaultJob = new FileJob(job.getSysName());
+            HashMap<String, FileJob> subjobList = new HashMap<>();
+            if (properties.containsKey("subjobs")) {
+                String raw = properties.getProperty("subjobs").substring(properties.getProperty("subjobs").indexOf("[") + 1, properties.getProperty("subjobs").lastIndexOf("]"));
+                log("[subJob property " + raw + "]");
+                for (String subjob : raw.split(",")) {
+                    log("[SubJob Found. " + subjob + "]");
+                    subjobList.put(subjob.replace(fs, "_"), new FileJob(subjob.replace(fs, "_")));
+                }
+            }
             for (File file : pcfFiles) {
                 PCF pcf = works.parse(file);
                 if (works.existOriginalSource(pcf)) {
@@ -264,11 +271,11 @@ public class ReportWorks extends McCabeConfig {
                     for (String command : commands) {
                         OSUtil.executeCommand(command);
                     }
-                    log("Read file [" + branchPath + "]");
-                    Files.write(Paths.get(branchPath),
-                            Files.readAllBytes(Paths.get(REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat("_branch").concat(".csv"))), StandardOpenOption.APPEND);
-                    Files.write(Paths.get(codecovPath),
-                            Files.readAllBytes(Paths.get(REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat("_codecov").concat(".csv"))), StandardOpenOption.APPEND);
+                    defaultJob.write(pcf.getProjectName());
+                    for (Map.Entry<String, FileJob> entry : subjobList.entrySet()) {
+                        if (pcf.getProjectName().startsWith(entry.getKey()))
+                            entry.getValue().write(pcf.getProjectName());
+                    }
                 } else {
                     // original src is not exist!
                 }
@@ -302,6 +309,29 @@ public class ReportWorks extends McCabeConfig {
         job.setSysName("eap");
         job.setIncludeModules(works.setIncludeModule(new File("C:/dev/mccabe/workspace/scourt_opensns/temp/include/" + job.getSysName() + ".csv")));
         works.integrateCSV(job);
+    }
+
+    static class FileJob {
+        private File branch;
+        private File codecov;
+        private String programName;
+
+        public FileJob(String jobName) throws IOException {
+            this.programName =  properties.getProperty("programName");
+            this.branch = new File(REPORT_DIR + fs + programName + fs + jobName + "_branch.csv");
+            this.codecov = new File(REPORT_DIR + fs + programName + fs + jobName + "_codecov.csv");
+            clearFile(branch);
+            clearFile(codecov);
+        }
+
+        public void write(String projectname) throws IOException {
+            log("Write file [" + branch.toURI() + "]");
+            log("Write file [" + codecov.toURI() + "]");
+            Files.write(Paths.get(branch.toURI()),
+                    Files.readAllBytes(Paths.get(REPORT_DIR + fs + programName + fs + projectname.concat("_branch").concat(".csv"))), StandardOpenOption.APPEND);
+            Files.write(Paths.get(codecov.toURI()),
+                    Files.readAllBytes(Paths.get(REPORT_DIR + fs + programName + fs + projectname.concat("_codecov").concat(".csv"))), StandardOpenOption.APPEND);
+        }
     }
 
 }

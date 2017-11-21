@@ -99,7 +99,7 @@ public class McProcess extends McCabeConfig {
         prop.put("projectsDir", prop.getProperty("mcHome") + prop.getProperty("fs") + "projects");
         prop.put("projectDir", prop.getProperty("projectsDir") + prop.getProperty("fs") + prop.getProperty("projectName"));
         prop.put("instDir", prop.getProperty("projectDir"));
-        prop.put("srcDir", MCCABE_HOME + fs + "build");
+        if (prop.getProperty("srcDir") == null) prop.put("srcDir", MCCABE_HOME + fs + "build");
 
         if (prop.getProperty("startFileName") == null) prop.put("startFileName", "");
         if (prop.getProperty("extendFileNames") == null) prop.put("extendFileNames", ".java|.jsp");
