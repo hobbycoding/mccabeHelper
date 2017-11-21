@@ -4,6 +4,7 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.mccabe.McCabeConfig;
+import com.mccabe.report.ReportWorks;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -34,9 +35,9 @@ public class PackageAdder extends McCabeConfig {
     }
 
     private void makePackageList() throws Exception {
-        File packageDir = new File(PROJECT_DIR + fs + ps.getProperty("programName"));
+        File packageDir = new File(ps.getProperty("srcDir"));
         if (!packageDir.isDirectory()) {
-            throw new Exception(PROJECT_DIR + fs + ps.getProperty("programName") + " is not a directory. please set dir.");
+            throw new Exception(ps.getProperty("srcDir") + " is not a directory. please set dir.");
         }
         searchFile(packageDir);
         System.out.println(packageNames);
@@ -55,10 +56,21 @@ public class PackageAdder extends McCabeConfig {
     }
 
     private void getReportFileAndChange() throws Exception {
-        String report_branch = REPORT_DIR + fs + ps.getProperty("programName") + fs +  ps.getProperty("programName") + "_branch.csv";
-        String report_codecov = REPORT_DIR + fs + ps.getProperty("programName") + fs + ps.getProperty("programName") + "_codecov.csv";
+        String programName = ps.getProperty("programName");
+        String report_branch = REPORT_DIR + fs + programName + fs +  programName + "_branch.csv";
+        String report_codecov = REPORT_DIR + fs + programName + fs + programName + "_codecov.csv";
         changeReportValue(report_branch);
         changeReportValue(report_codecov);
+        if (ps.containsKey("subjobs")) {
+            String raw = ps.getProperty("subjobs").substring(ps.getProperty("subjobs").indexOf("[") + 1, ps.getProperty("subjobs").lastIndexOf("]"));
+            log("[subJob property " + raw + "]");
+            for (String subjob : raw.split(",")) {
+                subjob = subjob.trim();
+                log("[SubJob Found. " + subjob + "]");
+                changeReportValue(REPORT_DIR + fs + programName + fs + programName + "_" + subjob.replace(fs, "_") + "_branch.csv");
+                changeReportValue(REPORT_DIR + fs + programName + fs + programName + "_" + subjob.replace(fs, "_") + "_codecov.csv");
+            }
+        }
     }
 
     private void changeReportValue(String paht) throws Exception {

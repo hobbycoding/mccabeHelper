@@ -259,8 +259,9 @@ public class ReportWorks extends McCabeConfig {
                 String raw = properties.getProperty("subjobs").substring(properties.getProperty("subjobs").indexOf("[") + 1, properties.getProperty("subjobs").lastIndexOf("]"));
                 log("[subJob property " + raw + "]");
                 for (String subjob : raw.split(",")) {
+                    subjob = subjob.trim();
                     log("[SubJob Found. " + subjob + "]");
-                    subjobList.put(subjob.replace(fs, "_"), new FileJob(subjob.replace(fs, "_")));
+                    subjobList.put((properties.getProperty("programName") + fs + subjob.trim()).replace(fs, "_"), new FileJob(properties.getProperty("programName") + "_" + subjob.replace(fs, "_")));
                 }
             }
             for (File file : pcfFiles) {
@@ -273,6 +274,7 @@ public class ReportWorks extends McCabeConfig {
                     }
                     defaultJob.write(pcf.getProjectName());
                     for (Map.Entry<String, FileJob> entry : subjobList.entrySet()) {
+                        log("Subjob [" + pcf.getProjectName() + "] startWith [" + entry.getKey() + "]");
                         if (pcf.getProjectName().startsWith(entry.getKey()))
                             entry.getValue().write(pcf.getProjectName());
                     }
@@ -297,18 +299,6 @@ public class ReportWorks extends McCabeConfig {
         if (file.exists())
             file.delete();
         file.createNewFile();
-    }
-
-    /**
-     * @param args
-     * @throws Exception
-     */
-    public static void main_test(String[] args) throws Exception {
-        ReportWorks works = new ReportWorks();
-        Job job = new Job();
-        job.setSysName("eap");
-        job.setIncludeModules(works.setIncludeModule(new File("C:/dev/mccabe/workspace/scourt_opensns/temp/include/" + job.getSysName() + ".csv")));
-        works.integrateCSV(job);
     }
 
     static class FileJob {
