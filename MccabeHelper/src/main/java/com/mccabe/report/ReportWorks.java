@@ -1,10 +1,7 @@
 package com.mccabe.report;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.OpenOption;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +24,8 @@ import com.mccabe.vo.Job;
 import com.mccabe.vo.PCF;
 import com.mccabe.vo.Program;
 import org.apache.commons.io.FileUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
 
 public class ReportWorks extends McCabeConfig {
     private static Properties properties;
@@ -246,6 +245,11 @@ public class ReportWorks extends McCabeConfig {
         try {
             log("programName--->" + job.getSysName());
             File projectFolder = new File(PROJECT_DIR);
+            Path fileList_json = Paths.get(projectFolder + fs + job.getSysName() + fs + "fileList.json");
+            JSONArray fileList = null;
+            if (Files.exists(fileList_json)) {
+                fileList = (JSONArray) new JSONParser().parse(new String(Files.readAllBytes(fileList_json), "UTF-8"));
+            }
             if (new File(REPORT_DIR + fs + job.getSysName()).exists() && REMOVE_REPORT_DIR) {
                 System.out.println(REPORT_DIR + fs + job.getSysName() + " exist. delete.");
                 OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c rmdir /Q /S " : "rm -f ") + REPORT_DIR + fs + job.getSysName());
@@ -265,6 +269,8 @@ public class ReportWorks extends McCabeConfig {
                 }
             }
             for (File file : pcfFiles) {
+                if (fileList != null && !fileList.contains(file.getName().replace(".pcf", "")))
+                    continue;
                 PCF pcf = works.parse(file);
                 if (works.existOriginalSource(pcf)) {
                     pcf = works.initializeTraceFileSet(pcf, false);
@@ -278,10 +284,10 @@ public class ReportWorks extends McCabeConfig {
                         if (pcf.getProjectName().startsWith(entry.getKey()))
                             entry.getValue().write(pcf.getProjectName());
                     }
-                } else {
-                    // original src is not exist!
                 }
             }
+            if (fileList != null)
+                Files.delete(fileList_json);
             if (job.isPublish()) {
                 WriteIndex wi = new WriteIndex();
                 wi.generateIndexHTML(job);

@@ -2,14 +2,11 @@ package com.mccabe.inst;
 
 import com.mccabe.McCabeConfig;
 import com.mccabe.temp.PathVecChanger;
-import com.mccabe.temp.WLog;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.*;
-import java.nio.file.Files;
 import java.util.*;
 
 public class McProcess extends McCabeConfig {
