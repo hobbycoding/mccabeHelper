@@ -286,8 +286,6 @@ public class ReportWorks extends McCabeConfig {
                     }
                 }
             }
-            if (fileList != null)
-                Files.delete(fileList_json);
             if (job.isPublish()) {
                 WriteIndex wi = new WriteIndex();
                 wi.generateIndexHTML(job);

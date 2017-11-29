@@ -2,6 +2,7 @@ package com.mccabe.inst;
 
 import com.mccabe.McCabeConfig;
 import com.mccabe.temp.PathVecChanger;
+import com.mccabe.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
@@ -25,7 +26,7 @@ public class McProcess extends McCabeConfig {
             if (SPLIT_FILE) {
                 HashSet<String> fileNameList = new HashSet<>();
                 for (File file : fileList) {
-                    String fileName = file.getAbsolutePath().replace(prop.getProperty("srcDir") + fs, "").replace(fs, "_").replace(".java", "");
+                    String fileName = FileUtil.getRoledFileName(file, prop.getProperty("srcDir"));
                     String instDir = prop.getProperty("projectDir") + fs + fileName;
                     new File(instDir).mkdirs();
                     prop.setProperty("fileName", fileName);
