@@ -4,7 +4,6 @@ import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseException;
 import com.github.javaparser.ast.CompilationUnit;
 import com.mccabe.McCabeConfig;
-import com.mccabe.report.ReportWorks;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,11 +12,10 @@ import java.util.HashMap;
 import java.util.Properties;
 
 public class PackageAdder extends McCabeConfig {
-    private final Properties ps;
     private HashMap<String, String> packageNames = new HashMap<>();
 
     public PackageAdder(Properties ps) {
-        this.ps = ps;
+        super(ps);
     }
 
     public static void main(String[] args) throws Exception {
@@ -35,9 +33,9 @@ public class PackageAdder extends McCabeConfig {
     }
 
     private void makePackageList() throws Exception {
-        File packageDir = new File(ps.getProperty("srcDir"));
+        File packageDir = new File(property.getProperty("srcDir"));
         if (!packageDir.isDirectory()) {
-            throw new Exception(ps.getProperty("srcDir") + " is not a directory. please set dir.");
+            throw new Exception(property.getProperty("srcDir") + " is not a directory. please set dir.");
         }
         searchFile(packageDir);
         System.out.println(packageNames);
@@ -56,13 +54,13 @@ public class PackageAdder extends McCabeConfig {
     }
 
     private void getReportFileAndChange() throws Exception {
-        String programName = ps.getProperty("programName");
+        String programName = property.getProperty("programName");
         String report_branch = REPORT_DIR + fs + programName + fs +  programName + "_branch.csv";
         String report_codecov = REPORT_DIR + fs + programName + fs + programName + "_codecov.csv";
         changeReportValue(report_branch);
         changeReportValue(report_codecov);
-        if (ps.containsKey("subjobs")) {
-            String raw = ps.getProperty("subjobs").substring(ps.getProperty("subjobs").indexOf("[") + 1, ps.getProperty("subjobs").lastIndexOf("]"));
+        if (property.containsKey("subjobs")) {
+            String raw = property.getProperty("subjobs").substring(property.getProperty("subjobs").indexOf("[") + 1, property.getProperty("subjobs").lastIndexOf("]"));
             log("[subJob property " + raw + "]");
             for (String subjob : raw.split(",")) {
                 subjob = subjob.trim();

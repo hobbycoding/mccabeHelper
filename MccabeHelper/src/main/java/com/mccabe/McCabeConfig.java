@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Properties;
 
 public class McCabeConfig {
+    public static final String FILE_LIST_JSON = "fileList.json";
+
     public static String OS = "unix";
     public static String fs = File.separator;
     public static int MCCABE_ON = 1;
@@ -47,7 +49,15 @@ public class McCabeConfig {
     public static String HUDSON_JOB_DIR = "/scourt/application/eup/ci/jenkins/jobs";
     public static String JENKINS_JOB_DIR = "/scourt/application/eup/ci/jenkins/jobs";
     public static String HUDSON_WEB_ROOT = "/ciserv/tomcat6/webapps/ROOT";
+
     public static WLog log;
+
+    public Properties property = null;
+
+    public McCabeConfig(Properties properties) {
+        this.property = properties;
+    }
+
     //fuck code..but There is no time...
     // TODO : remove static values. switch properties.
     public static Properties changeProperties(String[] args) throws Exception {

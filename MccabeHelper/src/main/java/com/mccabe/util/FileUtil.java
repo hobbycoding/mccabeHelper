@@ -1,11 +1,11 @@
 package com.mccabe.util;
 
+import com.mccabe.McCabeConfig;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-
-import com.mccabe.McCabeConfig;
 
 public class FileUtil extends McCabeConfig {
 
@@ -98,7 +98,7 @@ public class FileUtil extends McCabeConfig {
         return list;
     }
 
-    public static String getRoledFileName(File file, String path) {
+    public static String getRoleFileName(File file, String path) {
         return file.getAbsolutePath().replace(path + fs, "").replace(fs, "_").replace(".java", "");
     }
 

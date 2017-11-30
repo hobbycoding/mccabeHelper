@@ -7,7 +7,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Properties;
 
@@ -17,7 +16,6 @@ public class SFTP extends McCabeConfig {
     private static final String PASS = "userpw";
     private static final String PORT = "server.port";
 
-    private Properties ps;
     private JSch jsch = new JSch();
     private Session session;
     private Channel channel;
@@ -25,7 +23,7 @@ public class SFTP extends McCabeConfig {
     private boolean importAll = false;
 
     public SFTP(Properties ps) {
-        this.ps = ps;
+        super(ps);
     }
 
     public static void main(String[] args) throws Exception {
@@ -45,8 +43,8 @@ public class SFTP extends McCabeConfig {
     }
 
     private void createFolder() throws IOException {
-        OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + REPORT_DIR + fs + ps.getProperty("programName"));
-        OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + TRACEFILE_HOME + fs + ps.getProperty("programName"));
+        OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + REPORT_DIR + fs + property.getProperty("programName"));
+        OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + TRACEFILE_HOME + fs + property.getProperty("programName"));
     }
 
     private List<String> getSrcList() throws Exception {
@@ -65,11 +63,11 @@ public class SFTP extends McCabeConfig {
     }
 
     private void getFileFromDst() throws SftpException {
-        for (Object o : channelSftp.ls(ps.getProperty("remote.dir"))) {
+        for (Object o : channelSftp.ls(property.getProperty("remote.dir"))) {
             ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) o;
             if (entry.getFilename().endsWith(".out")) {
-                log("get [" + entry.getFilename() + "], put in [" + TRACEFILE_HOME + fs + ps.getProperty("programName") + fs +  entry.getFilename() + "]");
-                channelSftp.get(ps.getProperty("remote.dir") + "/" + entry.getFilename(), TRACEFILE_HOME  + fs + ps.getProperty("programName") + fs + entry.getFilename());
+                log("get [" + entry.getFilename() + "], put in [" + TRACEFILE_HOME + fs + property.getProperty("programName") + fs +  entry.getFilename() + "]");
+                channelSftp.get(property.getProperty("remote.dir") + "/" + entry.getFilename(), TRACEFILE_HOME  + fs + property.getProperty("programName") + fs + entry.getFilename());
             }
         }
     }
@@ -88,14 +86,14 @@ public class SFTP extends McCabeConfig {
     }
 
     private void connect() throws JSchException {
-        session = jsch.getSession(ps.getProperty(USER), ps.getProperty(HOST), Integer.parseInt(ps.getProperty(PORT)));
+        session = jsch.getSession(property.getProperty(USER), property.getProperty(HOST), Integer.parseInt(property.getProperty(PORT)));
         session.setConfig("StrictHostKeyChecking", "no");
-        session.setPassword(ps.getProperty(PASS));
+        session.setPassword(property.getProperty(PASS));
         session.connect();
         channel = session.openChannel("sftp");
         channelSftp = (ChannelSftp) channel;
         channelSftp.connect();
-        log("connected from " + ps.getProperty(HOST) + " : " + ps.getProperty(PORT));
+        log("connected from " + property.getProperty(HOST) + " : " + property.getProperty(PORT));
     }
 
     public void end() {

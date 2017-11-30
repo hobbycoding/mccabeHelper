@@ -11,42 +11,41 @@ import java.io.*;
 import java.util.*;
 
 public class McProcess extends McCabeConfig {
-    public Properties prop = null;
 
     public McProcess(Properties properties) {
-        this.prop = properties;
+        super(properties);
     }
 
     public void process() {
         try {
-            prop = setConfig();
-            Instrument inst = new Instrument(prop, log);
-            List<File> fileList = inst.gathering(prop, "");
+            property = setConfig();
+            Instrument inst = new Instrument(property, log);
+            List<File> fileList = inst.gathering(property, "");
             //TODO : shit code...but i don't really do anything
             if (SPLIT_FILE) {
                 HashSet<String> fileNameList = new HashSet<>();
                 for (File file : fileList) {
-                    String fileName = FileUtil.getRoledFileName(file, prop.getProperty("srcDir"));
-                    String instDir = prop.getProperty("projectDir") + fs + fileName;
+                    String fileName = FileUtil.getRoleFileName(file, property.getProperty("srcDir"));
+                    String instDir = property.getProperty("projectDir") + fs + fileName;
                     new File(instDir).mkdirs();
-                    prop.setProperty("fileName", fileName);
-                    prop.setProperty("instDir", instDir);
-                    prop.setProperty("COMDIR", instDir + fs + fileName.split("_")[0]);
-                    inst.pcfCreate(prop, file);
-                    prop.setProperty("fileName", fileName);
-                    inst.cliExport(prop);
-                    PathVecChanger changer = new PathVecChanger(prop);
+                    property.setProperty("fileName", fileName);
+                    property.setProperty("instDir", instDir);
+                    property.setProperty("COMDIR", instDir + fs + fileName.split("_")[0]);
+                    inst.pcfCreate(property, file);
+                    property.setProperty("fileName", fileName);
+                    inst.cliExport(property);
+                    PathVecChanger changer = new PathVecChanger(property);
                     changer.start();
-                    FileUtils.copyDirectory(new File(prop.getProperty("COMDIR")), new File(prop.getProperty("projectDir") + fs + fileName.split("_")[0]));
+                    FileUtils.copyDirectory(new File(property.getProperty("COMDIR")), new File(property.getProperty("projectDir") + fs + fileName.split("_")[0]));
                     fileNameList.add(fileName);
                 }
                 makeFileList(fileNameList);
             } else {
-                List<File> fileListAll = inst.gatheringAll(prop, "");
-                prop.setProperty("fileName", prop.getProperty("projectDir") + prop.getProperty("fs") + prop.getProperty("projectName"));
-                inst.copySrcToInst(prop, fileListAll);    // src 에서 java를 제외한 나머지를 inst에 복사 해 둠.
-                inst.pcfCreate(prop, fileList);
-                inst.cliExport(prop);
+                List<File> fileListAll = inst.gatheringAll(property, "");
+                property.setProperty("fileName", property.getProperty("projectDir") + property.getProperty("fs") + property.getProperty("projectName"));
+                inst.copySrcToInst(property, fileListAll);    // src 에서 java를 제외한 나머지를 inst에 복사 해 둠.
+                inst.pcfCreate(property, fileList);
+                inst.cliExport(property);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -60,7 +59,7 @@ public class McProcess extends McCabeConfig {
     }
 
     private void makeFileList(HashSet<String> nameList) throws Exception {
-        File fileList = new File(prop.getProperty("projectDir") + fs + "fileList.json");
+        File fileList = new File(property.getProperty("projectDir") + fs + FILE_LIST_JSON);
         JSONArray jsonArray;
         if (fileList.exists()) {
             JSONParser parser = new JSONParser();
@@ -77,38 +76,38 @@ public class McProcess extends McCabeConfig {
      }
 
     public Properties setConfig() {
-        if (prop.getProperty("mcHome") == null) prop.put("mcHome", MCCABE_HOME);        // 파라메타 받아야 함
-        if (prop.getProperty("mcBin") == null) prop.put("mcBin", MCCABE_BIN);        // 파라메타 받아야 함
+        if (property.getProperty("mcHome") == null) property.put("mcHome", MCCABE_HOME);        // 파라메타 받아야 함
+        if (property.getProperty("mcBin") == null) property.put("mcBin", MCCABE_BIN);        // 파라메타 받아야 함
 
-        if (prop.getProperty("fs") == null) prop.put("fs", fs);                        // 파라메타 받아야 함
-        if (prop.getProperty("projectName") == null) prop.put("projectName", PROGRAM_NAME);            // 파라메타 받아야 함
-        if (prop.getProperty("scope") == null) prop.put("scope", "all");                    // 파라메타 받아야 함
+        if (property.getProperty("fs") == null) property.put("fs", fs);                        // 파라메타 받아야 함
+        if (property.getProperty("projectName") == null) property.put("projectName", PROGRAM_NAME);            // 파라메타 받아야 함
+        if (property.getProperty("scope") == null) property.put("scope", "all");                    // 파라메타 받아야 함
 
         if (OS == "windows")
-            prop.put("preCmd", "cmd /c ");
-        else prop.put("preCmd", "");
+            property.put("preCmd", "cmd /c ");
+        else property.put("preCmd", "");
 
-        if (prop.getProperty("cliExport") == null)
-            prop.put("cliExport", prop.getProperty("preCmd") + prop.getProperty("mcBin") + prop.getProperty("fs") + "cli export -pcf ");
+        if (property.getProperty("cliExport") == null)
+            property.put("cliExport", property.getProperty("preCmd") + property.getProperty("mcBin") + property.getProperty("fs") + "cli export -pcf ");
 
-        if (prop.getProperty("javaVersion") == null) prop.put("javaVersion", "1.6");    // 프로젝트 아래에 실제 소스가 있는 경로
-        if (prop.getProperty("srcAddPath") == null) prop.put("srcAddPath", "src");    // 프로젝트 아래에 실제 소스가 있는 경로
+        if (property.getProperty("javaVersion") == null) property.put("javaVersion", "1.6");    // 프로젝트 아래에 실제 소스가 있는 경로
+        if (property.getProperty("srcAddPath") == null) property.put("srcAddPath", "src");    // 프로젝트 아래에 실제 소스가 있는 경로
 
-        prop.put("projectsDir", prop.getProperty("mcHome") + prop.getProperty("fs") + "projects");
-        prop.put("projectDir", prop.getProperty("projectsDir") + prop.getProperty("fs") + prop.getProperty("projectName"));
-        prop.put("instDir", prop.getProperty("projectDir"));
-        if (prop.getProperty("srcDir") == null) prop.put("srcDir", MCCABE_HOME + fs + "build");
+        property.put("projectsDir", property.getProperty("mcHome") + property.getProperty("fs") + "projects");
+        property.put("projectDir", property.getProperty("projectsDir") + property.getProperty("fs") + property.getProperty("projectName"));
+        property.put("instDir", property.getProperty("projectDir"));
+        if (property.getProperty("srcDir") == null) property.put("srcDir", MCCABE_HOME + fs + "build");
 
-        if (prop.getProperty("startFileName") == null) prop.put("startFileName", "");
-        if (prop.getProperty("extendFileNames") == null) prop.put("extendFileNames", ".java|.jsp");
-        if (prop.getProperty("exceptionFileNames") == null) prop.put("exceptionFileNames", ".java|.svn-base|jsp");
+        if (property.getProperty("startFileName") == null) property.put("startFileName", "");
+        if (property.getProperty("extendFileNames") == null) property.put("extendFileNames", ".java|.jsp");
+        if (property.getProperty("exceptionFileNames") == null) property.put("exceptionFileNames", ".java|.svn-base|jsp");
 
 
-        if ("".equals(prop.getProperty("projectName")) || "".equals(prop.getProperty("scope"))) {
+        if ("".equals(property.getProperty("projectName")) || "".equals(property.getProperty("scope"))) {
             System.out.println("project or scope 값이 없습니다.");
             System.exit(0);
         }
-        return prop;
+        return property;
     }
 
     public static void main(String args[]) throws Exception {
