@@ -24,35 +24,21 @@ public class ListManager extends McCabeConfig {
     private String keyOfJava = "Java" + fs + "JavaSource";
 
     public ListManager(String sysName) {
-/*
- * keyOf???
- * WIMWeb/JavaSource
- * WIMEJB/ejbModule
- * WIMJava/JavaSource
-*/
-        /*if(sysName.equals("ecv_n")){
-			System.out.println("ECV_N keys for mccbe will be set specially.");
-			keyOfWeb = "ECVWeb"+fs+"src";
-			keyOfEJB = "ECVEJB"+fs+"ejbModule";
-			keyOfJava = "ECVJava"+fs+"src";
-		}else{
-		}*/
+        super(null);
         keyOfWeb = sysName + fs + sysName.toUpperCase() + keyOfWeb;
         keyOfEJB = sysName + fs + sysName.toUpperCase() + keyOfEJB;
         keyOfJava = sysName + fs + sysName.toUpperCase() + keyOfJava;//        eap/EAPJava/JavaSource
 
-        fileListWeb = new ArrayList<File>();
-        fileListEJB = new ArrayList<File>();
-        fileListJava = new ArrayList<File>();
+        fileListWeb = new ArrayList<>();
+        fileListEJB = new ArrayList<>();
+        fileListJava = new ArrayList<>();
     }
 
     public void gatheringList(Job job) {
 
-        HashMap<String, ArrayList<File>> compileMap = new HashMap<String, ArrayList<File>>();
+        HashMap<String, ArrayList<File>> compileMap = new HashMap<>();
 
         try {
-//            compileMap.put(keyOfWeb, FileUtil.getFilesRecursive(new File(job.getRepositoryRoot() + fs + keyOfWeb), "", "", ".java", 0));
-//            compileMap.put(keyOfEJB, FileUtil.getFilesRecursive(new File(job.getRepositoryRoot() + fs + keyOfEJB), "", "", ".java", 0));
             compileMap.put(keyOfJava, FileUtil.getFilesRecursive(new File(MCCABE_HOME + fs + "build"), "", "", ".java", 0));
         } catch (Exception e) {
             e.printStackTrace();

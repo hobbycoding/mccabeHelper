@@ -12,7 +12,11 @@ import com.mccabe.vo.Job;
 import com.mccabe.vo.ProjectForJava;
 
 public class InstrumentWorks extends McCabeConfig {
-	
+
+	public InstrumentWorks(Properties properties) {
+		super(properties);
+	}
+
 	private ArrayList<ProjectForJava> initializeInstrument(Job job){
 		ArrayList<ProjectForJava> projects = new ArrayList<ProjectForJava>();
 		Iterator<String> ikey = job.getCompileMap().keySet().iterator();
@@ -45,12 +49,11 @@ public class InstrumentWorks extends McCabeConfig {
 
 	public static void main(String[] args) throws Exception {
 		Properties ps = changeProperties(args);
-		InstrumentWorks works = new InstrumentWorks();
+		InstrumentWorks works = new InstrumentWorks(ps);
 
 		Job job = new Job();
 		job.setSwitchLever(Integer.parseInt(ps.getProperty("switchLever", String.valueOf(MCCABE_OFF))));
 		job.setSysName(ps.getProperty("programName", ""));
-//		/tmp/EUP2.2/svnfiles/src/eap/EAPEJB/ejbModule
 		job.setRepositoryRoot(SRC_DIR);
 		job.setScope("all");
 	
@@ -75,10 +78,5 @@ public class InstrumentWorks extends McCabeConfig {
 				works.instrument(job);
 			}
 		}
-	}
-
-	public static void main_test(String[] args){
-
-		System.out.println("xxx");
 	}
 }

@@ -52,10 +52,11 @@ public class McCabeConfig {
 
     public static WLog log;
 
-    public Properties property = null;
+    public static Properties property = null;
 
     public McCabeConfig(Properties properties) {
-        this.property = properties;
+        if (properties != null)
+            this.property = properties;
     }
 
     //fuck code..but There is no time...

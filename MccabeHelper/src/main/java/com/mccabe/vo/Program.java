@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import com.mccabe.McCabeConfig;
 import com.mccabe.util.StringUtil;
 
-public class Program extends McCabeConfig {
+public class Program {
 
 	private File csvFile;
 	private String name;

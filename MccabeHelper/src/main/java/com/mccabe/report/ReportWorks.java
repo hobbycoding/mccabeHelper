@@ -15,20 +15,21 @@ import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 
 import com.mccabe.McCabeConfig;
-import com.mccabe.util.FTPTransfer;
 import com.mccabe.util.FileUtil;
 import com.mccabe.util.OSUtil;
 import com.mccabe.util.StringUtil;
-import com.mccabe.util.Tasks;
 import com.mccabe.vo.Job;
 import com.mccabe.vo.PCF;
 import com.mccabe.vo.Program;
-import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
 public class ReportWorks extends McCabeConfig {
     private static Properties properties;
+
+    public ReportWorks(Properties properties) {
+        super(properties);
+    }
 
     private boolean existOriginalSource(PCF pcf) {
         File src = new File(pcf.getSrcDir() + fs + pcf.getSrcFile());
@@ -147,19 +148,6 @@ public class ReportWorks extends McCabeConfig {
         return pcf;
     }
 
-    private void integrateCSV(Job job) throws Exception {
-        HashMap<String, Program> programMap = new HashMap<String, Program>();
-        ArrayList<File> csvFiles = FileUtil.getFilesRecursive(new File(REPORT_DIR + fs + job.getSysName()), "", "", ".csv", 0);
-        for (File file : csvFiles) {
-//			System.out.println(file.getName());
-            Program program = new Program(file);
-            program.parse(); // all of methods
-            program.calc();
-            programMap.put(program.getName(), program); // all of methods
-        }
-        generateXLS(job, programMap);
-    }
-
     /**
      * @param job
      * @param programMap
@@ -238,7 +226,7 @@ public class ReportWorks extends McCabeConfig {
      */
     public static void main(String[] args) throws Exception {
         properties = changeProperties(args);
-        ReportWorks works = new ReportWorks();
+        ReportWorks works = new ReportWorks(properties);
 
         Job job = new Job();
         job.setSysName(properties.getProperty("programName", ""));
@@ -285,11 +273,6 @@ public class ReportWorks extends McCabeConfig {
                             entry.getValue().write(pcf.getProjectName());
                     }
                 }
-            }
-            if (job.isPublish()) {
-                WriteIndex wi = new WriteIndex();
-                wi.generateIndexHTML(job);
-                wi.generateListHTML(job);
             }
         } catch (IOException e) {
             e.printStackTrace();

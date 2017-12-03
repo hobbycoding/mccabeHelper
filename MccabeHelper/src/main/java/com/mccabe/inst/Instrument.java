@@ -22,6 +22,7 @@ public class Instrument extends McCabeConfig {
     String[] exceptionFileNames = null;
 
     public Instrument(Properties prop, WLog log) {
+        super(null);
         extendFileNames = prop.getProperty("extendFileNames").split("[|]");
         exceptionFileNames = prop.getProperty("exceptionFileNames").split("[|]");
         this.log = log;

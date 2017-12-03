@@ -9,10 +9,9 @@ import java.io.FileOutputStream;
 import java.util.Properties;
 
 public class PathVecChanger extends McCabeConfig {
-    private final Properties properties;
 
     public PathVecChanger(Properties properties) {
-        this.properties = properties;
+        super(properties);
     }
 
     public static void main(String[] args) throws Exception {
@@ -22,10 +21,10 @@ public class PathVecChanger extends McCabeConfig {
 
     public void start() {
         try {
-            String program = properties.getProperty("programName");
-            String outPath = properties.getProperty("tracefile.outPath").endsWith(fs) ?
-                    properties.getProperty("tracefile.outPath") : properties.getProperty("tracefile.outPath") + fs;
-            String pathVecFilePath = properties.getProperty("COMDIR") + fs + "com" + fs + "mccabe" + fs + "PathVec_" + program + "_" + properties.getProperty("fileName") + ".java";
+            String program = property.getProperty("programName");
+            String outPath = property.getProperty("tracefile.outPath").endsWith(fs) ?
+                    property.getProperty("tracefile.outPath") : property.getProperty("tracefile.outPath") + fs;
+            String pathVecFilePath = property.getProperty("COMDIR") + fs + "com" + fs + "mccabe" + fs + "PathVec_" + program + "_" + property.getProperty("fileName") + ".java";
             log("[Path] : " + pathVecFilePath);
             log("[OutPath] : " + outPath);
             readFile(pathVecFilePath, outPath);
@@ -38,7 +37,7 @@ public class PathVecChanger extends McCabeConfig {
         File file = new File(pathVecFilePath);
         if (!file.exists()) {
             log("file not found. try to find PathVec..");
-            String path = properties.getProperty("COMDIR") + fs + "com" + fs + "mccabe";
+            String path = property.getProperty("COMDIR") + fs + "com" + fs + "mccabe";
             File folder = new File(path);
             for (File element : folder.listFiles()) {
                 if (element.getName().startsWith("PathVec_") && element.getName().endsWith(".java")) {

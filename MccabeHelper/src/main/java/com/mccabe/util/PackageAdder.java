@@ -38,7 +38,7 @@ public class PackageAdder extends McCabeConfig {
             throw new Exception(property.getProperty("srcDir") + " is not a directory. please set dir.");
         }
         searchFile(packageDir);
-        System.out.println(packageNames);
+        log("find packages " + packageNames);
     }
 
     private void searchFile(File parent) throws IOException, ParseException {

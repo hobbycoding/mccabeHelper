@@ -3,6 +3,7 @@ package com.mccabe.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.util.Properties;
 
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
@@ -19,6 +20,10 @@ import com.mccabe.anttasks.MccabeProject;
 import com.mccabe.vo.ProjectForJava;
 
 public class Tasks extends McCabeConfig {
+
+	public Tasks(Properties properties) {
+		super(properties);
+	}
 
 	public static void instrument(ProjectForJava inst){
 		try {

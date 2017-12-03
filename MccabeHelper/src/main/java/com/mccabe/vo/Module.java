@@ -1,9 +1,8 @@
 package com.mccabe.vo;
 
-import com.mccabe.McCabeConfig;
 import com.mccabe.util.StringUtil;
 
-public class Module extends McCabeConfig {
+public class Module {
 	
 	private String programName;
 	private String name;

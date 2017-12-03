@@ -3,11 +3,9 @@ package com.mccabe.vo;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.mccabe.McCabeConfig;
+import static com.mccabe.McCabeConfig.log;
 
-public class PCF extends McCabeConfig {
-	
-
+public class PCF {
 	//	private String trId;
 	private File pcfFile;
 	private String projectName;

@@ -6,7 +6,7 @@ import java.util.HashMap;
 
 import com.mccabe.McCabeConfig;
 
-public class Job extends McCabeConfig {
+public class Job {
 	
 	private int switchLever;
 	/**

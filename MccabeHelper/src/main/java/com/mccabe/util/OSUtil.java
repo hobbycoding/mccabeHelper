@@ -4,7 +4,7 @@ import java.io.*;
 
 import com.mccabe.McCabeConfig;
 
-public class OSUtil extends McCabeConfig {
+public class OSUtil {
 
     /**
      * @param command

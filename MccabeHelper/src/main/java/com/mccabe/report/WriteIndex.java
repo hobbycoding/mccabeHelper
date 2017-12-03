@@ -1,13 +1,18 @@
 package com.mccabe.report;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Properties;
 
 import com.mccabe.McCabeConfig;
 import com.mccabe.util.FileUtil;
 import com.mccabe.vo.Job;
 
 public class WriteIndex extends McCabeConfig {
-	
+
+	public WriteIndex(Properties properties) {
+		super(properties);
+	}
+
 	public static void main(String[] args){
 		File file = new File("C:/McCabeConfig/IQ/8.1/mclog._lg");
 		System.out.println(file.getAbsolutePath());

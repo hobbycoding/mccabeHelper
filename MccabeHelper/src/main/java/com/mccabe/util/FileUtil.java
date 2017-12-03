@@ -5,14 +5,16 @@ import com.mccabe.McCabeConfig;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Properties;
+
 
 public class FileUtil extends McCabeConfig {
 
-    public static void main(String[] args) {
-        System.out.println("xyz".startsWith(""));
-        System.out.println("xyz".indexOf(""));
-        System.out.println("xyz".endsWith(""));
+    public FileUtil(Properties properties) {
+        super(properties);
     }
 
     public static ArrayList<File> omitFiles(ArrayList<File> files, String[] omitStrArray) {
@@ -100,6 +102,20 @@ public class FileUtil extends McCabeConfig {
 
     public static String getRoleFileName(File file, String path) {
         return file.getAbsolutePath().replace(path + fs, "").replace(fs, "_").replace(".java", "");
+    }
+
+    public static String getBackRoleFileName(String filePath, String subPath) {
+        String fileName = null;
+        for (String e : subPath.split("_")) {
+            if (Files.exists(Paths.get(filePath + fs + e))) {
+                filePath += (fs + e);
+            } else {
+                if (fileName == null)
+                    fileName = fs + e;
+                else fileName += "_" + e;
+            }
+        }
+        return filePath + fileName + ".java";
     }
 
 }
