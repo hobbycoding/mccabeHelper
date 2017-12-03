@@ -247,7 +247,7 @@ public class ReportWorks extends McCabeConfig {
             ArrayList<File> pcfFiles = FileUtil.getFilesRecursive(new File(projectFolder + fs + job.getSysName()), "", "", ".pcf", 0);
             FileJob defaultJob = new FileJob(job.getSysName());
             HashMap<String, FileJob> subjobList = new HashMap<>();
-            if (properties.containsKey("subjobs")) {
+            if (properties.containsKey("subjobs") && properties.getProperty("subjobs").length() > 2) {
                 String raw = properties.getProperty("subjobs").substring(properties.getProperty("subjobs").indexOf("[") + 1, properties.getProperty("subjobs").lastIndexOf("]"));
                 log("[subJob property " + raw + "]");
                 for (String subjob : raw.split(",")) {

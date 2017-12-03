@@ -59,7 +59,7 @@ public class PackageAdder extends McCabeConfig {
         String report_codecov = REPORT_DIR + fs + programName + fs + programName + "_codecov.csv";
         changeReportValue(report_branch);
         changeReportValue(report_codecov);
-        if (property.containsKey("subjobs")) {
+        if (property.containsKey("subjobs") && property.getProperty("subjobs").length() > 2) {
             String raw = property.getProperty("subjobs").substring(property.getProperty("subjobs").indexOf("[") + 1, property.getProperty("subjobs").lastIndexOf("]"));
             log("[subJob property " + raw + "]");
             for (String subjob : raw.split(",")) {
