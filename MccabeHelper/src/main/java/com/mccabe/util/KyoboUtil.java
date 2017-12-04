@@ -3,6 +3,8 @@ package com.mccabe.util;
 import com.mccabe.McCabeConfig;
 import com.mccabe.temp.DBInsert;
 
+import java.io.*;
+import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -13,9 +15,9 @@ public class KyoboUtil {
 
     public static final String REPORT_QUERY = "MERGE INTO REPORT_TABLE T1 " +
             "USING (" +
-            "  SELECT ? FILE_DATE, ? FILE_NAME, ? FILE_NAME_KO, ? FUNTION_NAME, ? FUNTION_NAME_KO, " +
+            "  SELECT ? FILE_DATE, ? FILE_NAME, ? FILE_PACKAGE, ? FILE_NAME_KO, ? FUNTION_NAME, ? FUNTION_NAME_KO, " +
             "    ? SERVICE_ID, ? JOB_NAME, ? MANAGER, ? FILE_TYPE, ? COV_CODE_LINE, ? COV_COVERED_LINE, " +
-            "    ? COV_COVERAGE, ? BRANCH_CODE_LINE, ? BRANCH_COVERED_LINE, ? BRANCH_COVERAGE " +
+            "    ? COV_COVERAGE, ? BRANCH_CODE_LINE, ? BRANCH_COVERED_LINE, ? BRANCH_COVERAGE, ? START_LINE, ? NUM_OF_LINE, ? CODES " +
             "  FROM dual) T2 " +
             "ON (T1.FILE_NAME = T2.FILE_NAME AND T1.FUNTION_NAME = T2.FUNTION_NAME AND T1.FILE_DATE = T2.FILE_DATE ) " +
             "WHEN MATCHED THEN " + "UPDATE SET " +
@@ -25,33 +27,42 @@ public class KyoboUtil {
             "  COV_COVERAGE = T2.COV_COVERAGE, " +
             "  BRANCH_CODE_LINE = T2.BRANCH_CODE_LINE," +
             "  BRANCH_COVERED_LINE = T2.BRANCH_COVERED_LINE," +
-            "  BRANCH_COVERAGE = T2.BRANCH_COVERAGE " +
+            "  START_LINE = T2.START_LINE, " +
+            "  NUM_OF_LINE = T2.NUM_OF_LINE, " +
+            "  CODES = T2.CODES " +
             "WHEN NOT MATCHED THEN " +
-            " INSERT (FILE_DATE, FILE_NAME, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID," +
+            " INSERT (FILE_DATE, FILE_PACKAGE, FILE_NAME, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID," +
             "        JOB_NAME, MANAGER, FILE_TYPE, COV_CODE_LINE, COV_COVERED_LINE, COV_COVERAGE, " +
-            "        BRANCH_CODE_LINE, BRANCH_COVERED_LINE, BRANCH_COVERAGE)" +
-            " VALUES (T2.FILE_DATE, T2.FILE_NAME, T2.FILE_NAME_KO, T2.FUNTION_NAME, T2.FUNTION_NAME_KO, T2.SERVICE_ID," +
+            "        BRANCH_CODE_LINE, BRANCH_COVERED_LINE, BRANCH_COVERAGE, START_LINE, NUM_OF_LINE, CODES)" +
+            " VALUES (T2.FILE_DATE, T2.FILE_PACKAGE, T2.FILE_NAME, T2.FILE_NAME_KO, T2.FUNTION_NAME, T2.FUNTION_NAME_KO, T2.SERVICE_ID," +
             " T2.JOB_NAME, T2.MANAGER, T2.FILE_TYPE, T2.COV_CODE_LINE, T2.COV_COVERED_LINE, T2.COV_COVERAGE, " +
-            " T2.BRANCH_CODE_LINE, T2.BRANCH_COVERED_LINE, T2.BRANCH_COVERAGE)";
+            " T2.BRANCH_CODE_LINE, T2.BRANCH_COVERED_LINE, T2.BRANCH_COVERAGE, T2.START_LINE, T2.NUM_OF_LINE, T2.CODES)";
 
-    public static void insertDB(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws SQLException {
+    public static void insertDB(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws Exception {
         try {
             for (Map.Entry<String, Properties> entry : sourceFile.getMethodContent().entrySet()) {
                 preparedStatement.setString(1, sourceFile.date); // FILE_DATE
                 preparedStatement.setString(2, sourceFile.className); // FILE_NAME
-                preparedStatement.setString(3, sourceFile.getClassContent().getProperty(TAG.logicalName.name(), "")); // FILE_NAME_KO
-                preparedStatement.setString(4, entry.getKey()); // FUNTION_NAME
-                preparedStatement.setString(5, entry.getValue().getProperty((TAG.logicalName.name()), "")); // FUNTION_NAME_KO
-                preparedStatement.setString(6, entry.getValue().getProperty(TAG.serviceID.name(), "")); // SERVICE_ID
-                preparedStatement.setString(7, sourceFile.getClassContent().getProperty(REPORT_TABLE.JOB_NAME.name(), "")); // JOB_NAME
-                preparedStatement.setString(8, ""); // MANAGER
-                preparedStatement.setString(9, sourceFile.getClassContent().getProperty(REPORT_TABLE.FILE_TYPE.name(), "0")); // FILE_TYPE
-                preparedStatement.setInt(10, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_CODE_LINE.name(), "0"))); // COV_CODE_LINE
-                preparedStatement.setInt(11, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_COVERED_LINE.name(), "0"))); // COV_COVERED_LINE
-                preparedStatement.setInt(12, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_COVERAGE.name(), "0"))); // COV_COVERAGE
-                preparedStatement.setInt(13, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.BRANCH_CODE_LINE.name(), "0"))); // BRANCH_CODE_LINE
-                preparedStatement.setInt(14, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.BRANCH_COVERED_LINE.name(), "0"))); // BRANCH_COVERED_LINE
-                preparedStatement.setInt(15, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.BRANCH_COVERAGE.name(), "0"))); // BRANCH_COVERAGE
+                preparedStatement.setString(3, sourceFile.packageName); // FILE_PACKAGE
+                preparedStatement.setString(4, sourceFile.getClassContent().getProperty(TAG.logicalName.name(), "")); // FILE_NAME_KO
+                preparedStatement.setString(5, entry.getKey()); // FUNTION_NAME
+                preparedStatement.setString(6, entry.getValue().getProperty((TAG.logicalName.name()), "")); // FUNTION_NAME_KO
+                preparedStatement.setString(7, entry.getValue().getProperty(TAG.serviceID.name(), "")); // SERVICE_ID
+                preparedStatement.setString(8, sourceFile.getClassContent().getProperty(REPORT_TABLE.JOB_NAME.name(), "")); // JOB_NAME
+                preparedStatement.setString(9, ""); // MANAGER
+                preparedStatement.setString(10, sourceFile.getClassContent().getProperty(REPORT_TABLE.FILE_TYPE.name(), "0")); // FILE_TYPE
+                preparedStatement.setInt(11, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_CODE_LINE.name(), "0"))); // COV_CODE_LINE
+                preparedStatement.setInt(12, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_COVERED_LINE.name(), "0"))); // COV_COVERED_LINE
+                preparedStatement.setInt(13, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_COVERAGE.name(), "0"))); // COV_COVERAGE
+                preparedStatement.setInt(14, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.BRANCH_CODE_LINE.name(), "0"))); // BRANCH_CODE_LINE
+                preparedStatement.setInt(15, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.BRANCH_COVERED_LINE.name(), "0"))); // BRANCH_COVERED_LINE
+                preparedStatement.setInt(16, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.BRANCH_COVERAGE.name(), "0"))); // BRANCH_COVERAGE
+                preparedStatement.setInt(17, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.START_LINE.name(), "0"))); // START_LINE
+                preparedStatement.setInt(18, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.NUM_OF_LINE.name(), "0"))); // NUM_OF_LINE
+                String data = entry.getValue().getProperty(REPORT_TABLE.CODES.name(), "");
+                Clob clob = preparedStatement.getConnection().createClob();
+                clob.setString(1, data);
+                preparedStatement.setClob(19, clob); // CODES
                 preparedStatement.addBatch();
                 preparedStatement.clearParameters();
             }
@@ -62,7 +73,8 @@ public class KyoboUtil {
 
 
     public enum REPORT_TABLE {
-        FILE_NAME, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID, JOB_NAME, MANAGER, FILE_TYPE, COV_CODE_LINE, COV_COVERED_LINE, COV_COVERAGE, BRANCH_CODE_LINE, BRANCH_COVERED_LINE, BRANCH_COVERAGE ,FILE_DATE;
+        FILE_NAME, FILE_DATE, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID, JOB_NAME, MANAGER, FILE_TYPE,
+        COV_CODE_LINE, COV_COVERED_LINE, COV_COVERAGE, BRANCH_CODE_LINE, BRANCH_COVERED_LINE, BRANCH_COVERAGE, START_LINE, NUM_OF_LINE, CODES;
     }
 
     public enum TAG {
