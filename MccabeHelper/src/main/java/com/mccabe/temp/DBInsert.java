@@ -149,7 +149,14 @@ public class DBInsert extends McCabeConfig {
             }
 
             log("[Parse File] : " + reportPath + ".txt");
-            List<String> list = Files.readAllLines(Paths.get(reportPath + ".txt"));
+            List<String> list;
+            try {
+                list = Files.readAllLines(Paths.get(reportPath + ".txt"));
+            } catch (Exception e) {
+                log("MalformedInputException. change encoding UTF-8");
+                FileUtil.write_UTF_8(new File(reportPath + ".txt"));
+                list = Files.readAllLines(Paths.get(reportPath + ".txt"));
+            }
             List<Properties> temp = new ArrayList<>();
             int index = 1;
             for (int i = 0; i < methodContent.size(); ) {

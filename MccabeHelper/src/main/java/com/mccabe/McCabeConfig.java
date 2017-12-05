@@ -2,6 +2,7 @@ package com.mccabe;
 
 
 import com.mccabe.temp.WLog;
+import com.mccabe.util.LibClassLoader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -57,6 +58,7 @@ public class McCabeConfig {
     public McCabeConfig(Properties properties) {
         if (properties != null)
             this.property = properties;
+        LibClassLoader.loadJarIndDir(MCCABE_HOME + fs + "helper" + fs + "lib");
     }
 
     //fuck code..but There is no time...

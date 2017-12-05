@@ -1,9 +1,11 @@
 package com.mccabe.util;
 
 import com.mccabe.McCabeConfig;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -116,6 +118,11 @@ public class FileUtil extends McCabeConfig {
             }
         }
         return filePath + fileName + ".java";
+    }
+
+    public static void write_UTF_8(File file) throws IOException {
+        String content = FileUtils.readFileToString(file, "ISO8859_1");
+        FileUtils.write(file, content, "UTF-8");
     }
 
 }
