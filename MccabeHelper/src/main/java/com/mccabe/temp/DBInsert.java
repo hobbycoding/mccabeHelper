@@ -137,8 +137,8 @@ public class DBInsert extends McCabeConfig {
                         String n = e[0].substring(e[0].indexOf(".") + 1, e[0].length());
                         n = n.replace("%%", ",");
                         log("=line : " + line);
-                        log("=Get " + n);
-                        Properties p = methodContent.get(n);
+                        log("=Get " + MCCABERoleSet.convert(n));
+                        Properties p = methodContent.get(MCCABERoleSet.convert(n));
                         String k = kind;
                         if (k.equals("codecov")) {
                             k = "COV";
