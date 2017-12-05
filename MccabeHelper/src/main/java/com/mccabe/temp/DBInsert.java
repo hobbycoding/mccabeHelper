@@ -63,7 +63,7 @@ public class DBInsert extends McCabeConfig {
     private void executeQuery() throws SQLException {
         try {
             preparedStatement.executeBatch();
-            log("Insert / Update Done.");
+            log("[Insert / Update] Done.");
         } catch (Exception e) {
             throw e;
         } finally {
@@ -124,7 +124,7 @@ public class DBInsert extends McCabeConfig {
             //report file parse
             String reportPath = REPORT_DIR + fs + property.getProperty("programName") + fs + property.getProperty("programName") + "_" + FileUtil.getRoleFileName(file, property.getProperty("srcDir"));
             for (String kind : REPORT_KIND) {
-                log("[File Get] : " + reportPath + "_" + kind + ".csv");
+                log("[Parse File] : " + reportPath + "_" + kind + ".csv");
                 List<String> list = Files.readAllLines(Paths.get(reportPath + "_" + kind + ".csv"));
                 setDate(list.get(0));
                 for (String line : list) {
@@ -134,11 +134,9 @@ public class DBInsert extends McCabeConfig {
                             line = line.replace(sub, sub.replace(",", "%%"));
                         }
                         String[] e = line.split(",");
-                        String n = e[0].substring(e[0].indexOf(".") + 1, e[0].length());
-                        n = n.replace("%%", ",");
-                        log("=line : " + line);
-                        log("=Get " + MCCABERoleSet.convert(n));
-                        Properties p = methodContent.get(MCCABERoleSet.convert(n));
+                        String n = e[0].substring(e[0].indexOf(".") + 1, e[0].length()).replace("%%", ",");
+                        String methodName = MCCABERoleSet.convert(n);
+                        Properties p = methodContent.get(methodName);
                         String k = kind;
                         if (k.equals("codecov")) {
                             k = "COV";
@@ -149,30 +147,32 @@ public class DBInsert extends McCabeConfig {
                     }
                 }
             }
-            // get covered txt
-            log("[File Get] : " + reportPath + ".txt");
+
+            log("[Parse File] : " + reportPath + ".txt");
             List<String> list = Files.readAllLines(Paths.get(reportPath + ".txt"));
-            int index = 0;
             List<Properties> temp = new ArrayList<>();
-            for (; index < list.size(); index++)
-                if (list.get(index).startsWith("   A"))
-                    break;
-            for (; index < list.size(); index++) {
-                if (list.get(index).length() == 0) {
-                    index++;
-                    break;
-                }
-                if (list.get(index).contains(className)) {
-                    String [] raw = list.get(index).split("\\s+");
-                    for (String n : raw) {
-                        if (n.contains(className)) {
-                            String method = n.substring(n.indexOf(".") + 1, n.length());
-                            temp.add(methodContent.get(method));
-                            methodContent.get(method).setProperty(REPORT_TABLE.START_LINE.name(), raw[raw.length - 2]);
-                            methodContent.get(method).setProperty(REPORT_TABLE.NUM_OF_LINE.name(), raw[raw.length - 1]);
-                            break;
-                        }
+            int index = 1;
+            for (int i = 0; i < methodContent.size(); ) {
+                String line = "";
+                if (list.get(++index).startsWith(MCCABERoleSet.getModuleLetter(i))) {
+                    while (!list.get(index).startsWith(MCCABERoleSet.getModuleLetter(i + 1)) && list.get(index).length() != 0) {
+                        line += list.get(index++) + "\n";
                     }
+                    index--;
+                    String module = "", start = "", num = "";
+                    for (String in : line.split("\n")) {
+                        String[] raw = in.split("\\s+");
+                        if (raw.length > 2) {
+                            module = raw[2];
+                            start = raw[raw.length - 2];
+                            num = raw[raw.length - 1];
+                        } else module = module.trim().concat(in.trim());
+                    }
+                    String method = MCCABERoleSet.convert(module.substring(module.indexOf(".") + 1, module.length()));
+                    temp.add(methodContent.get(method));
+                    methodContent.get(method).setProperty(REPORT_TABLE.START_LINE.name(), start);
+                    methodContent.get(method).setProperty(REPORT_TABLE.NUM_OF_LINE.name(), num);
+                    i++;
                 }
             }
 
@@ -185,9 +185,9 @@ public class DBInsert extends McCabeConfig {
                 int end = start + Integer.parseInt(temp.get(i).getProperty(REPORT_TABLE.NUM_OF_LINE.name())) - 1;
                 if (v.startsWith(String.valueOf(start))) {
                     while (!list.get(index).startsWith(String.valueOf(end))) {
-                        code+=list.get(index++) + "\n";
+                        code += list.get(index++) + "\n";
                     }
-                    code+=list.get(index) + "\n";
+                    code += list.get(index) + "\n";
                     temp.get(i++).setProperty(REPORT_TABLE.CODES.name(), code);
                     code = "";
                 }
@@ -212,7 +212,6 @@ public class DBInsert extends McCabeConfig {
                 classContent.setProperty(TAG.logicalName.name(), "");
             return classContent;
         }
-
     }
 
     private static class MethodVisitor extends VoidVisitorAdapter {
@@ -244,7 +243,7 @@ public class DBInsert extends McCabeConfig {
             String n = "";
             for (Parameter parameter : parameters) {
                 String t = MCCABERoleSet.convert(parameter);
-                n+= t + ",";
+                n += t + ",";
             }
             if (n != "")
                 n = n.substring(0, n.length() - 1);
