@@ -11,7 +11,7 @@ import static com.mccabe.McCabeConfig.log;
 
 public class LibClassLoader {
     public static void loadJarIndDir() throws Exception {
-        loadJarIndDir(new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent() + File.pathSeparator + "lib");
+        loadJarIndDir(new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent() + File.separator + "lib");
     }
 
     public static void loadJarIndDir(String dir) {
