@@ -8,15 +8,13 @@ import com.mccabe.util.LibClassLoader;
 import com.mccabe.util.PackageAdder;
 import com.mccabe.util.SFTP;
 
-import java.io.File;
-
 public class Main {
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             System.out.println("uses. [properties path] | [inst | sftp | report | pathvec | PackageAdd | insertDB]");
             System.exit(0);
         }
-        LibClassLoader.loadJarIndDir(System.getProperty("user.dir") + File.separator + "lib");
+        LibClassLoader.loadJarIndDir();
         switch (args[1]) {
             case "inst" :
                 McProcess.main(args);

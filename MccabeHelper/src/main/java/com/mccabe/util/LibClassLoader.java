@@ -8,6 +8,11 @@ import java.net.URLClassLoader;
 import static com.mccabe.McCabeConfig.log;
 
 public class LibClassLoader {
+    public static void loadJarIndDir() throws Exception {
+//        loadJarIndDir(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath() + File.pathSeparator + "lib");
+        loadJarIndDir(new File(".").getCanonicalPath() + File.separator + "lib");
+    }
+
     public static void loadJarIndDir(String dir) {
         try {
             final URLClassLoader loader = (URLClassLoader) ClassLoader.getSystemClassLoader();
