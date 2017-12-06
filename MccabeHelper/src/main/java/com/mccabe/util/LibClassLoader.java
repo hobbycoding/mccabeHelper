@@ -1,5 +1,7 @@
 package com.mccabe.util;
 
+import com.mccabe.Main;
+
 import java.io.File;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -9,8 +11,7 @@ import static com.mccabe.McCabeConfig.log;
 
 public class LibClassLoader {
     public static void loadJarIndDir() throws Exception {
-//        loadJarIndDir(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath() + File.pathSeparator + "lib");
-        loadJarIndDir(new File(".").getCanonicalPath() + File.separator + "lib");
+        loadJarIndDir(new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent() + File.pathSeparator + "lib");
     }
 
     public static void loadJarIndDir(String dir) {
