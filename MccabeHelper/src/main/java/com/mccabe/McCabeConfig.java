@@ -2,7 +2,6 @@ package com.mccabe;
 
 
 import com.mccabe.temp.WLog;
-import com.mccabe.util.LibClassLoader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -58,7 +57,6 @@ public class McCabeConfig {
     public McCabeConfig(Properties properties) {
         if (properties != null)
             this.property = properties;
-        LibClassLoader.loadJarIndDir(MCCABE_HOME + fs + "helper" + fs + "lib");
     }
 
     //fuck code..but There is no time...
@@ -139,6 +137,7 @@ public class McCabeConfig {
     public static void log(Object msg) {
         String v = "[" + Calendar.getInstance().getTime().toString() + "] " + msg;
         System.out.println(v);
-        log.write(v);
+        if (log != null)
+            log.write(v);
     }
 }

@@ -1,19 +1,5 @@
 package com.mccabe.report;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
-
-import jxl.Workbook;
-import jxl.write.Label;
-import jxl.write.WritableSheet;
-import jxl.write.WritableWorkbook;
-import jxl.write.WriteException;
-import jxl.write.biff.RowsExceededException;
-
 import com.mccabe.McCabeConfig;
 import com.mccabe.util.FileUtil;
 import com.mccabe.util.OSUtil;
@@ -21,11 +7,26 @@ import com.mccabe.util.StringUtil;
 import com.mccabe.vo.Job;
 import com.mccabe.vo.PCF;
 import com.mccabe.vo.Program;
+import jxl.Workbook;
+import jxl.write.Label;
+import jxl.write.WritableSheet;
+import jxl.write.WritableWorkbook;
+import jxl.write.WriteException;
+import jxl.write.biff.RowsExceededException;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 public class ReportWorks extends McCabeConfig {
-    private static Properties properties;
 
     public ReportWorks(Properties properties) {
         super(properties);
@@ -102,7 +103,7 @@ public class ReportWorks extends McCabeConfig {
         if (isAccumulated) {
             pcf.setAccumulateTraceFiles(FileUtil.getFilesRecursive(new File(TRACEFILE_HOME), "", pcf.getProjectNameMinusTrId(), ".out", 0));
         } else {
-            pcf.setAccumulateTraceFiles(FileUtil.getFilesRecursive(new File(TRACEFILE_HOME + fs + properties.getProperty("programName")), "", pcf.getProjectName(), ".out", 0));
+            pcf.setAccumulateTraceFiles(FileUtil.getFilesRecursive(new File(TRACEFILE_HOME + fs + property.getProperty("programName")), "", pcf.getProjectName(), ".out", 0));
         }
         return pcf;
     }
@@ -225,11 +226,13 @@ public class ReportWorks extends McCabeConfig {
      * @param args
      */
     public static void main(String[] args) throws Exception {
-        properties = changeProperties(args);
-        ReportWorks works = new ReportWorks(properties);
+        ReportWorks works = new ReportWorks(changeProperties(args));
+        works.work();
+    }
 
+    private void work() {
         Job job = new Job();
-        job.setSysName(properties.getProperty("programName", ""));
+        job.setSysName(property.getProperty("programName", ""));
         try {
             log("programName--->" + job.getSysName());
             File projectFolder = new File(PROJECT_DIR);
@@ -247,22 +250,22 @@ public class ReportWorks extends McCabeConfig {
             ArrayList<File> pcfFiles = FileUtil.getFilesRecursive(new File(projectFolder + fs + job.getSysName()), "", "", ".pcf", 0);
             FileJob defaultJob = new FileJob(job.getSysName());
             HashMap<String, FileJob> subjobList = new HashMap<>();
-            if (properties.containsKey("subjobs") && properties.getProperty("subjobs").length() > 2) {
-                String raw = properties.getProperty("subjobs").substring(properties.getProperty("subjobs").indexOf("[") + 1, properties.getProperty("subjobs").lastIndexOf("]"));
+            if (property.containsKey("subjobs") && property.getProperty("subjobs").length() > 2) {
+                String raw = property.getProperty("subjobs").substring(property.getProperty("subjobs").indexOf("[") + 1, property.getProperty("subjobs").lastIndexOf("]"));
                 log("[subJob property " + raw + "]");
                 for (String subjob : raw.split(",")) {
                     subjob = subjob.trim();
                     log("[SubJob Found. " + subjob + "]");
-                    subjobList.put((properties.getProperty("programName") + fs + subjob.trim()).replace(fs, "_"), new FileJob(properties.getProperty("programName") + "_" + subjob.replace(fs, "_")));
+                    subjobList.put((property.getProperty("programName") + fs + subjob.trim()).replace(fs, "_"), new FileJob(property.getProperty("programName") + "_" + subjob.replace(fs, "_")));
                 }
             }
             for (File file : pcfFiles) {
                 if (fileList != null && !fileList.contains(file.getName().replace(".pcf", "")))
                     continue;
-                PCF pcf = works.parse(file);
-                if (works.existOriginalSource(pcf)) {
-                    pcf = works.initializeTraceFileSet(pcf, false);
-                    ArrayList<String> commands = works.makeCommandSetForReport(pcf, job);
+                PCF pcf = parse(file);
+                if (existOriginalSource(pcf)) {
+                    pcf = initializeTraceFileSet(pcf, false);
+                    ArrayList<String> commands = makeCommandSetForReport(pcf, job);
                     for (String command : commands) {
                         OSUtil.executeCommand(command);
                     }
@@ -294,7 +297,7 @@ public class ReportWorks extends McCabeConfig {
         private String programName;
 
         public FileJob(String jobName) throws IOException {
-            this.programName =  properties.getProperty("programName");
+            this.programName =  property.getProperty("programName");
             this.branch = new File(REPORT_DIR + fs + programName + fs + jobName + "_branch.csv");
             this.codecov = new File(REPORT_DIR + fs + programName + fs + jobName + "_codecov.csv");
             clearFile(branch);

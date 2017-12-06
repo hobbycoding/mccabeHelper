@@ -1,7 +1,6 @@
 package com.mccabe.util;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -14,7 +13,7 @@ public class LibClassLoader {
             final URLClassLoader loader = (URLClassLoader) ClassLoader.getSystemClassLoader();
             final Method method = URLClassLoader.class.getDeclaredMethod("addURL", new Class[]{URL.class});
             method.setAccessible(true);
-
+            log("Load lib path : " + dir);
             new File(dir).listFiles(jar -> {
                 // jar 파일인 경우만 로딩
                 if (jar.toString().toLowerCase().contains(".jar")) {
