@@ -10,5 +10,6 @@
     <modules>
         <module>MccabeHelper</module>
         <module>sampleCode</module>
+        <module>WebApp</module>
     </modules>
 </project>
