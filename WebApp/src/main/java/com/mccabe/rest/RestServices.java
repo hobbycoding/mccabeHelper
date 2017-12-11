@@ -7,10 +7,9 @@ import javax.ws.rs.core.MediaType;
 public class RestServices {
     private static DBService dbService = new DBService();
     @POST
-    @Path("/{param}")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getMsg(@PathParam("param") String msg) {
-        return dbService.doProcess(msg);
+    @Path("/process")
+    @Consumes(MediaType.TEXT_PLAIN)
+    public String process(String json) {
+        return dbService.doProcess(json);
     }
 }
