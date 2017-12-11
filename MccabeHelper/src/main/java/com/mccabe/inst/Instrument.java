@@ -74,7 +74,7 @@ public class Instrument extends McCabeConfig {
                             } else {
                                 for (String fileName : extendFileNames) {
                                     if (fileDir.getName().endsWith(fileName)) {
-                                        log.write("gathering : " + pwd + prop.getProperty("fs") + fileDir.getName() + "  ");
+                                        log.write("gathering : " + pwd + fs + fileDir.getName() + "  ");
                                         fileList.add(fileDir);
                                         break;
                                     }

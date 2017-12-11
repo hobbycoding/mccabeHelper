@@ -25,8 +25,8 @@ public class PathVecChanger extends McCabeConfig {
             String outPath = property.getProperty("tracefile.outPath").endsWith(fs) ?
                     property.getProperty("tracefile.outPath") : property.getProperty("tracefile.outPath") + fs;
             String pathVecFilePath = property.getProperty("COMDIR") + fs + "com" + fs + "mccabe" + fs + "PathVec_" + program + "_" + property.getProperty("fileName") + ".java";
-            log("[Path] : " + pathVecFilePath);
-            log("[OutPath] : " + outPath);
+            log("[File Path] : " + pathVecFilePath);
+            log("[Will Change OutPath] : " + outPath);
             readFile(pathVecFilePath, outPath);
         } catch (Exception e) {
             e.printStackTrace();

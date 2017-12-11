@@ -25,7 +25,8 @@ public class McProcess extends McCabeConfig {
             if (SPLIT_FILE) {
                 HashSet<String> fileNameList = new HashSet<>();
                 for (File file : fileList) {
-                    String fileName = FileUtil.getRoleFileName(file, property.getProperty("srcDir"));
+                    String srcDir = property.containsKey("tempDir") ? property.getProperty("tempDir") : property.getProperty("srcDir");
+                    String fileName = FileUtil.getRoleFileName(file, srcDir);
                     String instDir = property.getProperty("projectDir") + fs + fileName;
                     new File(instDir).mkdirs();
                     property.setProperty("fileName", fileName);
