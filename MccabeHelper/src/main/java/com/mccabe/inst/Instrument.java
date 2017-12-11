@@ -53,8 +53,10 @@ public class Instrument extends McCabeConfig {
     public List<File> gathering(Properties prop, String pwd) {
         if (fileList == null) fileList = new ArrayList();
         try {
-            String filePath =  prop.containsKey("tempDir") ? prop.getProperty("tempDir") : prop.getProperty("srcDir");
-            filePath+= fs + pwd;
+            String filePath = prop.containsKey("tempDir") ? prop.getProperty("tempDir") : prop.getProperty("srcDir");
+            if (!filePath.endsWith(fs))
+                filePath += fs;
+            filePath += pwd;
             log("gathering " + filePath);
             try {
                 File fileDir = new File(filePath);
