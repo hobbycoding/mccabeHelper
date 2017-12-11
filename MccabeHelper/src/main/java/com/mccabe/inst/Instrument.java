@@ -54,7 +54,8 @@ public class Instrument extends McCabeConfig {
         if (fileList == null) fileList = new ArrayList();
         try {
             String filePath =  prop.containsKey("tempDir") ? prop.getProperty("tempDir") : prop.getProperty("srcDir");
-            filePath+= prop.getProperty("fs") + pwd;
+            filePath+= fs + pwd;
+            log("gathering " + filePath);
             try {
                 File fileDir = new File(filePath);
                 if (fileDir.isDirectory()) {
