@@ -3,12 +3,12 @@ package com.mccabe.rest;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 
 import java.sql.*;
 
 public class DBService {
     // property : method [getOverView, detailView, getExcel], where [ex)2017-12-11],
+    // ex) {"method" : "getOverView", "where" : "2017-12-11"}
     public String doProcess(String msg) {
         JSONArray result = null;
         try {
@@ -35,8 +35,7 @@ public class DBService {
         Statement statement = importStatementAfterConnect();
         String query = Query.getOverView(jsonObject.get("where").toString());
         ResultSet resultSet = statement.executeQuery(query);
-        JSONArray jsonArray = mashalingJSON(resultSet);
-        return jsonArray;
+        return mashalingJSON(resultSet);
     }
 
     private Statement importStatementAfterConnect() throws Exception {
@@ -59,9 +58,5 @@ public class DBService {
             json.add(obj);
         }
         return json;
-    }
-
-    class OverView {
-
     }
 }
