@@ -50,6 +50,7 @@ public class McProcess extends McCabeConfig {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            log(e.getMessage());
         } finally {
             try {
                 if (log != null) log.close();

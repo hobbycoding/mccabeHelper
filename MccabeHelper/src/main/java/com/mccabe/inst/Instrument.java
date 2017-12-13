@@ -201,7 +201,7 @@ public class Instrument extends McCabeConfig {
             Process p = Runtime.getRuntime().exec(prop.getProperty("cliExport") + pcfFile);
             p.waitFor();
         } catch (Exception e) {
-            log.write(this.getClass().getName() + "\n" + e);
+            log(this.getClass().getName() + "\n" + e);
         }
     }
 
