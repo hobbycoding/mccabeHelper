@@ -32,7 +32,7 @@ public class McProcess extends McCabeConfig {
                     property.setProperty("fileName", fileName);
                     property.setProperty("instDir", instDir);
                     property.setProperty("COMDIR", instDir + fs + fileName.split("_")[0]);
-                    inst.pcfCreate(property, file);
+                    inst.pcfCreate(file);
                     property.setProperty("fileName", fileName);
                     inst.cliExport(property);
                     PathVecChanger changer = new PathVecChanger(property);
