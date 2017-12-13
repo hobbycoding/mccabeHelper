@@ -148,8 +148,8 @@ public class Instrument extends McCabeConfig {
             String absoutePath = file.getAbsolutePath();
             String packageFilePath;
             if (property.containsKey("tempDir"))
-                packageFilePath = absoutePath.replace(property.getProperty("tempDir"), "");
-            else packageFilePath = absoutePath.replace(property.getProperty("srcDir"), "");
+                packageFilePath = absoutePath.replace(property.getProperty("tempDir"), "").substring(1);
+            else packageFilePath = absoutePath.replace(property.getProperty("srcDir"), "").substring(1);
             fw.append(System.getProperty("line.separator") + "cw_Java_inst " + packageFilePath + cw_Java_inst_option);
         } catch (Exception e) {
             log(this.getClass().getName() + "\n" + e);
