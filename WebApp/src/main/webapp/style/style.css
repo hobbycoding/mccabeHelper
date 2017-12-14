@@ -252,7 +252,7 @@ ul#menu li a:hover
 { font: 100% arial; 
   border: 1px solid; 
   width: 99px; 
-  margin: 0 0 0 212px; 
+  margin: 0 0 0 2px;
   height: 33px;
   padding: 2px 0 3px 0;
   cursor: pointer; 

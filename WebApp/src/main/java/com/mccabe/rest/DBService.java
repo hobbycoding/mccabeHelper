@@ -50,7 +50,9 @@ public class DBService {
         Statement statement = importStatementAfterConnect();
         String query = Query.getOverView(jsonObject.get("where").toString());
         ResultSet resultSet = statement.executeQuery(query);
-        return mashalingJSON(resultSet);
+        JSONArray result = mashalingJSON(resultSet);
+        statement.getConnection().close();
+        return result;
     }
 
     private Statement importStatementAfterConnect() throws Exception {
