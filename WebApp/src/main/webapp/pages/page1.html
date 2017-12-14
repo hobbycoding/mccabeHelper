@@ -33,37 +33,38 @@
     <div id="content_header"></div>
     <div id="site_content">
         <h2>Tables</h2>
-        <input type="submit" value="refresh" style="float:right">
-        <input type="text" name="name" value="" style="float:right"/>
+        <input type="submit" value="refresh" onclick="refresh();" style="float:right">
+        <input id="search" type="text" name="name" value="" style="float:right"/>
         <p></p>
         <p id="table"></p>
         <script>
-            var category = ["시스템", "업무분류", "전체Program", "테스트된 Program", "80% 미만 Program", "전체 Funtion", "테스트된 Function", "COVERAGE", "미테스트 Program"];
-            var obj, dbParam, xmlhttp, jsonArray, header = "", content = "";
-            obj = {"method" : "getOverView", "where" : "2017-12-11"};
-            dbParam = JSON.stringify(obj);
-            xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function() {
-                if (this.readyState == 4 && this.status == 200) {
-                    jsonArray = JSON.parse(this.responseText);
-                    header += "<table style=\"width:100%; border-spacing:0;\"><tr>";
-                    for (index in jsonArray) {
-                        content+= "<tr>";
-                        for (entry in jsonArray[index]) {
-                            if (index == 0)
-                                header += "<th>" + entry + "</th>";
-                            content+="<td>" + jsonArray[index][entry] + "</td>";
+            function refresh() {
+                var category = ["시스템", "업무분류", "전체Program", "테스트된 Program", "80% 미만 Program", "전체 Funtion", "테스트된 Function", "COVERAGE", "미테스트 Program"];
+                var obj, dbParam, xmlhttp, jsonArray, header = "", content = "";
+                obj = {"method" : "getOverView", "where" : document.getElementById("search").value};
+                dbParam = JSON.stringify(obj);
+                xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        jsonArray = JSON.parse(this.responseText);
+                        header += "<table style=\"width:100%; border-spacing:0;\"><tr>";
+                        for (var index in jsonArray) {
+                            content+= "<tr>";
+                            for (var entry in category) {
+                                if (index == 0)
+                                    header += "<th>" + category[entry] + "</th>";
+                                content+="<td>" + jsonArray[index][category[entry]] + "</td>";
+                            }
                         }
-                        content+= "</tr>";
+                        header+="</tr>";
+                        console.log(header + content + "</table>");
+                        document.getElementById("table").innerHTML = header + content + "</table>";
                     }
-                    header+="</tr>";
-                    console.log(header + content + "</table>");
-                    document.getElementById("table").innerHTML = header + content + "</table>";
-                }
-            };
-            xmlhttp.open("POST", "../rest/mccabe/process", true);
-            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-            xmlhttp.send(dbParam);
+                };
+                xmlhttp.open("POST", "../rest/mccabe/process", true);
+                xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xmlhttp.send(dbParam);
+            }
         </script>
     </div>
     <div id="content_footer"></div>
