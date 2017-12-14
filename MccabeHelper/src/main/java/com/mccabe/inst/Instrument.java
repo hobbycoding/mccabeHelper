@@ -38,11 +38,11 @@ public class Instrument extends McCabeConfig {
                         gatheringAll(prop, pwd + prop.getProperty("fs") + file.getName());
                     }
                 } else if (fileDir.isFile()) {
-                    log.write("gatheringAll : " + pwd + prop.getProperty("fs") + fileDir.getName() + "  ");
+                    log("gatheringAll : " + pwd + prop.getProperty("fs") + fileDir.getName() + "  ");
                     fileListAll.add(fileDir);
                 }
             } catch (Exception e) {
-                log.write(e);
+                log(e);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,8 +54,6 @@ public class Instrument extends McCabeConfig {
         if (fileList == null) fileList = new ArrayList();
         try {
             String filePath = prop.containsKey("tempDir") ? prop.getProperty("tempDir") : prop.getProperty("srcDir");
-            if (!filePath.endsWith(fs))
-                filePath += fs;
             filePath += pwd;
             log("gathering " + filePath);
             try {
@@ -74,7 +72,7 @@ public class Instrument extends McCabeConfig {
                             } else {
                                 for (String fileName : extendFileNames) {
                                     if (fileDir.getName().endsWith(fileName)) {
-                                        log.write("gathering : " + pwd + fs + fileDir.getName() + "  ");
+                                        log("gathering : " + pwd + fs + fileDir.getName() + "  ");
                                         fileList.add(fileDir);
                                         break;
                                     }
@@ -84,10 +82,10 @@ public class Instrument extends McCabeConfig {
                     }
                 }
             } catch (Exception e) {
-                log.write(e);
+                log(e);
             }
         } catch (Exception e) {
-            log.write(this.getClass().getName() + "\n" + e);
+            log(this.getClass().getName() + "\n" + e);
         }
         return fileList;
     }
@@ -111,7 +109,7 @@ public class Instrument extends McCabeConfig {
                 }
                 if (flag) continue;
 
-                log.write("copySrcToInst : " + prop.getProperty("instDir") + packageName);
+                log("copySrcToInst : " + prop.getProperty("instDir") + packageName);
                 if (file.isDirectory()) {
                     new File(prop.getProperty("instDir") + packageName).mkdirs();
                 } else {
@@ -125,35 +123,36 @@ public class Instrument extends McCabeConfig {
                 }
             }
         } catch (Exception e) {
-            log.write(this.getClass().getName() + "\n" + e);
+            log(this.getClass().getName() + "\n" + e);
         }
         return fileList;
     }
 
-    public void pcfCreate(Properties prop, File file) throws Exception {
-        String pcfFile = prop.getProperty("fileName") + ".pcf";
+    public void pcfCreate(File file) throws Exception {
+        String pcfFile = property.getProperty("fileName") + ".pcf";
         FileWriter fw = null;
-        String filePath = prop.getProperty("instDir") + fs + pcfFile;
+        String filePath = property.getProperty("instDir") + fs + pcfFile;
         try {
             fw = new FileWriter(filePath, false);
-            fw.append("PROGRAM " + prop.getProperty("projectName") + "_" + prop.getProperty("fileName"));
-            fw.append(System.getProperty("line.separator") + "INSTDIR " + prop.getProperty("instDir"));
-            fw.append(System.getProperty("line.separator") + "INSTOUT " + prop.getProperty("instDir") + prop.getProperty("fs") + "inst.out");
-            fw.append(System.getProperty("line.separator") + "COMDIR " + prop.getProperty("COMDIR"));
+            fw.append("PROGRAM " + property.getProperty("projectName") + "_" + property.getProperty("fileName"));
+            fw.append(System.getProperty("line.separator") + "INSTDIR " + property.getProperty("instDir"));
+            fw.append(System.getProperty("line.separator") + "INSTOUT " + property.getProperty("instDir") + property.getProperty("fs") + "inst.out");
+            fw.append(System.getProperty("line.separator") + "COMDIR " + property.getProperty("COMDIR"));
             fw.append(System.getProperty("line.separator") + "METRICS_LEVEL 3");
             fw.append(System.getProperty("line.separator") + "EXPORTTREE");
             fw.append(System.getProperty("line.separator") + "SCOPEINST");
-            fw.append(System.getProperty("line.separator") + "DIR " + prop.getProperty("srcDir"));
+            fw.append(System.getProperty("line.separator") + "DIR " + property.getProperty("srcDir"));
             fw.append(System.getProperty("line.separator") + "NO_COVERAGE_SERVER");
 
-            String dir = prop.getProperty("srcDir");
-            int dirLeng = dir.length();
-            String cw_Java_inst_option = " -PATHVEC -CLASS -MODSIG -HALSTEAD -PARAM -DATA -NOCLASSMSGS -OVERLOAD -MODE JDK" + prop.getProperty("javaVersion");
+            String cw_Java_inst_option = " -PATHVEC -CLASS -MODSIG -HALSTEAD -PARAM -DATA -NOCLASSMSGS -OVERLOAD -MODE JDK" + property.getProperty("javaVersion");
             String absoutePath = file.getAbsolutePath();
-            String packageFilePath = absoutePath.substring(dirLeng + 1);
+            String packageFilePath;
+            if (property.containsKey("tempDir"))
+                packageFilePath = absoutePath.replace(property.getProperty("tempDir"), "").substring(1);
+            else packageFilePath = absoutePath.replace(property.getProperty("srcDir"), "").substring(1);
             fw.append(System.getProperty("line.separator") + "cw_Java_inst " + packageFilePath + cw_Java_inst_option);
         } catch (Exception e) {
-            log.write(this.getClass().getName() + "\n" + e);
+            log(this.getClass().getName() + "\n" + e);
         } finally {
             try {
                 if (fw != null) fw.close();
@@ -187,7 +186,7 @@ public class Instrument extends McCabeConfig {
             }
 
         } catch (Exception e) {
-            log.write(this.getClass().getName() + "\n" + e);
+            log(this.getClass().getName() + "\n" + e);
         } finally {
             try {
                 if (fw != null) fw.close();
@@ -199,11 +198,11 @@ public class Instrument extends McCabeConfig {
     public void cliExport(Properties prop) {
         try {
             String pcfFile = prop.getProperty("instDir") + fs + prop.getProperty("fileName") + ".pcf";
-            log.write(prop.getProperty("cliExport") + pcfFile);
+            log(prop.getProperty("cliExport") + pcfFile);
             Process p = Runtime.getRuntime().exec(prop.getProperty("cliExport") + pcfFile);
             p.waitFor();
         } catch (Exception e) {
-            log.write(this.getClass().getName() + "\n" + e);
+            log(this.getClass().getName() + "\n" + e);
         }
     }
 
