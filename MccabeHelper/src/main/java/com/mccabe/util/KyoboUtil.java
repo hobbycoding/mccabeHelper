@@ -2,14 +2,12 @@ package com.mccabe.util;
 
 import com.mccabe.McCabeConfig;
 import com.mccabe.temp.DBInsert;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.io.*;
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.Map;
-import java.util.Properties;
+import java.sql.*;
+import java.util.*;
 
 public class KyoboUtil {
 
@@ -37,6 +35,7 @@ public class KyoboUtil {
             " VALUES (T2.FILE_DATE, T2.FILE_PACKAGE, T2.FILE_NAME, T2.FILE_NAME_KO, T2.FUNTION_NAME, T2.FUNTION_NAME_KO, T2.SERVICE_ID," +
             " T2.JOB_NAME, T2.MANAGER, T2.FILE_TYPE, T2.COV_CODE_LINE, T2.COV_COVERED_LINE, T2.COV_COVERAGE, " +
             " T2.BRANCH_CODE_LINE, T2.BRANCH_COVERED_LINE, T2.BRANCH_COVERAGE, T2.START_LINE, T2.NUM_OF_LINE, T2.CODES)";
+    public static final String SELECT_PACKAGE_NAME = "SELECT PACKAGE_NAME, PACKAGE_NAME_KO, SYSTEM_ID FROM PACKAGE_NAME";
 
     public static void putInsertQueryInPrepared(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws Exception {
         try {
@@ -71,10 +70,26 @@ public class KyoboUtil {
         }
     }
 
+    public static Map<String, List<String>> getCategoryNameFromDB(Statement statement) throws SQLException {
+        Map<String, List<String>> map = new HashMap<>();
+        ResultSet resultSet = statement.executeQuery(SELECT_PACKAGE_NAME);
+        while (resultSet.next()) {
+            List<String> obj = new ArrayList<>();
+            obj.add(0, resultSet.getString(PACKAGE_NAME.PACKAGE_NAME_KO.name()));
+            obj.add(1, resultSet.getString(3) == null ? "" : resultSet.getString(3));
+            map.put(resultSet.getString(PACKAGE_NAME.PACKAGE_NAME.name()), obj);
+        }
+        return map;
+    }
+
 
     public enum REPORT_TABLE {
         FILE_NAME, FILE_DATE, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID, JOB_NAME, JOB_CATEGORY, MANAGER, FILE_TYPE,
         COV_CODE_LINE, COV_COVERED_LINE, COV_COVERAGE, BRANCH_CODE_LINE, BRANCH_COVERED_LINE, BRANCH_COVERAGE, START_LINE, NUM_OF_LINE, CODES;
+    }
+
+    public enum PACKAGE_NAME {
+        PACKAGE_NAME, PACKAGE_NAME_KO, SYSYTEM_ID
     }
 
     public enum TAG {

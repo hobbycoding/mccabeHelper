@@ -30,6 +30,7 @@ import static com.mccabe.util.KyoboUtil.TAG;
 import static com.mccabe.util.KyoboUtil.REPORT_TABLE;
 
 public class DBInsert extends McCabeConfig {
+    private static Map<String, List<String>> packageNames;
     private Connection connection = null;
     private PreparedStatement preparedStatement;
 
@@ -45,9 +46,10 @@ public class DBInsert extends McCabeConfig {
     public void start() {
         try {
             connectDB();
+            setPackageNames();
             List<File> fileList = getFileList();
             for (File file : fileList) {
-                SourceFile sourceFile = new SourceFile(file, connection);
+                SourceFile sourceFile = new SourceFile(file);
                 sourceFile.parse();
                 KyoboUtil.putInsertQueryInPrepared(sourceFile, preparedStatement);
             }
@@ -81,10 +83,16 @@ public class DBInsert extends McCabeConfig {
         preparedStatement = connection.prepareStatement(REPORT_QUERY);
     }
 
+    private void setPackageNames() throws SQLException {
+        Statement statement = connection.createStatement();
+        packageNames = KyoboUtil.getCategoryNameFromDB(statement);
+        statement.close();
+    }
+
     private List<File> getFileList() throws Exception {
         List<File> result = new ArrayList<>();
         Path fileList_json = Paths.get(PROJECT_DIR + fs + property.getProperty("programName") + fs + FILE_LIST_JSON);
-        JSONArray fileList = null;
+        JSONArray fileList = new JSONArray();
         if (Files.exists(fileList_json)) {
             fileList = (JSONArray) new JSONParser().parse(new String(Files.readAllBytes(fileList_json), "UTF-8"));
         } else {
@@ -104,15 +112,15 @@ public class DBInsert extends McCabeConfig {
         private final String[] REPORT_KIND = {"branch", "codecov"};
         private final Map<String, Properties> methodContent = new HashMap<>();
         private final Properties classContent = new Properties();
-        private final Connection connection;
         private final File file;
         public String className;
         public String packageName;
+        public String pakageName_ko = "";
+        public String system_id = "";
         public String date;
 
-        public SourceFile(File file, Connection connection) {
+        public SourceFile(File file) {
             this.file = file;
-            this.connection = connection;
         }
 
         public void parse() throws Exception {
@@ -143,7 +151,6 @@ public class DBInsert extends McCabeConfig {
         }
 
         private String parseReportCSVFile(String reportPath) throws IOException {
-
             for (String kind : REPORT_KIND) {
                 log("[Parse File] : " + reportPath + "_" + kind + ".csv");
                 List<String> list = Files.readAllLines(Paths.get(reportPath + "_" + kind + ".csv"));
@@ -226,8 +233,16 @@ public class DBInsert extends McCabeConfig {
         }
 
         private void parsePackageName() throws SQLException {
-            Statement statement = connection.createStatement();
-
+            String[] split = packageName.split(".");
+            String word = "KV3_MDL_";
+            for (int index = 1; index < split.length; index++) {
+                word += split[index];
+                if (packageNames.containsKey(word)) {
+                    pakageName_ko = packageNames.get(word).get(0);
+                    system_id = packageNames.get(word).get(1);
+                }
+                word +="_";
+            }
         }
 
         private void setDate(String date) {
