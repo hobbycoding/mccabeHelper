@@ -38,7 +38,7 @@ public class KyoboUtil {
             " T2.JOB_NAME, T2.MANAGER, T2.FILE_TYPE, T2.COV_CODE_LINE, T2.COV_COVERED_LINE, T2.COV_COVERAGE, " +
             " T2.BRANCH_CODE_LINE, T2.BRANCH_COVERED_LINE, T2.BRANCH_COVERAGE, T2.START_LINE, T2.NUM_OF_LINE, T2.CODES)";
 
-    public static void insertDB(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws Exception {
+    public static void putInsertQueryInPrepared(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws Exception {
         try {
             for (Map.Entry<String, Properties> entry : sourceFile.getMethodContent().entrySet()) {
                 preparedStatement.setString(1, sourceFile.date); // FILE_DATE
@@ -73,7 +73,7 @@ public class KyoboUtil {
 
 
     public enum REPORT_TABLE {
-        FILE_NAME, FILE_DATE, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID, JOB_NAME, MANAGER, FILE_TYPE,
+        FILE_NAME, FILE_DATE, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID, JOB_NAME, JOB_CATEGORY, MANAGER, FILE_TYPE,
         COV_CODE_LINE, COV_COVERED_LINE, COV_COVERAGE, BRANCH_CODE_LINE, BRANCH_COVERED_LINE, BRANCH_COVERAGE, START_LINE, NUM_OF_LINE, CODES;
     }
 

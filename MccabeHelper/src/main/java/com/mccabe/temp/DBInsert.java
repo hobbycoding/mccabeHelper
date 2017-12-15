@@ -16,13 +16,11 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,9 +47,9 @@ public class DBInsert extends McCabeConfig {
             connectDB();
             List<File> fileList = getFileList();
             for (File file : fileList) {
-                SourceFile sourceFile = new SourceFile(file);
+                SourceFile sourceFile = new SourceFile(file, connection);
                 sourceFile.parse();
-                KyoboUtil.insertDB(sourceFile, preparedStatement);
+                KyoboUtil.putInsertQueryInPrepared(sourceFile, preparedStatement);
             }
             executeQuery();
         } catch (Exception e) {
@@ -104,15 +102,17 @@ public class DBInsert extends McCabeConfig {
 
     public static class SourceFile {
         private final String[] REPORT_KIND = {"branch", "codecov"};
-        private Map<String, Properties> methodContent = new HashMap<>();
-        private Properties classContent = new Properties();
-        private File file;
+        private final Map<String, Properties> methodContent = new HashMap<>();
+        private final Properties classContent = new Properties();
+        private final Connection connection;
+        private final File file;
         public String className;
         public String packageName;
         public String date;
 
-        public SourceFile(File file) {
+        public SourceFile(File file, Connection connection) {
             this.file = file;
+            this.connection = connection;
         }
 
         public void parse() throws Exception {
@@ -121,8 +121,29 @@ public class DBInsert extends McCabeConfig {
             new MethodVisitor().visit(cu, this);
             if (!file.getName().equals(className.concat(".java")))
                 log("file : [" + file.getName() + "] and class [" + className + "] are not equal. use class.");
-            //report file parse
-            String reportPath = REPORT_DIR + fs + property.getProperty("programName") + fs + property.getProperty("programName") + "_" + FileUtil.getRoleFileName(file, property.getProperty("srcDir"));
+            String reportPath = REPORT_DIR + fs + property.getProperty("programName") + fs +
+                    property.getProperty("programName") + "_" + FileUtil.getRoleFileName(file, property.getProperty("srcDir"));
+            parseReportCSVFile(reportPath);
+            parseCoverdLineTextFile(reportPath);
+            parsePackageName();
+        }
+
+        public void setClassName(String className) {
+            this.className = className;
+        }
+
+        public Map<String, Properties> getMethodContent() {
+            return methodContent;
+        }
+
+        public Properties getClassContent() {
+            if (!classContent.containsKey(TAG.logicalName.name()))
+                classContent.setProperty(TAG.logicalName.name(), "");
+            return classContent;
+        }
+
+        private String parseReportCSVFile(String reportPath) throws IOException {
+
             for (String kind : REPORT_KIND) {
                 log("[Parse File] : " + reportPath + "_" + kind + ".csv");
                 List<String> list = Files.readAllLines(Paths.get(reportPath + "_" + kind + ".csv"));
@@ -147,7 +168,10 @@ public class DBInsert extends McCabeConfig {
                     }
                 }
             }
+            return reportPath;
+        }
 
+        private void parseCoverdLineTextFile(String reportPath) throws IOException {
             log("[Parse File] : " + reportPath + ".txt");
             List<String> list;
             try {
@@ -201,23 +225,14 @@ public class DBInsert extends McCabeConfig {
             }
         }
 
+        private void parsePackageName() throws SQLException {
+            Statement statement = connection.createStatement();
+
+        }
+
         private void setDate(String date) {
             String[] s = date.split("/");
             this.date = "20" + s[2] + "-" + s[0] + "-" + s[1];
-        }
-
-        public void setClassName(String className) {
-            this.className = className;
-        }
-
-        public Map<String, Properties> getMethodContent() {
-            return methodContent;
-        }
-
-        public Properties getClassContent() {
-            if (!classContent.containsKey(TAG.logicalName.name()))
-                classContent.setProperty(TAG.logicalName.name(), "");
-            return classContent;
         }
     }
 
