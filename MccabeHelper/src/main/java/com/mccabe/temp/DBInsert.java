@@ -233,10 +233,10 @@ public class DBInsert extends McCabeConfig {
         }
 
         private void parsePackageName() throws SQLException {
-            String[] split = packageName.split(".");
+            String[] split = packageName.split("\\.");
             String word = "KV3_MDL_";
             for (int index = 1; index < split.length; index++) {
-                word += split[index];
+                word += split[index].toUpperCase();
                 if (packageNames.containsKey(word)) {
                     pakageName_ko = packageNames.get(word).get(0);
                     system_id = packageNames.get(word).get(1);
