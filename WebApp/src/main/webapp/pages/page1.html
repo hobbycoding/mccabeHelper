@@ -42,7 +42,8 @@
         <script>
             document.getElementById("search").valueAsDate = new Date();
             function refresh() {
-                var category = ["시스템", "업무분류", "전체Program", "테스트된 Program", "80% 미만 Program", "전체 Funtion", "테스트된 Function", "COVERAGE", "미테스트 Program"];
+                var category = ["시스템", "업무분류", "전체Program", "테스트된 Program", "80% 미만 Program",
+                    "전체 Funtion", "테스트된 Function", "총라인수", "테스트라인수", "COVERAGE", "미테스트 Program"];
                 var obj, dbParam, xmlhttp, jsonArray, header = "", content = "";
                 obj = {"method" : "getOverView", "where" : document.getElementById("search").value};
                 dbParam = JSON.stringify(obj);

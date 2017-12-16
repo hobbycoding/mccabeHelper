@@ -8,20 +8,6 @@ import java.sql.*;
 
 public class DBService {
 
-    public enum Category {
-        SYSTEM_ID("시스템"), PACKAGE_NAME_KO("업무분류"), TOTAL_PROGRAM("전체Program"), PROGRAM_TESTED("테스트된 Program"),
-        OVER_COVERAGE("80% 이상 Program"), UNDER_COVERAGE("80% 미만 Program"), TOTAL_FUNC_CNTS("전체 Funtion"),
-        FUN_TESTED("테스트된 Function"), COVERAGE("COVERAGE"), UNTESTED("미테스트 Program");
-        private final String desc;
-
-        Category(String desc) {
-            this.desc = desc;
-        }
-
-        public boolean isEquals(String desc) {
-            return this.desc.equals(desc) ? true : false;
-        }
-    }
     // property : method [getOverView, detailView, getExcel], where [ex)2017-12-11],
     // ex) {"method" : "getOverView", "where" : "2017-12-11"}
     public String doProcess(String msg) {
@@ -70,7 +56,7 @@ public class DBService {
             JSONObject obj = new JSONObject();
             for (int i=1; i<=numColumns; i++) {
                 String column_name = rsmd.getColumnName(i);
-                obj.put(Category.valueOf(column_name).desc, rs.getObject(column_name));
+                obj.put(Query.Category.valueOf(column_name).getDesc(), rs.getObject(column_name));
             }
             json.add(obj);
         }

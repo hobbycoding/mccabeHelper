@@ -1,11 +1,7 @@
 package com.mccabe.util;
 
-import com.mccabe.McCabeConfig;
 import com.mccabe.temp.DBInsert;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
-import java.io.*;
 import java.sql.*;
 import java.util.*;
 
@@ -15,10 +11,15 @@ public class KyoboUtil {
             "USING (" +
             "  SELECT ? FILE_DATE, ? FILE_NAME, ? FILE_PACKAGE, ? FILE_NAME_KO, ? FUNTION_NAME, ? FUNTION_NAME_KO, " +
             "    ? SERVICE_ID, ? JOB_NAME, ? JOB_CATEGORY, ? SYSTEM_ID, ? MANAGER, ? FILE_TYPE, ? COV_CODE_LINE, ? COV_COVERED_LINE, " +
-            "    ? COV_COVERAGE, ? BRANCH_CODE_LINE, ? BRANCH_COVERED_LINE, ? BRANCH_COVERAGE, ? START_LINE, ? NUM_OF_LINE, ? CODES " +
+            "    ? COV_COVERAGE, ? BRANCH_CODE_LINE, ? BRANCH_COVERED_LINE, ? BRANCH_COVERAGE, ? START_LINE, ? NUM_OF_LINE, ? TESTED_LINE, ? CODES " +
             "  FROM dual) T2 " +
             "ON (T1.FILE_NAME = T2.FILE_NAME AND T1.FUNTION_NAME = T2.FUNTION_NAME AND T1.FILE_DATE = T2.FILE_DATE ) " +
             "WHEN MATCHED THEN " + "UPDATE SET " +
+            "  FUNTION_NAME_KO = T2.FUNTION_NAME_KO," +
+            "  SERVICE_ID = T2.SERVICE_ID," +
+            "  JOB_NAME = T2.JOB_NAME," +
+            "  JOB_CATEGORY = T2.JOB_CATEGORY," +
+            "  SYSTEM_ID = T2.SYSTEM_ID," +
             "  MANAGER = T2.MANAGER," +
             "  COV_CODE_LINE = T2.COV_CODE_LINE," +
             "  COV_COVERED_LINE = T2.COV_COVERED_LINE," +
@@ -27,14 +28,15 @@ public class KyoboUtil {
             "  BRANCH_COVERED_LINE = T2.BRANCH_COVERED_LINE," +
             "  START_LINE = T2.START_LINE, " +
             "  NUM_OF_LINE = T2.NUM_OF_LINE, " +
+            "  TESTED_LINE = T2.TESTED_LINE, " +
             "  CODES = T2.CODES " +
             "WHEN NOT MATCHED THEN " +
             " INSERT (FILE_DATE, FILE_PACKAGE, FILE_NAME, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID," +
             "        JOB_NAME, JOB_CATEGORY, SYSTEM_ID, MANAGER, FILE_TYPE, COV_CODE_LINE, COV_COVERED_LINE, COV_COVERAGE, " +
-            "        BRANCH_CODE_LINE, BRANCH_COVERED_LINE, BRANCH_COVERAGE, START_LINE, NUM_OF_LINE, CODES)" +
+            "        BRANCH_CODE_LINE, BRANCH_COVERED_LINE, BRANCH_COVERAGE, START_LINE, NUM_OF_LINE, TESTED_LINE, CODES)" +
             " VALUES (T2.FILE_DATE, T2.FILE_PACKAGE, T2.FILE_NAME, T2.FILE_NAME_KO, T2.FUNTION_NAME, T2.FUNTION_NAME_KO, T2.SERVICE_ID," +
             " T2.JOB_NAME, T2.JOB_CATEGORY, T2.SYSTEM_ID, T2.MANAGER, T2.FILE_TYPE, T2.COV_CODE_LINE, T2.COV_COVERED_LINE, T2.COV_COVERAGE, " +
-            " T2.BRANCH_CODE_LINE, T2.BRANCH_COVERED_LINE, T2.BRANCH_COVERAGE, T2.START_LINE, T2.NUM_OF_LINE, T2.CODES)";
+            " T2.BRANCH_CODE_LINE, T2.BRANCH_COVERED_LINE, T2.BRANCH_COVERAGE, T2.START_LINE, T2.NUM_OF_LINE, T2.TESTED_LINE, T2.CODES)";
     public static final String SELECT_PACKAGE_NAME = "SELECT PACKAGE_NAME, PACKAGE_NAME_KO, SYSTEM_ID FROM PACKAGE_NAME";
 
     public static void putInsertQueryInPrepared(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws Exception {
@@ -60,10 +62,11 @@ public class KyoboUtil {
                 preparedStatement.setInt(18, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.BRANCH_COVERAGE.name(), "0"))); // BRANCH_COVERAGE
                 preparedStatement.setInt(19, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.START_LINE.name(), "0"))); // START_LINE
                 preparedStatement.setInt(20, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.NUM_OF_LINE.name(), "0"))); // NUM_OF_LINE
+                preparedStatement.setInt(21, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.TESTED_LINE.name(), "0"))); // TESTED_LINE
                 String data = entry.getValue().getProperty(REPORT_TABLE.CODES.name(), "");
                 Clob clob = preparedStatement.getConnection().createClob();
                 clob.setString(1, data);
-                preparedStatement.setClob(21, clob); // CODES
+                preparedStatement.setClob(22, clob); // CODES
                 preparedStatement.addBatch();
                 preparedStatement.clearParameters();
             }
