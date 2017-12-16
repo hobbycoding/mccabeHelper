@@ -17,6 +17,7 @@ import org.json.simple.parser.JSONParser;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.MalformedInputException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -115,8 +116,8 @@ public class DBInsert extends McCabeConfig {
         private final File file;
         public String className;
         public String packageName;
-        public String pakageName_ko = "";
-        public String system_id = "";
+        public String pakageName_ko = "UNKNOWN";
+        public String system_id = "UNKNOWN";
         public String date;
 
         public SourceFile(File file) {
@@ -183,7 +184,7 @@ public class DBInsert extends McCabeConfig {
             List<String> list;
             try {
                 list = Files.readAllLines(Paths.get(reportPath + ".txt"));
-            } catch (Exception e) {
+            } catch (MalformedInputException e) {
                 log("MalformedInputException. change encoding UTF-8");
                 FileUtil.write_UTF_8(new File(reportPath + ".txt"));
                 list = Files.readAllLines(Paths.get(reportPath + ".txt"));
@@ -221,11 +222,19 @@ public class DBInsert extends McCabeConfig {
                     continue;
                 int start = Integer.parseInt(temp.get(i).getProperty(REPORT_TABLE.START_LINE.name()));
                 int end = start + Integer.parseInt(temp.get(i).getProperty(REPORT_TABLE.NUM_OF_LINE.name())) - 1;
+                int testedLine = 0;
                 if (v.startsWith(String.valueOf(start))) {
                     while (!list.get(index).startsWith(String.valueOf(end))) {
+                        if (list.get(index).startsWith(String.valueOf(start))) {
+                            if (!list.get(index).contains(" | ")) {
+                                testedLine++;
+                            }
+                            start++;
+                        }
                         code += list.get(index++) + "\n";
                     }
                     code += list.get(index) + "\n";
+                    temp.get(i).setProperty(REPORT_TABLE.TESTED_LINE.name(), String.valueOf(testedLine));
                     temp.get(i++).setProperty(REPORT_TABLE.CODES.name(), code);
                     code = "";
                 }
