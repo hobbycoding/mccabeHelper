@@ -4,6 +4,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 import java.sql.*;
 
 public class DBService {
@@ -33,7 +36,7 @@ public class DBService {
     }
 
     private JSONArray getOverView(JSONObject jsonObject) throws Exception {
-        Statement statement = importStatementAfterConnect();
+        Statement statement = getConnection();
         String query = Query.getOverView(jsonObject.get("where").toString());
         ResultSet resultSet = statement.executeQuery(query);
         JSONArray result = mashalingJSON(resultSet);
@@ -41,11 +44,15 @@ public class DBService {
         return result;
     }
 
-    private Statement importStatementAfterConnect() throws Exception {
-        Class.forName("oracle.jdbc.driver.OracleDriver");
-        Connection connection = DriverManager.getConnection("jdbc:oracle:thin:@testmine.iptime.org:1521:orcl",
-                "testmine", "testmine");
-        return connection.createStatement();
+    private Statement getConnection() throws Exception {
+        final Context initContext = new InitialContext();
+        final Context envContext  = (Context)initContext.lookup("java:/comp/env");
+        DataSource ds = (DataSource)envContext.lookup("mccabe/oracle");
+        if (ds != null)
+        {
+            return ds.getConnection().createStatement();
+        }
+        throw new Exception("can't find mccabe/oracle.");
     }
 
     private JSONArray mashalingJSON(ResultSet rs) throws SQLException {
