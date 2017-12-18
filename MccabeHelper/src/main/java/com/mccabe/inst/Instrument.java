@@ -136,7 +136,7 @@ public class Instrument extends McCabeConfig {
             fw = new FileWriter(filePath, false);
             fw.append("PROGRAM " + property.getProperty("projectName") + "_" + property.getProperty("fileName"));
             fw.append(System.getProperty("line.separator") + "INSTDIR " + property.getProperty("instDir"));
-            fw.append(System.getProperty("line.separator") + "INSTOUT " + property.getProperty("instDir") + property.getProperty("fs") + "inst.out");
+            fw.append(System.getProperty("line.separator") + "INSTOUT " + TRACEFILE_HOME  + fs + property.getProperty("programName") + fs + "_inst.out");
             fw.append(System.getProperty("line.separator") + "COMDIR " + property.getProperty("COMDIR"));
             fw.append(System.getProperty("line.separator") + "METRICS_LEVEL 3");
             fw.append(System.getProperty("line.separator") + "EXPORTTREE");
