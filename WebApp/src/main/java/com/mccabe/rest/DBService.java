@@ -46,10 +46,8 @@ public class DBService {
 
     private Statement getConnection() throws Exception {
         final Context initContext = new InitialContext();
-        final Context envContext  = (Context)initContext.lookup("java:/comp/env");
-        DataSource ds = (DataSource)envContext.lookup("mccabe/oracle");
-        if (ds != null)
-        {
+        DataSource ds = (DataSource)initContext.lookup("mccabe/oracle");
+        if (ds != null) {
             return ds.getConnection().createStatement();
         }
         throw new Exception("can't find mccabe/oracle.");
