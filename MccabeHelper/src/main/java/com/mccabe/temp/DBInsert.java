@@ -222,19 +222,11 @@ public class DBInsert extends McCabeConfig {
                     continue;
                 int start = Integer.parseInt(temp.get(i).getProperty(REPORT_TABLE.START_LINE.name()));
                 int end = start + Integer.parseInt(temp.get(i).getProperty(REPORT_TABLE.NUM_OF_LINE.name())) - 1;
-                int testedLine = 0;
                 if (v.startsWith(String.valueOf(start))) {
                     while (!list.get(index).startsWith(String.valueOf(end))) {
-                        if (list.get(index).startsWith(String.valueOf(start))) {
-                            if (!list.get(index).contains(" | ")) {
-                                testedLine++;
-                            }
-                            start++;
-                        }
                         code += list.get(index++) + "\n";
                     }
                     code += list.get(index) + "\n";
-                    temp.get(i).setProperty(REPORT_TABLE.TESTED_LINE.name(), String.valueOf(testedLine));
                     temp.get(i++).setProperty(REPORT_TABLE.CODES.name(), code);
                     code = "";
                 }
