@@ -56,10 +56,10 @@ public class KyoboUtil {
                 preparedStatement.setString(12, sourceFile.getClassContent().getProperty(REPORT_TABLE.FILE_TYPE.name(), "0")); // FILE_TYPE
                 preparedStatement.setInt(13, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_CODE_LINE.name(), "0"))); // COV_CODE_LINE
                 preparedStatement.setInt(14, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_COVERED_LINE.name(), "0"))); // COV_COVERED_LINE
-                preparedStatement.setInt(15, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_COVERAGE.name(), "0"))); // COV_COVERAGE
+                preparedStatement.setFloat(15, Float.parseFloat(entry.getValue().getProperty(REPORT_TABLE.COV_COVERAGE.name(), "0"))); // COV_COVERAGE
                 preparedStatement.setInt(16, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.BRANCH_CODE_LINE.name(), "0"))); // BRANCH_CODE_LINE
                 preparedStatement.setInt(17, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.BRANCH_COVERED_LINE.name(), "0"))); // BRANCH_COVERED_LINE
-                preparedStatement.setInt(18, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.BRANCH_COVERAGE.name(), "0"))); // BRANCH_COVERAGE
+                preparedStatement.setFloat(18, Float.parseFloat(entry.getValue().getProperty(REPORT_TABLE.BRANCH_COVERAGE.name(), "0"))); // BRANCH_COVERAGE
                 preparedStatement.setInt(19, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.START_LINE.name(), "0"))); // START_LINE
                 preparedStatement.setInt(20, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.NUM_OF_LINE.name(), "0"))); // NUM_OF_LINE
                 preparedStatement.setInt(21, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.TESTED_LINE.name(), "0"))); // TESTED_LINE
