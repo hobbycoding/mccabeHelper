@@ -202,8 +202,8 @@ public class ReportWorks extends McCabeConfig {
 
     private void work() {
         try {
+            createFolder();
             Job job = new Job(property.getProperty("programName", ""));
-            createFolder(job);
             File projectFolder = new File(PROJECT_DIR);
             JSONArray fileList = getFileListFromJson(job, projectFolder);
             ArrayList<File> pcfFiles;
@@ -263,13 +263,14 @@ public class ReportWorks extends McCabeConfig {
         return fileList;
     }
 
-    private void createFolder(Job job) throws IOException {
-        if (new File(REPORT_DIR + fs + job.getSysName()).exists() && REMOVE_REPORT_DIR) {
-            System.out.println(REPORT_DIR + fs + job.getSysName() + " exist. delete.");
-            OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c rmdir /Q /S " : "rm -f ") + REPORT_DIR + fs + job.getSysName());
+    private void createFolder() throws IOException {
+        String name = property.getProperty("programName");
+        if (new File(REPORT_DIR + fs + name).exists() && REMOVE_REPORT_DIR) {
+            System.out.println(REPORT_DIR + fs + name + " exist. delete.");
+            OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c rmdir /Q /S " : "rm -f ") + REPORT_DIR + fs + name);
         }
-        OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + REPORT_DIR + fs + job.getSysName());
-        OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + TRACEFILE_HOME + fs + job.getSysName());
+        OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + REPORT_DIR + fs + name);
+        OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + TRACEFILE_HOME + fs + name);
     }
 
     private static void clearFile(File file) throws IOException {
