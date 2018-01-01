@@ -71,6 +71,8 @@ public class DBInsert extends McCabeConfig {
                 result.writeJSONString(writer);
                 writer.close();
             }
+        } else {
+            new File(PROJECT_DIR + fs + property.getProperty("programName") + fs + FILE_LIST_JSON).delete();
         }
     }
 
