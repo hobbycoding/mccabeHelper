@@ -30,6 +30,11 @@ public class Job {
 	
 	private ArrayList<String> includeModules;
 
+	public Job(String programName) {
+		this.sysName = programName;
+		McCabeConfig.log("programName : " + sysName);
+	}
+
 	public String getRepositoryRoot() {
 		return repositoryRoot;
 	}

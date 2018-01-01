@@ -201,10 +201,8 @@ public class ReportWorks extends McCabeConfig {
 
     private void work() {
         try {
-            Job job = new Job();
+            Job job = new Job(property.getProperty("programName", ""));
             createFolder(job);
-            job.setSysName(property.getProperty("programName", ""));
-            log("programName--->" + job.getSysName());
             File projectFolder = new File(PROJECT_DIR);
             JSONArray fileList = getFileListFromJson(job, projectFolder);
             ArrayList<File> pcfFiles;
