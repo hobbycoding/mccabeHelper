@@ -63,7 +63,7 @@ public class DBInsert extends McCabeConfig {
     }
 
     private void clearFileList() throws IOException {
-        if (property.containsKey("selected")) {
+        if (property.containsKey("selected") && property.getProperty("selected").length() > 1) {
             if (others != null) {
                 FileWriter writer = new FileWriter(PROJECT_DIR + fs + property.getProperty("programName") + fs + FILE_LIST_JSON, false);
                 JSONArray result = new JSONArray();
@@ -114,7 +114,7 @@ public class DBInsert extends McCabeConfig {
                 fileList.add(FileUtil.getRoleFileName(file, property.getProperty("srcDir")));
             }
         }
-        if (property.containsKey("selected")) {
+        if (property.containsKey("selected") && property.getProperty("selected").length() > 1) {
             log("Selected package Found. " + property.getProperty("selected"));
             others = new JSONArray();
             fileList = getMatchedFiles(fileList, others, property);

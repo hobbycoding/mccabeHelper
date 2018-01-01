@@ -257,7 +257,7 @@ public class ReportWorks extends McCabeConfig {
         if (Files.exists(fileList_json)) {
             fileList = (JSONArray) new JSONParser().parse(new String(Files.readAllBytes(fileList_json), "UTF-8"));
         }
-        if (fileList != null && property.containsKey("selected")) {
+        if (fileList != null && property.containsKey("selected") && property.getProperty("selected").length() > 1) {
             log("Selected package Found. " + property.getProperty("selected"));
             return getMatchedFiles(fileList, null, property);
         }
