@@ -51,9 +51,8 @@ public class InstrumentWorks extends McCabeConfig {
 		Properties ps = changeProperties(args);
 		InstrumentWorks works = new InstrumentWorks(ps);
 
-		Job job = new Job();
+		Job job = new Job(ps.getProperty("programName", ""));
 		job.setSwitchLever(Integer.parseInt(ps.getProperty("switchLever", String.valueOf(MCCABE_OFF))));
-		job.setSysName(ps.getProperty("programName", ""));
 		job.setRepositoryRoot(SRC_DIR);
 		job.setScope("all");
 	
