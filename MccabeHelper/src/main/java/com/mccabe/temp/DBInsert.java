@@ -115,6 +115,7 @@ public class DBInsert extends McCabeConfig {
             }
         }
         if (property.containsKey("selected")) {
+            log("Selected package Found. " + property.getProperty("selected"));
             others = new JSONArray();
             fileList = getMatchedFiles(fileList, others, property);
         }
