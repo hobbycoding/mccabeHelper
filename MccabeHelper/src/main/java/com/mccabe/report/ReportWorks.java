@@ -27,8 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.mccabe.util.KyoboUtil.getMatchedFiles;
+
 public class ReportWorks extends McCabeConfig {
-    private JSONArray others;
 
     public ReportWorks(Properties properties) {
         super(properties);
@@ -221,13 +222,6 @@ public class ReportWorks extends McCabeConfig {
                     doSubJobProcess(subJobList, pcf);
                 }
             }
-            if (others != null) {
-                FileWriter writer = new FileWriter(projectFolder + fs + job.getSysName() + fs + "fileList.json", false);
-                JSONArray result = new JSONArray();
-                result.addAll(others);
-                result.writeJSONString(writer);
-                writer.close();
-            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
@@ -264,20 +258,8 @@ public class ReportWorks extends McCabeConfig {
             fileList = (JSONArray) new JSONParser().parse(new String(Files.readAllBytes(fileList_json), "UTF-8"));
         }
         if (fileList != null && property.containsKey("selected")) {
-            JSONArray nFileList = new JSONArray();
-            JSONArray others = new JSONArray();
-            JSONArray selected = (JSONArray) new JSONParser().parse(property.getProperty("selected"));
-            for (Object o : fileList) {
-                for (Object j : selected) {
-                    if (o.toString().startsWith(j.toString()))
-                        nFileList.add(o);
-                    else others.add(o);
-                }
-            }
-            this.others = others;
-            return nFileList;
+            return getMatchedFiles(fileList, null, property);
         }
-
         return fileList;
     }
 

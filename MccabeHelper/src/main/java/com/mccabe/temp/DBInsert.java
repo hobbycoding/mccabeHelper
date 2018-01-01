@@ -16,6 +16,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.MalformedInputException;
 import java.nio.file.Files;
@@ -26,14 +27,13 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.mccabe.util.KyoboUtil.REPORT_QUERY;
-import static com.mccabe.util.KyoboUtil.TAG;
-import static com.mccabe.util.KyoboUtil.REPORT_TABLE;
+import static com.mccabe.util.KyoboUtil.*;
 
 public class DBInsert extends McCabeConfig {
     private static Map<String, List<String>> packageNames;
     private Connection connection = null;
     private PreparedStatement preparedStatement;
+    private JSONArray others;
 
     public DBInsert(Properties properties) {
         super(properties);
@@ -55,9 +55,22 @@ public class DBInsert extends McCabeConfig {
                 KyoboUtil.putInsertQueryInPrepared(sourceFile, preparedStatement);
             }
             executeQuery();
+            clearFileList();
         } catch (Exception e) {
             log(e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void clearFileList() throws IOException {
+        if (property.containsKey("selected")) {
+            if (others != null) {
+                FileWriter writer = new FileWriter(PROJECT_DIR + fs + property.getProperty("programName") + fs + FILE_LIST_JSON, false);
+                JSONArray result = new JSONArray();
+                result.addAll(others);
+                result.writeJSONString(writer);
+                writer.close();
+            }
         }
     }
 
@@ -100,6 +113,10 @@ public class DBInsert extends McCabeConfig {
             for (File file : FileUtil.getFilesRecursive(new File(property.getProperty("srcDir")), "", "", ".java", 0)) {
                 fileList.add(FileUtil.getRoleFileName(file, property.getProperty("srcDir")));
             }
+        }
+        if (property.containsKey("selected")) {
+            others = new JSONArray();
+            fileList = getMatchedFiles(fileList, others, property);
         }
         for (Object object : fileList) {
             String absolutePath = FileUtil.getBackRoleFileName(property.getProperty("srcDir"), object.toString());

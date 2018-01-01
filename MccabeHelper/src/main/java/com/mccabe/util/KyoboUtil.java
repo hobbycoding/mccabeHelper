@@ -1,6 +1,9 @@
 package com.mccabe.util;
 
 import com.mccabe.temp.DBInsert;
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.sql.*;
 import java.util.*;
@@ -131,5 +134,20 @@ public class KyoboUtil {
                 return category;
         }
         return Category.NONE;
+    }
+
+    public static JSONArray getMatchedFiles(JSONArray fileList, JSONArray others, Properties properties) throws ParseException {
+        JSONArray nFileList = new JSONArray();
+        JSONArray selected = (JSONArray) new JSONParser().parse(properties.getProperty("selected"));
+        for (Object o : fileList) {
+            for (Object j : selected) {
+                if (o.toString().startsWith(j.toString())) {
+                    nFileList.add(o);
+                } else if (others != null) {
+                    others.add(o);
+                }
+            }
+        }
+        return nFileList;
     }
 }
