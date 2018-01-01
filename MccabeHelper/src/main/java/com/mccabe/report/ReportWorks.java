@@ -15,6 +15,7 @@ import jxl.write.WriteException;
 import jxl.write.biff.RowsExceededException;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.Properties;
 
 public class ReportWorks extends McCabeConfig {
+    private JSONArray others;
 
     public ReportWorks(Properties properties) {
         super(properties);
@@ -39,62 +41,34 @@ public class ReportWorks extends McCabeConfig {
 
     private ArrayList<String> makeCommandSetForReport(PCF pcf, Job job) {
         ArrayList<String> commands = new ArrayList<>();
-        StringBuffer sb = new StringBuffer();
 
         // purge project database
-        sb.append(CLI);
-        sb.append(" purge -LEVEL all -PCF ");
-        sb.append(pcf.getPcfFile().getAbsolutePath());
-        commands.add(sb.toString());
-        sb.delete(0, sb.capacity());
+        commands.add(CLI + "purge -LEVEL all -PCF " + pcf.getPcfFile().getAbsolutePath());
 
         ArrayList<File> traceFiles = pcf.getAccumulateTraceFiles();
         // make cli for tracefile importing
         for (int i = 0; i < traceFiles.size(); i++) {
-            sb.append(CLI);
-            sb.append("import -instout ");
-            sb.append(traceFiles.get(i).getAbsolutePath());
-            sb.append(" -pcf ");
-            sb.append(pcf.getPcfFile().getAbsolutePath());
-            commands.add(sb.toString());
-            sb.delete(0, sb.capacity());
+            commands.add(CLI + "import -instout " + traceFiles.get(i).getAbsolutePath() + " -pcf " + pcf.getPcfFile().getAbsolutePath());
         }
+
         // make cli for untested report : txt
-        sb.append(CLI);
-        sb.append("listing -coverage  -pcf ");
-        sb.append(pcf.getPcfFile().getAbsolutePath());
-        sb.append(" -noparse -coverage -output ");
-        sb.append(REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat(".txt"));
-        commands.add(sb.toString());
-        sb.delete(0, sb.capacity());
+        commands.add(CLI + "listing -coverage  -pcf " + pcf.getPcfFile().getAbsolutePath() + " -noparse -coverage -output " +
+                REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat(".txt"));
 
         // make cli for coverage report : csv
-        sb.append(CLI);
-        sb.append("metrics -ss  -ssheader -sssummary -detail branch -coverage " + REPORT_TEMPLATE_NAME + " -pcf ");
-        sb.append(pcf.getPcfFile().getAbsolutePath());
-        sb.append(" -output ");
-        sb.append(REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat("_branch").concat(".csv"));
-        commands.add(sb.toString());
-        sb.delete(0, sb.capacity());
+        commands.add(CLI + ("metrics -ss  -ssheader -sssummary -detail branch -coverage " +
+                REPORT_TEMPLATE_NAME + " -pcf " + pcf.getPcfFile().getAbsolutePath() +
+                " -output " + REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat("_branch").concat(".csv")));
 
         // make cli for coverage report : csv
-        sb.append(CLI);
-        sb.append("metrics -ss -ssheader -sssummary -report xbat_codecov " + REPORT_TEMPLATE_NAME + " -pcf ");
-        sb.append(pcf.getPcfFile().getAbsolutePath());
-        sb.append(" -output ");
-        sb.append(REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat("_codecov").concat(".csv"));
-        commands.add(sb.toString());
-        sb.delete(0, sb.capacity());
+        commands.add(CLI + "metrics -ss -ssheader -sssummary -report xbat_codecov " + REPORT_TEMPLATE_NAME + " -pcf " +
+                pcf.getPcfFile().getAbsolutePath() + " -output " +
+                REPORT_DIR + fs + job.getSysName() + fs + pcf.getProjectName().concat("_codecov").concat(".csv"));
 
         // cli for publishing for 8.0
         if (job.isPublish()) {
-            sb.append(CLI);
-            sb.append("publish -pcf ");
-            sb.append(pcf.getPcfFile().getAbsolutePath());
-            sb.append(" -outputdir ");
-            sb.append(HUDSON_WEB_ROOT + fs + job.getSysName());
-            commands.add(sb.toString());
-            sb.delete(0, sb.capacity());
+            commands.add(CLI + "publish -pcf " + pcf.getPcfFile().getAbsolutePath() +
+                    " -outputdir " + HUDSON_WEB_ROOT + fs + job.getSysName());
         }
         return commands;
     }
@@ -109,19 +83,15 @@ public class ReportWorks extends McCabeConfig {
     }
 
     private PCF parse(File pcfFile) throws IOException {
-
         PCF pcf = new PCF();
         pcf.setPcfFile(pcfFile);
-
         Reader reader = new FileReader(pcfFile.getAbsolutePath());
         BufferedReader bufferedReader = new BufferedReader(reader);
         try {
-            String line = "";
+            String line;
             while ((line = bufferedReader.readLine()) != null && line != "") {
                 if (line.startsWith("PROGRAM ")) {
                     pcf.setProjectName(line.substring(line.indexOf(" ") + 1).replaceAll("\"", ""));
-                    // pcf.setTrId(pcf.getProjectName().substring(0,
-                    // pcf.getProjectName().indexOf("_")));
                 }
                 if (line.startsWith("INSTDIR ")) {
                     pcf.setInstDir(line.substring(line.indexOf(" ") + 1).replaceAll("\"", ""));
@@ -178,7 +148,6 @@ public class ReportWorks extends McCabeConfig {
             sheet.addCell(new jxl.write.Number(2, i, program.getSumCovLines()));
             sheet.addCell(new jxl.write.Number(3, i, program.getSumTotalBranches()));
             sheet.addCell(new jxl.write.Number(4, i, program.getSumCovBranches()));
-
         }
         workbook.write();
         workbook.close();
@@ -231,37 +200,18 @@ public class ReportWorks extends McCabeConfig {
     }
 
     private void work() {
-        Job job = new Job();
-        job.setSysName(property.getProperty("programName", ""));
         try {
+            Job job = new Job();
+            createFolder(job);
+            job.setSysName(property.getProperty("programName", ""));
             log("programName--->" + job.getSysName());
             File projectFolder = new File(PROJECT_DIR);
-            Path fileList_json = Paths.get(projectFolder + fs + job.getSysName() + fs + "fileList.json");
-            JSONArray fileList = null;
-            if (Files.exists(fileList_json)) {
-                fileList = (JSONArray) new JSONParser().parse(new String(Files.readAllBytes(fileList_json), "UTF-8"));
-            }
-            if (new File(REPORT_DIR + fs + job.getSysName()).exists() && REMOVE_REPORT_DIR) {
-                System.out.println(REPORT_DIR + fs + job.getSysName() + " exist. delete.");
-                OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c rmdir /Q /S " : "rm -f ") + REPORT_DIR + fs + job.getSysName());
-            }
-            OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + REPORT_DIR + fs + job.getSysName());
-            OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + TRACEFILE_HOME + fs + job.getSysName());
-            ArrayList<File> pcfFiles = FileUtil.getFilesRecursive(new File(projectFolder + fs + job.getSysName()), "", "", ".pcf", 0);
+            JSONArray fileList = getFileListFromJson(job, projectFolder);
+            ArrayList<File> pcfFiles;
+            pcfFiles = FileUtil.findPCFFilesFromProjectDir(new File(projectFolder + fs + job.getSysName()), fileList);
             FileJob defaultJob = new FileJob(job.getSysName());
-            HashMap<String, FileJob> subjobList = new HashMap<>();
-            if (property.containsKey("subjobs") && property.getProperty("subjobs").length() > 2) {
-                String raw = property.getProperty("subjobs").substring(property.getProperty("subjobs").indexOf("[") + 1, property.getProperty("subjobs").lastIndexOf("]"));
-                log("[subJob property " + raw + "]");
-                for (String subjob : raw.split(",")) {
-                    subjob = subjob.trim();
-                    log("[SubJob Found. " + subjob + "]");
-                    subjobList.put((property.getProperty("programName") + fs + subjob.trim()).replace(fs, "_"), new FileJob(property.getProperty("programName") + "_" + subjob.replace(fs, "_")));
-                }
-            }
+            HashMap<String, FileJob> subJobList = getSubJobList();
             for (File file : pcfFiles) {
-                if (fileList != null && !fileList.contains(file.getName().replace(".pcf", "")))
-                    continue;
                 PCF pcf = parse(file);
                 if (existOriginalSource(pcf)) {
                     pcf = initializeTraceFileSet(pcf, false);
@@ -270,18 +220,76 @@ public class ReportWorks extends McCabeConfig {
                         OSUtil.executeCommand(command);
                     }
                     defaultJob.write(pcf.getProjectName());
-                    for (Map.Entry<String, FileJob> entry : subjobList.entrySet()) {
-                        log("Subjob [" + pcf.getProjectName() + "] startWith [" + entry.getKey() + "]");
-                        if (pcf.getProjectName().startsWith(entry.getKey()))
-                            entry.getValue().write(pcf.getProjectName());
-                    }
+                    doSubJobProcess(subJobList, pcf);
                 }
+            }
+            if (others != null) {
+                FileWriter writer = new FileWriter(projectFolder + fs + job.getSysName() + fs + "fileList.json", false);
+                JSONArray result = new JSONArray();
+                result.addAll(others);
+                result.writeJSONString(writer);
+                writer.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void doSubJobProcess(HashMap<String, FileJob> subJobList, PCF pcf) throws IOException {
+        for (Map.Entry<String, FileJob> entry : subJobList.entrySet()) {
+            log("Subjob [" + pcf.getProjectName() + "] startWith [" + entry.getKey() + "]");
+            if (pcf.getProjectName().startsWith(entry.getKey()))
+                entry.getValue().write(pcf.getProjectName());
+        }
+    }
+
+    private HashMap<String, FileJob> getSubJobList() throws IOException {
+        HashMap<String, FileJob> subjobList = new HashMap<>();
+        if (property.containsKey("subjobs") && property.getProperty("subjobs").length() > 2) {
+            String raw = property.getProperty("subjobs").substring(property.getProperty("subjobs").indexOf("[") + 1, property.getProperty("subjobs").lastIndexOf("]"));
+            log("[subJob property " + raw + "]");
+            for (String subjob : raw.split(",")) {
+                subjob = subjob.trim();
+                log("[SubJob Found. " + subjob + "]");
+                subjobList.put((property.getProperty("programName") + fs + subjob.trim()).replace(fs, "_"), new FileJob(property.getProperty("programName") + "_" + subjob.replace(fs, "_")));
+            }
+        }
+        return subjobList;
+    }
+
+    private JSONArray getFileListFromJson(Job job, File projectFolder) throws ParseException, IOException {
+        JSONArray fileList = null;
+        Path fileList_json = Paths.get(projectFolder + fs + job.getSysName() + fs + "fileList.json");
+        if (Files.exists(fileList_json)) {
+            fileList = (JSONArray) new JSONParser().parse(new String(Files.readAllBytes(fileList_json), "UTF-8"));
+        }
+        if (fileList != null && property.containsKey("selected")) {
+            JSONArray nFileList = new JSONArray();
+            JSONArray others = new JSONArray();
+            JSONArray selected = (JSONArray) new JSONParser().parse(property.getProperty("selected"));
+            for (Object o : fileList) {
+                for (Object j : selected) {
+                    if (o.toString().startsWith(j.toString()))
+                        nFileList.add(o);
+                    else others.add(o);
+                }
+            }
+            this.others = others;
+            return nFileList;
+        }
+
+        return fileList;
+    }
+
+    private void createFolder(Job job) throws IOException {
+        if (new File(REPORT_DIR + fs + job.getSysName()).exists() && REMOVE_REPORT_DIR) {
+            System.out.println(REPORT_DIR + fs + job.getSysName() + " exist. delete.");
+            OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c rmdir /Q /S " : "rm -f ") + REPORT_DIR + fs + job.getSysName());
+        }
+        OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + REPORT_DIR + fs + job.getSysName());
+        OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + TRACEFILE_HOME + fs + job.getSysName());
     }
 
     private static void clearFile(File file) throws IOException {
@@ -313,5 +321,4 @@ public class ReportWorks extends McCabeConfig {
                     Files.readAllBytes(Paths.get(REPORT_DIR + fs + programName + fs + projectname.concat("_codecov").concat(".csv"))), StandardOpenOption.APPEND);
         }
     }
-
 }

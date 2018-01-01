@@ -193,7 +193,7 @@ public class DBInsert extends McCabeConfig {
             int index = 1;
             for (int i = 0; i < methodContent.size(); ) {
                 String line = "";
-                if (list.get(++index).startsWith(MCCABERoleSet.getModuleLetter(i))) {
+                if (index < list.size() - 1 && list.get(++index).startsWith(MCCABERoleSet.getModuleLetter(i))) {
                     while (!list.get(index).startsWith(MCCABERoleSet.getModuleLetter(i + 1)) && list.get(index).length() != 0) {
                         line += list.get(index++) + "\n";
                     }

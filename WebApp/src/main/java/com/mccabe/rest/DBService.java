@@ -45,8 +45,10 @@ public class DBService {
     }
 
     private Statement getConnection() throws Exception {
+        String ejb = "mccabe/oracle";
+        String normal = "java:comp/env/mccabe/oracle";
         final Context initContext = new InitialContext();
-        DataSource ds = (DataSource)initContext.lookup("mccabe/oracle");
+        DataSource ds = (DataSource)initContext.lookup(normal);
         if (ds != null) {
             return ds.getConnection().createStatement();
         }

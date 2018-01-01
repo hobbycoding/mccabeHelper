@@ -2,6 +2,8 @@ package com.mccabe.util;
 
 import com.mccabe.McCabeConfig;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -98,6 +100,32 @@ public class FileUtil extends McCabeConfig {
             }
         } else {
             System.out.println(path.getAbsolutePath() + " is not directory!");
+        }
+        return list;
+    }
+
+    public static ArrayList<File> findPCFFilesFromProjectDir(File dir, JSONArray nameList) throws Exception {
+        return findPCFFilesFromProjectDir(dir, nameList, StringUtils.countMatches(dir.getPath(), fs) + 2);
+    }
+
+    public static ArrayList<File> findPCFFilesFromProjectDir(File dir, JSONArray nameList, int cnt) throws Exception {
+        ArrayList<File> list = new ArrayList<>();
+        if (dir.isDirectory()) {
+            for (File e : dir.listFiles()) {
+                if (e.isDirectory()) {
+                    if (StringUtils.countMatches(e.getPath(), fs) > cnt)
+                        break;
+                    list.addAll(findPCFFilesFromProjectDir(e, nameList, cnt));
+                } else {
+                    if (e.getName().endsWith(".pcf") ) {
+                        if (nameList == null) {
+                            list.add(e);
+                        } else if (nameList != null && nameList.contains(dir.getName().replace(".pcf", ""))) {
+                            list.add(e);
+                        }
+                    }
+                }
+            }
         }
         return list;
     }
