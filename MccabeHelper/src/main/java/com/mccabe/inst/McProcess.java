@@ -69,12 +69,16 @@ public class McProcess extends McCabeConfig {
         } else {
             jsonArray = new JSONArray();
         }
-        nameList.addAll(jsonArray);
-        FileWriter writer = new FileWriter(fileList, false);
-        JSONArray result = new JSONArray();
-        result.addAll(nameList);
-        result.writeJSONString(writer);
-        writer.close();
+        if (nameList.size() > 0) {
+            nameList.addAll(jsonArray);
+            FileWriter writer = new FileWriter(fileList, false);
+            JSONArray result = new JSONArray();
+            result.addAll(nameList);
+            result.writeJSONString(writer);
+            writer.close();
+        } else {
+            log("[WARN] No files to process.");
+        }
      }
 
     public Properties setConfig() {
