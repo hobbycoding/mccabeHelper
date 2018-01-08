@@ -6,6 +6,8 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class KyoboUtil {
@@ -40,6 +42,8 @@ public class KyoboUtil {
             " VALUES (T2.FILE_DATE, T2.FILE_PACKAGE, T2.FILE_NAME, T2.FILE_NAME_KO, T2.FUNTION_NAME, T2.FUNTION_NAME_KO, T2.SERVICE_ID," +
             " T2.JOB_NAME, T2.JOB_CATEGORY, T2.SYSTEM_ID, T2.MANAGER, T2.FILE_TYPE, T2.COV_CODE_LINE, T2.COV_COVERED_LINE, T2.COV_COVERAGE, " +
             " T2.BRANCH_CODE_LINE, T2.BRANCH_COVERED_LINE, T2.BRANCH_COVERAGE, T2.START_LINE, T2.NUM_OF_LINE, T2.TESTED_LINE, T2.CODES)";
+    public static final String SELECT_CHECK_QUERY = "SELECT count(*) cnt FROM REPORT_TABLE WHERE FILE_DATE = '{date}'";
+    public static final String UPDATE_REPORT_QUERY = "UPDATE REPORT_TABLE SET FILE_DATE = '{new}' WHERE FILE_DATE = '{old}'";
     public static final String SELECT_PACKAGE_NAME = "SELECT PACKAGE_NAME, PACKAGE_NAME_KO, SYSTEM_ID FROM PACKAGE_NAME";
 
     public static void putInsertQueryInPrepared(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws Exception {
@@ -78,8 +82,9 @@ public class KyoboUtil {
         }
     }
 
-    public static Map<String, List<String>> getCategoryNameFromDB(Statement statement) throws SQLException {
+    public static Map<String, List<String>> getCategoryNameFromDB(Connection connection) throws SQLException {
         Map<String, List<String>> map = new HashMap<>();
+        Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery(SELECT_PACKAGE_NAME);
         while (resultSet.next()) {
             List<String> obj = new ArrayList<>();
@@ -87,9 +92,52 @@ public class KyoboUtil {
             obj.add(1, resultSet.getString(3) == null ? "" : resultSet.getString(3));
             map.put(resultSet.getString(PACKAGE_NAME.PACKAGE_NAME.name()), obj);
         }
+        statement.close();
         return map;
     }
 
+    public static boolean isHaveYesterdayData(Connection connection) throws SQLException {
+        if (todayIs(Calendar.MONDAY))
+            return false;
+        Statement statement = connection.createStatement();
+        try {
+            ResultSet resultSet = statement.executeQuery(SELECT_CHECK_QUERY.replace("{date}", getDate(-1)));
+            while (resultSet.next()) {
+                if (resultSet.getInt("cnt") > 0) {
+                    return true;
+                }
+                return false;
+            }
+        } finally {
+            statement.close();
+        }
+        return false;
+    }
+
+    public static String getDate() {
+        return getDate(0);
+    }
+
+    public static String getDate(int day) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        final Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE, day);
+        return dateFormat.format(cal.getTime());
+    }
+
+    public static boolean todayIs(int day) {
+        Calendar cal = Calendar.getInstance();
+        return cal.get(Calendar.DAY_OF_WEEK) == day;
+    }
+
+    public static void updateYesterdayData(Connection connection) throws SQLException {
+        Statement statement = connection.createStatement();
+        try {
+            statement.executeQuery(UPDATE_REPORT_QUERY.replace("{old}", getDate(-1)).replace("{new}", getDate()));
+        } finally {
+            statement.close();
+        }
+    }
 
     public enum REPORT_TABLE {
         FILE_NAME, FILE_DATE, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID, JOB_NAME, JOB_CATEGORY, SYSTEM_ID, MANAGER, FILE_TYPE,

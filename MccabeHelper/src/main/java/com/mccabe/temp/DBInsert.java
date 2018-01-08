@@ -49,6 +49,10 @@ public class DBInsert extends McCabeConfig {
             connectDB();
             setPackageNames();
             List<File> fileList = getFileList();
+            if (property.containsKey("weeklySave") &&
+                    Boolean.parseBoolean(property.getProperty("weeklySave"))) {
+                updateParsedSourceIfHaveSavedData();
+            }
             for (File file : fileList) {
                 SourceFile sourceFile = new SourceFile(file);
                 sourceFile.parse();
@@ -59,6 +63,13 @@ public class DBInsert extends McCabeConfig {
         } catch (Exception e) {
             log(e.getMessage());
             e.printStackTrace();
+        }
+    }
+
+    private void updateParsedSourceIfHaveSavedData() throws SQLException {
+        if (KyoboUtil.isHaveYesterdayData(connection)) {
+            log("[Today is " + KyoboUtil.getDate() + ". update " + KyoboUtil.getDate(-1) + " columns.");
+            KyoboUtil.updateYesterdayData(connection);
         }
     }
 
@@ -100,9 +111,7 @@ public class DBInsert extends McCabeConfig {
     }
 
     private void setPackageNames() throws SQLException {
-        Statement statement = connection.createStatement();
-        packageNames = KyoboUtil.getCategoryNameFromDB(statement);
-        statement.close();
+        packageNames = KyoboUtil.getCategoryNameFromDB(connection);
     }
 
     private List<File> getFileList() throws Exception {
