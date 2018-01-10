@@ -7,6 +7,7 @@
     <meta name="keywords" content=""/>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
     <link rel="stylesheet" type="text/css" href="../style/style.css"/>
+    <script src="./script.js"></script>
 </head>
 
 <body>
@@ -32,30 +33,13 @@
     </div>
     <div id="content_header"></div>
     <div id="site_content">
-        <h2>Tables</h2>
+        <div class="form_settings">
+            <select id="categoryList" onmousedown="value = ''" onchange="getSubDetailView(value);"/>
+            <input type="submit" value="refresh" onclick="getCategoryList(document.getElementById('search').value);" class="submit" style="float:right">
+            <input id="search" type="date" name="name" value="" style="float:right"/>
+        </div>
         <p></p>
-        <table style="width:100%; border-spacing:0;">
-            <tr>
-                <th>Item</th>
-                <th>Description</th>
-            </tr>
-            <tr>
-                <td>Item 1</td>
-                <td>Description of Item 1</td>
-            </tr>
-            <tr>
-                <td>Item 2</td>
-                <td>Description of Item 2</td>
-            </tr>
-            <tr>
-                <td>Item 3</td>
-                <td>Description of Item 3</td>
-            </tr>
-            <tr>
-                <td>Item 4</td>
-                <td>Description of Item 4</td>
-            </tr>
-        </table>
+        <p id="table"></p>
     </div>
     <div id="content_footer"></div>
     <div id="footer">
@@ -64,5 +48,9 @@
             href="http://www.html5webtemplates.co.uk">Website templates</a>
     </div>
 </div>
+<script>
+    document.getElementById("search").valueAsDate = new Date();
+    document.getElementById("categoryList").innerHTML = "<option value = \"test\">test</option>";
+</script>
 </body>
 </html>

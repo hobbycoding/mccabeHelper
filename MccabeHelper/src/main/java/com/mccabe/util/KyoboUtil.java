@@ -60,7 +60,7 @@ public class KyoboUtil {
                 preparedStatement.setString(9, sourceFile.pakageName_ko); // JOB_CATEGORY
                 preparedStatement.setString(10, sourceFile.system_id); // SYSTEM_ID
                 preparedStatement.setString(11, ""); // MANAGER
-                preparedStatement.setString(12, sourceFile.getClassContent().getProperty(REPORT_TABLE.FILE_TYPE.name(), "0")); // FILE_TYPE
+                preparedStatement.setString(12, sourceFile.getClassContent().getProperty(REPORT_TABLE.FILE_TYPE.name(), "NONE")); // FILE_TYPE
                 preparedStatement.setInt(13, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_CODE_LINE.name(), "0"))); // COV_CODE_LINE
                 preparedStatement.setInt(14, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.COV_COVERED_LINE.name(), "0"))); // COV_COVERED_LINE
                 preparedStatement.setFloat(15, Float.parseFloat(entry.getValue().getProperty(REPORT_TABLE.COV_COVERAGE.name(), "0"))); // COV_COVERAGE
@@ -167,21 +167,34 @@ public class KyoboUtil {
 
     public static void createContent(Properties tags) {
         String fullPath = tags.getProperty(TAG.fullPath.name());
-        Category category = getCategory(fullPath);
-        tags.setProperty(REPORT_TABLE.JOB_NAME.name(), category.desc);
-        tags.setProperty(REPORT_TABLE.FILE_TYPE.name(), category.name());
+        setCategory(fullPath, tags);
     }
 
     // this role is made by kyobo.
     //fullPath    ->  2.시스템명세모델::03.프로세스컴포넌트::퇴직보험사무처리::급부::퇴직보험거치Pbi::퇴직보험거치Pbi
-    public static Category getCategory(String raw) {
+    //fullPath    ->  2.시스템명세모델::06.배치::회계분개허브::구ERP분개허브파일송신Job::구ERP분개허브파일송신Auto
+    //JOB_NAME    -> 프로세스컴포넌트
+    //FILE_TYPE   -> PBC
+    public static void setCategory(String raw, Properties tags) {
         String[] splite = raw.split("::");
-        String v = splite[1].substring(splite[1].indexOf(".") + 1, splite[1].length());
-        for (Category category : Category.values()) {
-            if (category.isEquals(v))
-                return category;
+        String desc = "";
+        Category selected = Category.NONE;
+        if (splite[1].contains("배치")) {
+            String v = splite[2];
+            if (splite[splite.length - 1].contains("Auto"))
+                selected = Category.AUTO;
+            else selected = Category.MANUAL;
+            desc = v;
+        } else {
+            String v = splite[1].substring(splite[1].indexOf(".") + 1, splite[1].length());
+            for (Category category : Category.values()) {
+                if (category.isEquals(v))
+                    selected = category;
+            }
+            desc = selected.desc;
         }
-        return Category.NONE;
+        tags.setProperty(REPORT_TABLE.FILE_TYPE.name(), selected.name());
+        tags.setProperty(REPORT_TABLE.JOB_NAME.name(), desc);
     }
 
     public static JSONArray getMatchedFiles(JSONArray fileList, JSONArray others, Properties properties) throws ParseException {

@@ -19,10 +19,16 @@ public class DBService {
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(msg);
             switch (jsonObject.get("method").toString()) {
                 case "getOverView" :
-                    result = getOverView(jsonObject);
+                    result = getDataFromTable(Query.getOverView(jsonObject.get("where").toString()));
+                    break;
+                case "getCategoryList" :
+                    result = getDataFromTable(Query.getCategoryList(jsonObject.get("where").toString()));
+                    break;
+                case "getSubDetailView" :
+                    result = getDataFromTable(Query.getSubDetailView(jsonObject.get("where").toString(), jsonObject.get("category").toString()));
                     break;
                 case "detailView" :
-                    result = getDetailView(jsonObject);
+                    result = getDataFromTable(Query.getDetailView(jsonObject.get("where")));
                     break;
             }
         } catch (Exception e) {
@@ -31,13 +37,8 @@ public class DBService {
         return result.toString();
     }
 
-    private JSONArray getDetailView(JSONObject jsonObject) throws Exception {
-        return null;
-    }
-
-    private JSONArray getOverView(JSONObject jsonObject) throws Exception {
+    private JSONArray getDataFromTable(String query) throws Exception {
         Statement statement = getConnection();
-        String query = Query.getOverView(jsonObject.get("where").toString());
         ResultSet resultSet = statement.executeQuery(query);
         JSONArray result = mashalingJSON(resultSet);
         statement.getConnection().close();
