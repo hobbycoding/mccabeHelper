@@ -1,7 +1,7 @@
 package com.mccabe.rest;
 
 public class Query {
-    private static final String OVERVIEW =  "SELECT SYSTEM_ID, JOB_CATEGORY, COUNT(JOB_CATEGORY) TOTAL_PROGRAM, COUNT(CASE WHEN COVERAGE > 0 THEN 1 END ) TOTAL_TESTED,\n" +
+    private static final String OVERVIEW = "SELECT SYSTEM_ID, JOB_CATEGORY, COUNT(JOB_CATEGORY) TOTAL_PROGRAM, COUNT(CASE WHEN COVERAGE > 0 THEN 1 END ) TOTAL_TESTED,\n" +
             "                                   COUNT(CASE WHEN COVERAGE >= 80 THEN 1 END) OVER_COVERAGE, COUNT(CASE WHEN COVERAGE < 80 THEN 1 END) UNDER_COVERAGE,\n" +
             "                                   SUM(TOTAL_FUNC_CNT) TOTAL_FUNC_CNT, SUM(TESTED) FUNC_TESTED, SUM(NUM_OF_LINE) TOTAL_LINE, SUM(TESTED_LINE) TOTAL_TESTED_LINE,\n" +
             "                                   (SUM(COVERAGE) / COUNT(FILE_PACKAGE)) COVERAGE, (COUNT(JOB_CATEGORY) - COUNT(CASE WHEN COVERAGE > 0 THEN 1 END )) UNTESTED\n" +
@@ -27,6 +27,7 @@ public class Query {
         Category(String desc) {
             this.desc = desc;
         }
+
         public String getDesc() {
             return desc;
         }
@@ -36,6 +37,7 @@ public class Query {
         }
 
     }
+
     public static String getOverView(String where) {
         return OVERVIEW.replace("{date}", where);
     }

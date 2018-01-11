@@ -18,16 +18,16 @@ public class DBService {
         try {
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(msg);
             switch (jsonObject.get("method").toString()) {
-                case "getOverView" :
+                case "getOverView":
                     result = getDataFromTable(Query.getOverView(jsonObject.get("where").toString()));
                     break;
-                case "getCategoryList" :
+                case "getCategoryList":
                     result = getDataFromTable(Query.getCategoryList(jsonObject.get("where").toString()));
                     break;
-                case "getSubDetailView" :
+                case "getSubDetailView":
                     result = getDataFromTable(Query.getSubDetailView(jsonObject.get("where").toString(), jsonObject.get("category").toString()));
                     break;
-                case "detailView" :
+                case "detailView":
                     result = getDataFromTable(Query.getDetailView(jsonObject.get("where")));
                     break;
             }
@@ -49,7 +49,7 @@ public class DBService {
         String ejb = "mccabe/oracle";
         String normal = "java:comp/env/mccabe/oracle";
         final Context initContext = new InitialContext();
-        DataSource ds = (DataSource)initContext.lookup(normal);
+        DataSource ds = (DataSource) initContext.lookup(normal);
         if (ds != null) {
             return ds.getConnection().createStatement();
         }
@@ -59,10 +59,10 @@ public class DBService {
     private JSONArray mashalingJSON(ResultSet rs) throws SQLException {
         JSONArray json = new JSONArray();
         ResultSetMetaData rsmd = rs.getMetaData();
-        while(rs.next()) {
+        while (rs.next()) {
             int numColumns = rsmd.getColumnCount();
             JSONObject obj = new JSONObject();
-            for (int i=1; i<=numColumns; i++) {
+            for (int i = 1; i <= numColumns; i++) {
                 String column_name = rsmd.getColumnName(i);
                 obj.put(Query.Category.valueOf(column_name).getDesc(), rs.getObject(column_name));
             }
