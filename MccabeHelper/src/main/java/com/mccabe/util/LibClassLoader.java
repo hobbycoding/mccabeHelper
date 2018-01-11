@@ -10,7 +10,7 @@ import java.net.URLClassLoader;
 import static com.mccabe.McCabeConfig.log;
 
 public class LibClassLoader {
-    public static void loadJarIndDir() throws Exception {
+    public static void loadJarIndDir() {
         loadJarIndDir(new File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParent() + File.separator + "lib");
     }
 
@@ -21,10 +21,8 @@ public class LibClassLoader {
             method.setAccessible(true);
             log("Load lib path : " + dir);
             new File(dir).listFiles(jar -> {
-                // jar 파일인 경우만 로딩
                 if (jar.toString().toLowerCase().contains(".jar")) {
                     try {
-                        // URLClassLoader.addURL(URL url) 메소드 호출
                         method.invoke(loader, new Object[]{jar.toURI().toURL()});
                         log(jar.getName() + " is loaded.");
                     } catch (Exception e) {
