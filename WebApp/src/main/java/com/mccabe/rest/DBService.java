@@ -25,10 +25,13 @@ public class DBService {
                     result = getDataFromTable(Query.getCategoryList(jsonObject.get("where").toString()));
                     break;
                 case "getSubDetailView":
-                    result = getDataFromTable(Query.getSubDetailView(jsonObject.get("where").toString(), jsonObject.get("category").toString()));
+                    result = getDataFromTable(Query.getSubDetailView(jsonObject));
                     break;
                 case "detailView":
                     result = getDataFromTable(Query.getDetailView(jsonObject.get("where")));
+                    break;
+                case "getJobList":
+                    result = getDataFromTable(Query.getJoblist(jsonObject.get("where").toString()));
                     break;
             }
         } catch (Exception e) {

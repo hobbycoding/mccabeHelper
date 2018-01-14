@@ -34,7 +34,7 @@
     <div id="content_header"></div>
     <div id="site_content">
         <div class="form_settings">
-            <input type="submit" value="refresh" onclick="summary_refresh();" class="submit" style="float:right">
+            <input type="submit" value="refresh" onclick="summary_refresh(document.getElementById('search').value);" class="submit" style="float:right">
             <input id="search" type="date" name="name" value="" style="float:right"/>
         </div>
         <p></p>
@@ -49,6 +49,7 @@
 </div>
 <script>
     document.getElementById("search").valueAsDate = new Date();
+    summary_refresh(null);
 </script>
 </body>
 </html>

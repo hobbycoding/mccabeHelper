@@ -1,5 +1,7 @@
 package com.mccabe.rest;
 
+import org.json.simple.JSONObject;
+
 public class Query {
     private static final String OVERVIEW = "SELECT SYSTEM_ID, JOB_CATEGORY, COUNT(JOB_CATEGORY) TOTAL_PROGRAM, COUNT(CASE WHEN COVERAGE > 0 THEN 1 END ) TOTAL_TESTED,\n" +
             "                                   COUNT(CASE WHEN COVERAGE >= 80 THEN 1 END) OVER_COVERAGE, COUNT(CASE WHEN COVERAGE < 80 THEN 1 END) UNDER_COVERAGE,\n" +
@@ -12,7 +14,8 @@ public class Query {
             "      GROUP BY SYSTEM_ID, JOB_CATEGORY, FILE_PACKAGE, FILE_NAME)\n" +
             "GROUP BY SYSTEM_ID, JOB_CATEGORY";
     private static final String CATEGORYLIST = "SELECT JOB_CATEGORY FROM REPORT_TABLE WHERE FILE_DATE = '{date}' GROUP BY JOB_CATEGORY";
-    private static final String SUBDETAIL = "SELECT FILE_NAME, FILE_NAME_KO, FUNTION_NAME, FILE_NAME_KO, SERVICE_ID, JOB_NAME, MANAGER, FILE_TYPE, NUM_OF_LINE, COV_COVERED_LINE, COV_COVERAGE FROM REPORT_TABLE WHERE FILE_DATE = '{date}'  AND JOB_CATEGORY = '{category}'";
+    private static final String JOBLIST = "SELECT JOB_NAME FROM REPORT_TABLE WHERE FILE_DATE = '{date}' GROUP BY JOB_NAME";
+    private static final String SUBDETAIL = "SELECT FILE_NAME, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID, JOB_NAME, MANAGER, FILE_TYPE, NUM_OF_LINE, COV_COVERED_LINE, COV_COVERAGE FROM REPORT_TABLE WHERE FILE_DATE = '{date}'  AND JOB_CATEGORY = '{category}'";
 
     public enum Category {
         SYSTEM_ID("시스템"), JOB_CATEGORY("업무분류"), TOTAL_PROGRAM("전체Program"), TOTAL_TESTED("테스트된 Program"),
@@ -42,8 +45,11 @@ public class Query {
         return OVERVIEW.replace("{date}", where);
     }
 
-    public static String getSubDetailView(String where, String category) {
-        return SUBDETAIL.replace("{date}", where).replace("{category}", category);
+    public static String getSubDetailView(JSONObject jsonObject) {
+        String result = SUBDETAIL.replace("{date}", jsonObject.get("where").toString())
+                .replace("{category}", jsonObject.get("category").toString());
+        result+= getAndQuery(jsonObject, "JOB_NAME", "MANAGER", "FILE_TYPE");
+        return result;
     }
 
     public static String getDetailView(Object where) {
@@ -52,5 +58,19 @@ public class Query {
 
     public static String getCategoryList(String where) {
         return CATEGORYLIST.replace("{date}", where);
+    }
+
+    public static String getJoblist(String where) {
+        return JOBLIST.replace("{date}", where);
+    }
+
+    private static String getAndQuery(JSONObject object, String...names) {
+        String result = "";
+        for (String name : names) {
+            if (object.containsKey(name) && object.get(name).toString().length() > 0) {
+                result+= " AND " + name + " ='" + object.get(name) + "'";
+            }
+        }
+        return result;
     }
 }
