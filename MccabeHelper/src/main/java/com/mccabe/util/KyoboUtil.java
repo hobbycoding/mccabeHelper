@@ -189,7 +189,7 @@ public class KyoboUtil {
                 if (category.isEquals(v))
                     selected = category;
             }
-            desc = selected.desc;
+            desc = splite[2];
         }
         tags.setProperty(REPORT_TABLE.FILE_TYPE.name(), selected.name());
         tags.setProperty(REPORT_TABLE.JOB_NAME.name(), desc);
