@@ -369,10 +369,8 @@ table tr td {
 
 #site_content .inline {
     table-layout: fixed;
-    overflow: hidden;
-    overflow-y: scroll;
     height: 300px;
-    display:inline-block
+    display:inline-block;
 }
 
 #site_content .inline .inlineTable {
@@ -380,6 +378,29 @@ table tr td {
     width:400px;
     height: 100px;
     border-spacing:0;
+    border-collapse: collapse;
+}
+
+.inlineTable thead td {
+    background: #3B3B3B;
+    color: #FFF;
+    padding: 7px 4px;
+    text-align: center;
+}
+
+.inlineTable tbody {
+    display: block;
+    overflow: auto;
+    width:400px;
+    height: 300px;
+}
+
+.inlineTable tbody tr td {
+    width: 400px;
+}
+
+.inlineTable tbody tr:hover td{
+    background-color: #ddd;
 }
 
 /* Style the tab */
@@ -417,4 +438,5 @@ table tr td {
     padding: 6px 12px;
     border: 1px solid #ccc;
     border-top: none;
+    height: 300px
 }

@@ -82,7 +82,7 @@ function getSubDetailView(item) {
         sendServer(data, callback);
     } else {
         var header = "<table style=\"width:100%; border-spacing:0;\"><tr>";
-        for (var entry in category) {
+        for (var entry in subDetailCategory) {
             header += "<th>" + subDetailCategory[entry] + "</th>";
         }
         document.getElementById("table").innerHTML = header + "</table>";
@@ -151,6 +151,58 @@ function getTables(item) {
     }
 }
 
+function createChart() {
+    var myLineChart = new Chart(document.getElementById("chartArea"), {
+        type: 'line',
+        data: {
+            labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+            datasets: [
+                {
+                    label: "My Second dataset",
+                    fillColor: "rgba(151,187,205,0.2)",
+                    strokeColor: "rgba(151,187,205,1)",
+                    pointColor: "rgba(151,187,205,1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#fff",
+                    pointHighlightStroke: "rgba(151,187,205,1)",
+                    data: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
+                }
+            ]
+        },
+        options: {
+            maintainAspectRatio: false,
+            title:{
+                display:true,
+                text:'Chart.js Line Chart'
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Month'
+                    }
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Value'
+                    }
+                }]
+            }
+        }
+    });
+}
+
 function openTab(evt, id) {
     var i, tabcontent, tablinks;
     tabcontent = document.getElementsByClassName("tabcontent");
@@ -161,10 +213,16 @@ function openTab(evt, id) {
     for (i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
     }
-    document.getElementById(id).style.display = "block";
-    evt.currentTarget.className += " active";
-    if (id == 'source')
+    if (id == 'source') {
+        document.getElementById(id).style.display = "block";
+        evt.currentTarget.className += " active";
         createCodeMirror()
+    } else {
+        document.getElementById('chartContainer').style.display = "block";
+        evt.currentTarget.className += " active";
+        createChart();
+    }
+
 }
 var mirror = null;
 function createCodeMirror() {
