@@ -40,7 +40,8 @@
         </div>
         <p></p>
         <div class="search_box" style="background: lightgray; padding: 10px 10px 10px 10px">
-            업무명 <input id="JOB_NAME" class="text" type="text">담당자 <input id="MANAGER" class="text" type="text">유형 <input id="FILE_TYPE" class="text" type="text"> <input type="button" value="Excel" class="buttons" style="float:right">
+            업무명 <input id="JOB_NAME" class="text" type="text">담당자 <input id="MANAGER" class="text" type="text">유형 <input id="FILE_TYPE" class="text" type="text">
+            <input type="button" value="Excel" class="buttons" style="float:right" onclick="exportToCsv(document.getElementById('search').value + '_page2')">
         </div>
         <p></p>
         <p id="table"></p>

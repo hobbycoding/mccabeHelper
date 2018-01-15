@@ -1,17 +1,24 @@
+var jsonArray;
+var summaryCategory = ["시스템", "업무분류", "전체Program", "테스트된 Program", "80% 미만 Program",
+    "전체 Funtion", "테스트된 Function", "총라인수", "테스트라인수", "COVERAGE", "미테스트 Program"];
+var subDetailCategory = ["프로그램 영문명", "프로그램 한글명", "Function 영문명", "Function 한글명", "서비스 ID",
+    "업무명", "담당자", "유형", "전체라인수", "Covered 라인수", "Coverage(%)"];
+var tableCategory = ["프로그램 영문명", "프로그램 한글명", "Function 영문명", "Function 한글명", "서비스 ID",
+    "업무명", "담당자", "유형", "전체라인수", "Covered 라인수", "Coverage(%)"];
+
 function summary_refresh(date) {
-    var category = ["시스템", "업무분류", "전체Program", "테스트된 Program", "80% 미만 Program",
-        "전체 Funtion", "테스트된 Function", "총라인수", "테스트라인수", "COVERAGE", "미테스트 Program"];
     var data = {"method" : "getOverView", "where" : date};
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
-            var header = "", content = "", jsonArray = JSON.parse(this.responseText);
+            var header = "", content = "";
+            jsonArray = JSON.parse(this.responseText);
             header += "<table style=\"width:100%; border-spacing:0;\"><tr>";
             for (var index in jsonArray) {
                 content += "<tr>";
-                for (var entry in category) {
+                for (var entry in summaryCategory) {
                     if (index == 0)
-                        header += "<th>" + category[entry] + "</th>";
-                    content += "<td>" + jsonArray[index][category[entry]] + "</td>";
+                        header += "<th>" + summaryCategory[entry] + "</th>";
+                    content += "<td>" + jsonArray[index][summaryCategory[entry]] + "</td>";
                 }
             }
             header += "</tr>";
@@ -22,8 +29,8 @@ function summary_refresh(date) {
         sendServer(data, callback);
     } else {
         var header = "<table style=\"width:100%; border-spacing:0;\"><tr>";
-        for (var entry in category) {
-            header += "<th>" + category[entry] + "</th>";
+        for (var entry in summaryCategory) {
+            header += "<th>" + summaryCategory[entry] + "</th>";
         }
         document.getElementById("table").innerHTML = header + "</table>";
     }
@@ -36,7 +43,7 @@ function getCategoryList(date) {
     }
     var data = {"method": "getCategoryList", "where": date};
     var callback = function () {
-        var jsonArray, content = "";
+        var content = "";
         if (this.readyState == 4 && this.status == 200) {
             jsonArray = JSON.parse(this.responseText);
             for (var index in jsonArray) {
@@ -50,22 +57,21 @@ function getCategoryList(date) {
 }
 
 function getSubDetailView(item) {
-    var category = ["프로그램 영문명", "프로그램 한글명", "Function 영문명", "Function 한글명", "서비스 ID",
-        "업무명", "담당자", "유형", "전체라인수", "Covered 라인수", "Coverage(%)"];
     var data = {"method" : "getSubDetailView", "category" : item,
         "where" : document.getElementById('search').value,  "JOB_NAME" : document.getElementById('JOB_NAME').value,
         "MANAGER" : document.getElementById('MANAGER').value,"FILE_TYPE" : document.getElementById('FILE_TYPE').value
     };
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
-            var header = "", content = "", jsonArray = JSON.parse(this.responseText);
+            var header = "", content = "";
+            jsonArray = JSON.parse(this.responseText);
             header += "<table style=\"width:100%; border-spacing:0;\"><tr>";
             for (var index in jsonArray) {
                 content += "<tr>";
-                for (var entry in category) {
+                for (var entry in subDetailCategory) {
                     if (index == 0)
-                        header += "<th>" + category[entry] + "</th>";
-                    content += "<td>" + jsonArray[index][category[entry]] + "</td>";
+                        header += "<th>" + subDetailCategory[entry] + "</th>";
+                    content += "<td>" + jsonArray[index][subDetailCategory[entry]] + "</td>";
                 }
             }
             header += "</tr>";
@@ -77,7 +83,7 @@ function getSubDetailView(item) {
     } else {
         var header = "<table style=\"width:100%; border-spacing:0;\"><tr>";
         for (var entry in category) {
-            header += "<th>" + category[entry] + "</th>";
+            header += "<th>" + subDetailCategory[entry] + "</th>";
         }
         document.getElementById("table").innerHTML = header + "</table>";
     }
@@ -85,11 +91,11 @@ function getSubDetailView(item) {
 
 function sendServer(data, callback) {
     var dbParam = JSON.stringify(data);
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = callback;
-    xmlhttp.open("POST", "../rest/mccabe/process", true);
-    xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xmlhttp.send(dbParam);
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = callback;
+    xmlHttp.open("POST", "../rest/mccabe/process", true);
+    xmlHttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xmlHttp.send(dbParam);
 }
 
 function getJobNameList(date) {
@@ -99,7 +105,7 @@ function getJobNameList(date) {
     }
     var data = {"method": "getJobList", "where": date};
     var callback = function () {
-        var jsonArray, content = "";
+        var content = "";
         if (this.readyState == 4 && this.status == 200) {
             jsonArray = JSON.parse(this.responseText);
             for (var index in jsonArray) {
@@ -112,23 +118,22 @@ function getJobNameList(date) {
     sendServer(data, callback);
 }
 
-function gettables(item) {
-    var category = ["프로그램 영문명", "프로그램 한글명", "Function 영문명", "Function 한글명", "서비스 ID",
-        "업무명", "담당자", "유형", "전체라인수", "Covered 라인수", "Coverage(%)"];
+function getTables(item) {
     var data = {"method" : "getSubDetailView", "category" : item,
         "where" : document.getElementById('search').value,  "JOB_NAME" : document.getElementById('JOB_NAME').value,
         "MANAGER" : document.getElementById('MANAGER').value,"FILE_TYPE" : document.getElementById('FILE_TYPE').value
     };
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
-            var header = "", content = "", jsonArray = JSON.parse(this.responseText);
+            var header = "", content = "";
+            jsonArray = JSON.parse(this.responseText);
             header += "<table style=\"width:100%; border-spacing:0;\"><tr>";
             for (var index in jsonArray) {
                 content += "<tr>";
-                for (var entry in category) {
+                for (var entry in tableCategory) {
                     if (index == 0)
-                        header += "<th>" + category[entry] + "</th>";
-                    content += "<td>" + jsonArray[index][category[entry]] + "</td>";
+                        header += "<th>" + tableCategory[entry] + "</th>";
+                    content += "<td>" + jsonArray[index][tableCategory[entry]] + "</td>";
                 }
             }
             header += "</tr>";
@@ -139,8 +144,8 @@ function gettables(item) {
         sendServer(data, callback);
     } else {
         var header = "<table style=\"width:100%; border-spacing:0;\"><tr>";
-        for (var entry in category) {
-            header += "<th>" + category[entry] + "</th>";
+        for (var entry in tableCategory) {
+            header += "<th>" + tableCategory[entry] + "</th>";
         }
         document.getElementById("table").innerHTML = header + "</table>";
     }
@@ -172,4 +177,104 @@ function createCodeMirror() {
         });
     }
     mirror.refresh();
+}
+
+function exportToCsv(filename) {
+    var str = ConvertToCSV(jsonArray, arguments);
+    var blob = new Blob([str], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement("a");
+    if (link.download !== undefined) { // feature detection
+        // Browsers that support HTML5 download attribute
+        var url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
+
+function exportToCsvForStatus(filename, rawString) {
+    var str = ConvertToStatusCSV(JSON.parse(rawString));
+    var blob = new Blob([str], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement("a");
+    if (link.download !== undefined) { // feature detection
+        // Browsers that support HTML5 download attribute
+        var url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+}
+
+function ConvertToStatusCSV(objArray) {
+    var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+    var str = '';
+    for (var i = 0; i < array.length; i++) {
+        var line = '';
+        if (typeOf(array[i]) == 'Object') {
+            for (var index in array[i]) {
+                if (line != '')
+                    line += ',';
+                var v = array[i][index];
+                if (typeOf(v) != 'String')
+                    line += ConvertToStatusCSV(v);
+                else line += v;
+            }
+        } else if (typeOf(array[i]) == 'Array') {
+            line = ConvertToStatusCSV(array[i]);
+        } else if (typeOf(array[i]) == 'String') {
+            if (str != '')
+                line += ',';
+            str += line + array[i];
+            continue;
+        }
+        str += line + '\r\n';
+    }
+    return str;
+}
+
+function ConvertToCSV(objArray) {
+    var array = typeof objArray != 'object' ? JSON.parse(objArray) : objArray;
+    var str = '';
+    for (var i = 0; i < array.length; i++) {
+        var line = '';
+        for (var add = 2; add < arguments[1].length; add++) {
+            if (line != '')
+                line += ','
+            line += arguments[1][add];
+        }
+        for (var index in array[i]) {
+            if (line != '')
+                line += ','
+            line += array[i][index];
+        }
+        str += line + '\r\n';
+    }
+    return str;
+}
+
+function typeOf(object) {
+    if (object === null) {
+        return "null";
+    }
+    else if (object === undefined) {
+        return "undefined";
+    }
+    else if (object.constructor === "s".constructor) {
+        return "String";
+    }
+    else if (object.constructor === [].constructor) {
+        return "Array";
+    }
+    else if (object.constructor === {}.constructor) {
+        return "Object";
+    }
+    else {
+        return "don't know";
+    }
 }
