@@ -213,15 +213,7 @@ public class DBInsert extends McCabeConfig {
 
         private void parseCoverdLineTextFile(String reportPath) throws IOException {
             log("[Parse File] : " + reportPath + ".txt");
-            List<String> list;
-            try {
-                list = Files.readAllLines(Paths.get(reportPath + ".txt"), StandardCharsets.UTF_8);
-            } catch (MalformedInputException e) {
-                log("MalformedInputException. try encoding EUC-KR");
-                list = Files.readAllLines(Paths.get(reportPath + ".txt"), Charset.forName("EUC-KR"));
-//                FileUtil.write_UTF_8(new File(reportPath + ".txt"));
-//                list = Files.readAllLines(Paths.get(reportPath + ".txt"));
-            }
+            List<String> list = getListFromTxtFile(reportPath);
             List<Properties> temp = new ArrayList<>();
             int index = 1;
             for (int i = 0; i < methodContent.size(); ) {
@@ -264,6 +256,25 @@ public class DBInsert extends McCabeConfig {
                     code = "";
                 }
             }
+        }
+
+        private List<String> getListFromTxtFile(String reportPath) throws IOException {
+            List<String> list = null;
+            for(Charset charset : SUPPORT_CHAR) {
+                try {
+                    list = Files.readAllLines(Paths.get(reportPath + ".txt"), charset);
+                } catch (MalformedInputException e) {
+                    log("MalformedInputException. try encoding " + charset.displayName());
+                    continue;
+                }
+                break;
+            }
+            if (list == null) {
+                log("try to rewrite ISO8859_1");
+                FileUtil.write_UTF_8(new File(reportPath + ".txt"));
+                list = Files.readAllLines(Paths.get(reportPath + ".txt"));
+            }
+            return list;
         }
 
         private void parsePackageName() throws SQLException {
