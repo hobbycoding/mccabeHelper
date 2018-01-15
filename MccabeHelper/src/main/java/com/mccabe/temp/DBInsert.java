@@ -18,7 +18,9 @@ import org.json.simple.parser.JSONParser;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +32,7 @@ import java.util.regex.Pattern;
 import static com.mccabe.util.KyoboUtil.*;
 
 public class DBInsert extends McCabeConfig {
+    private static final Charset[] SUPPORT_CHAR = {StandardCharsets.UTF_8, Charset.forName("EUC-KR")};
     private static Map<String, List<String>> packageNames;
     private Connection connection = null;
     private PreparedStatement preparedStatement;
@@ -212,11 +215,12 @@ public class DBInsert extends McCabeConfig {
             log("[Parse File] : " + reportPath + ".txt");
             List<String> list;
             try {
-                list = Files.readAllLines(Paths.get(reportPath + ".txt"));
+                list = Files.readAllLines(Paths.get(reportPath + ".txt"), StandardCharsets.UTF_8);
             } catch (MalformedInputException e) {
-                log("MalformedInputException. change encoding UTF-8");
-                FileUtil.write_UTF_8(new File(reportPath + ".txt"));
-                list = Files.readAllLines(Paths.get(reportPath + ".txt"));
+                log("MalformedInputException. try encoding EUC-KR");
+                list = Files.readAllLines(Paths.get(reportPath + ".txt"), Charset.forName("EUC-KR"));
+//                FileUtil.write_UTF_8(new File(reportPath + ".txt"));
+//                list = Files.readAllLines(Paths.get(reportPath + ".txt"));
             }
             List<Properties> temp = new ArrayList<>();
             int index = 1;
