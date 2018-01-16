@@ -260,11 +260,12 @@ public class DBInsert extends McCabeConfig {
 
         private List<String> getListFromTxtFile(String reportPath) throws IOException {
             List<String> list = null;
-            for(Charset charset : SUPPORT_CHAR) {
+            for (Charset charset : SUPPORT_CHAR) {
                 try {
+                    log("try decoding " + charset.displayName());
                     list = Files.readAllLines(Paths.get(reportPath + ".txt"), charset);
                 } catch (MalformedInputException e) {
-                    log("MalformedInputException. try encoding " + charset.displayName());
+                    log("MalformedInputException. try encoding next.");
                     continue;
                 }
                 break;
