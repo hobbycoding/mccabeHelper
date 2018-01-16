@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.mccabe.util.KyoboUtil.*;
 
@@ -260,40 +261,23 @@ public class DBInsert extends McCabeConfig {
 
         private List<String> getListFromTxtFile(String reportPath) throws IOException {
             List<String> list = null;
-            BufferedReader bufferedReader = null;
-            InputStreamReader inputStreamReader = null;
-            FileInputStream fileInputStream = null;
             for (Charset charset : SUPPORT_CHAR) {
-                try {
+                try (Stream<String> stream = Files.lines(Paths.get(reportPath + ".txt"), charset)) {
                     log("try decoding " + charset.displayName());
-                    fileInputStream = new FileInputStream(reportPath + ".txt");
-                    inputStreamReader = new InputStreamReader(fileInputStream, charset.displayName());
-                    bufferedReader = new BufferedReader(inputStreamReader);
-                    list = bufferedReader.lines().collect(Collectors.toList());
+                    list = stream.collect(Collectors.toList());
                 } catch (Exception e) {
                     log("Exception. try encoding next.");
                     continue;
-                } finally {
-                    fileInputStream.close();
-                    inputStreamReader.close();
-                    bufferedReader.close();
                 }
-                break;
             }
             if (list == null) {
                 log("try to rewrite ISO8859_1");
-                try {
-                    FileUtil.write_UTF_8(new File(reportPath + ".txt"));
-                    fileInputStream = new FileInputStream(reportPath + ".txt");
-                    inputStreamReader = new InputStreamReader(fileInputStream, "UTF-8");
-                    bufferedReader = new BufferedReader(inputStreamReader);
-                    list = bufferedReader.lines().collect(Collectors.toList());
+                FileUtil.write_UTF_8(new File(reportPath + ".txt"));
+                try (Stream<String> stream = Files.lines(Paths.get(reportPath + ".txt"), Charset.forName("UTF-8"))) {
+                    log("try decoding " + "UTF-8");
+                    list = stream.collect(Collectors.toList());
                 } catch (Exception e) {
-                    log("file not parsed.[" + reportPath + ".txt" + "]");
-                } finally {
-                    fileInputStream.close();
-                    inputStreamReader.close();
-                    bufferedReader.close();
+                    log("Exception. try encoding next.");
                 }
             }
             return list;
