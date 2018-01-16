@@ -264,8 +264,8 @@ public class DBInsert extends McCabeConfig {
                 try {
                     log("try decoding " + charset.displayName());
                     list = Files.readAllLines(Paths.get(reportPath + ".txt"), charset);
-                } catch (MalformedInputException e) {
-                    log("MalformedInputException. try encoding next.");
+                } catch (Exception e) {
+                    log("Exception. try encoding next.");
                     continue;
                 }
                 break;
