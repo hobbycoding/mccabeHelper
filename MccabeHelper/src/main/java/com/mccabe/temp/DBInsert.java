@@ -32,7 +32,7 @@ import java.util.regex.Pattern;
 import static com.mccabe.util.KyoboUtil.*;
 
 public class DBInsert extends McCabeConfig {
-    private static final Charset[] SUPPORT_CHAR = {StandardCharsets.UTF_8, Charset.forName("EUC-KR")};
+    private static final Charset[] SUPPORT_CHAR = {Charset.forName("EUC-KR"), StandardCharsets.UTF_8};
     private static Map<String, List<String>> packageNames;
     private Connection connection = null;
     private PreparedStatement preparedStatement;
