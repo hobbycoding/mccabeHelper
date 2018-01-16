@@ -260,26 +260,41 @@ public class DBInsert extends McCabeConfig {
 
         private List<String> getListFromTxtFile(String reportPath) throws IOException {
             List<String> list = null;
+            BufferedReader bufferedReader = null;
+            InputStreamReader inputStreamReader = null;
+            FileInputStream fileInputStream = null;
             for (Charset charset : SUPPORT_CHAR) {
                 try {
                     log("try decoding " + charset.displayName());
-                    BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(
-                                    new FileInputStream(reportPath + ".txt"), charset.displayName()));
-                    list = reader.lines().collect(Collectors.toList());
+                    fileInputStream = new FileInputStream(reportPath + ".txt");
+                    inputStreamReader = new InputStreamReader(fileInputStream, charset.displayName());
+                    bufferedReader = new BufferedReader(inputStreamReader);
+                    list = bufferedReader.lines().collect(Collectors.toList());
                 } catch (Exception e) {
                     log("Exception. try encoding next.");
                     continue;
+                } finally {
+                    fileInputStream.close();
+                    inputStreamReader.close();
+                    bufferedReader.close();
                 }
                 break;
             }
             if (list == null) {
                 log("try to rewrite ISO8859_1");
-                FileUtil.write_UTF_8(new File(reportPath + ".txt"));
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(
-                                new FileInputStream(reportPath + ".txt"), "UTF-8"));
-                list = reader.lines().collect(Collectors.toList());
+                try {
+                    FileUtil.write_UTF_8(new File(reportPath + ".txt"));
+                    fileInputStream = new FileInputStream(reportPath + ".txt");
+                    inputStreamReader = new InputStreamReader(fileInputStream, "UTF-8");
+                    bufferedReader = new BufferedReader(inputStreamReader);
+                    list = bufferedReader.lines().collect(Collectors.toList());
+                } catch (Exception e) {
+                    log("file not parsed.[" + reportPath + ".txt" + "]");
+                } finally {
+                    fileInputStream.close();
+                    inputStreamReader.close();
+                    bufferedReader.close();
+                }
             }
             return list;
         }
