@@ -1,5 +1,6 @@
 package com.mccabe.rest;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -7,7 +8,10 @@ import org.json.simple.parser.JSONParser;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
+import java.io.BufferedReader;
+import java.io.Reader;
 import java.sql.*;
+import java.util.stream.Collectors;
 
 public class DBService {
 
@@ -33,6 +37,12 @@ public class DBService {
                 case "getJobList":
                     result = getDataFromTable(Query.getJoblist(jsonObject.get("where").toString()));
                     break;
+                case "getJobListTable":
+                    result = getDataFromTable(Query.getJoblistTable(jsonObject));
+                    break;
+                case "getCodes":
+                    result = getCLOBFromTable(Query.getJoblistTable(jsonObject));
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -40,21 +50,75 @@ public class DBService {
         return result.toString();
     }
 
-    private JSONArray getDataFromTable(String query) throws Exception {
-        Statement statement = getConnection();
+    private synchronized JSONArray getCLOBFromTable(String query) throws Exception {
+        JSONArray jsonArray = new JSONArray();
+        JSONObject object = new JSONObject();
+        Connection connection = getConnection();
+        Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery(query);
-        JSONArray result = mashalingJSON(resultSet);
-        statement.getConnection().close();
-        return result;
+        try {
+            while (resultSet.next()) {
+                StringBuffer strOut = new StringBuffer();
+                String aux;
+                try {
+                    BufferedReader br = new BufferedReader(resultSet.getClob("CODES").
+                            getCharacterStream());
+                    while ((aux = br.readLine()) != null) {
+                        strOut.append(aux);
+                        strOut.append(System.getProperty("line.separator"));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                String clobStr = strOut.toString();
+                object.put("CODES", clobStr);
+                jsonArray.add(object);
+            }
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            close(connection, statement, resultSet);
+        }
+        return jsonArray;
     }
 
-    private Statement getConnection() throws Exception {
+    private JSONArray getDataFromTable(String query) throws Exception {
+        Connection connection = getConnection();
+        Statement statement = connection.createStatement();
+        ResultSet resultSet = statement.executeQuery(query);
+        try {
+            JSONArray result = mashalingJSON(resultSet);
+            return result;
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            close(connection, statement, resultSet);
+        }
+    }
+
+    private void close(Connection connection, Statement statement, ResultSet resultSet) throws SQLException {
+        try {
+            if (statement != null) {
+                statement.close();
+            }
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            throw e;
+        }
+    }
+
+    private Connection getConnection() throws Exception {
         String ejb = "mccabe/oracle";
         String normal = "java:comp/env/mccabe/oracle";
         final Context initContext = new InitialContext();
         DataSource ds = (DataSource) initContext.lookup(normal);
         if (ds != null) {
-            return ds.getConnection().createStatement();
+            return ds.getConnection();
         }
         throw new Exception("can't find mccabe/oracle.");
     }

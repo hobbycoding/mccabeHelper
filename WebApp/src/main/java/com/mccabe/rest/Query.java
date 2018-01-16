@@ -15,7 +15,18 @@ public class Query {
             "GROUP BY SYSTEM_ID, JOB_CATEGORY";
     private static final String CATEGORYLIST = "SELECT JOB_CATEGORY FROM REPORT_TABLE WHERE FILE_DATE = '{date}' GROUP BY JOB_CATEGORY";
     private static final String JOBLIST = "SELECT JOB_NAME FROM REPORT_TABLE WHERE FILE_DATE = '{date}' GROUP BY JOB_NAME";
-    private static final String SUBDETAIL = "SELECT FILE_NAME, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID, JOB_NAME, MANAGER, FILE_TYPE, NUM_OF_LINE, COV_COVERED_LINE, COV_COVERAGE FROM REPORT_TABLE WHERE FILE_DATE = '{date}'  AND JOB_CATEGORY = '{category}'";
+    private static final String SUBDETAIL = "SELECT FILE_NAME, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID, " +
+            "JOB_NAME, MANAGER, FILE_TYPE, NUM_OF_LINE, COV_COVERED_LINE, COV_COVERAGE FROM REPORT_TABLE " +
+            "WHERE FILE_DATE = '{date}'  AND JOB_CATEGORY = '{category}'";
+    private static final String TABLE_1 = "SELECT FILE_PACKAGE, ROUND(AVG(COV_COVERAGE), 2) COV_COVERAGE " +
+            "FROM REPORT_TABLE WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' GROUP BY FILE_PACKAGE";
+    private static final String TABLE_2 = "SELECT FILE_NAME, FILE_NAME_KO, ROUND(AVG(COV_COVERAGE), 2) COV_COVERAGE " +
+            "FROM REPORT_TABLE WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' AND FILE_PACKAGE = '{file_package}' " +
+            "GROUP BY FILE_NAME, FILE_NAME_KO";
+    private static final String TABLE_3 = "SELECT FUNTION_NAME, FUNTION_NAME_KO, COV_COVERAGE FROM REPORT_TABLE " +
+            "WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' AND FILE_PACKAGE = '{file_package}' AND FILE_NAME = '{file_name}'";
+    private static final String TABLE_4 = "SELECT CODES FROM REPORT_TABLE WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' " +
+            "AND FILE_PACKAGE = '{file_package}' AND FILE_NAME = '{file_name}' AND FUNTION_NAME = '{function_name}'";
 
     public enum Category {
         SYSTEM_ID("시스템"), JOB_CATEGORY("업무분류"), TOTAL_PROGRAM("전체Program"), TOTAL_TESTED("테스트된 Program"),
@@ -23,7 +34,7 @@ public class Query {
         FUNC_TESTED("테스트된 Function"), TOTAL_LINE("총라인수"), TOTAL_TESTED_LINE("테스트라인수"), COVERAGE("COVERAGE"), UNTESTED("미테스트 Program"),
         FILE_NAME("프로그램 영문명"), FILE_NAME_KO("프로그램 한글명"), FUNTION_NAME("Function 영문명"),
         FUNTION_NAME_KO("Function 한글명"), SERVICE_ID("서비스 ID"), JOB_NAME("업무명"), MANAGER("담당자"),
-        FILE_TYPE("유형"), NUM_OF_LINE("전체라인수"), COV_COVERED_LINE("Covered 라인수"), COV_COVERAGE("Coverage(%)");
+        FILE_TYPE("유형"), NUM_OF_LINE("전체라인수"), COV_COVERED_LINE("Covered 라인수"), COV_COVERAGE("Coverage(%)"), FILE_PACKAGE("패키지명"), CODES("CODES");
 
         private final String desc;
 
@@ -62,6 +73,30 @@ public class Query {
 
     public static String getJoblist(String where) {
         return JOBLIST.replace("{date}", where);
+    }
+
+    public static String getJoblistTable(JSONObject object) {
+        switch (object.get("order").toString()) {
+            case "1" :
+                return TABLE_1.replace("{date}", object.get("where").toString())
+                        .replace("{job_name}", object.get("job_name").toString());
+            case "2" :
+                return TABLE_2.replace("{date}", object.get("where").toString())
+                        .replace("{job_name}", object.get("job_name").toString())
+                        .replace("{file_package}", object.get("file_package").toString());
+            case "3" :
+                return TABLE_3.replace("{date}", object.get("where").toString())
+                        .replace("{job_name}", object.get("job_name").toString())
+                        .replace("{file_package}", object.get("file_package").toString())
+                        .replace("{file_name}", object.get("file_name").toString());
+            case "4" :
+                return TABLE_4.replace("{date}", object.get("where").toString())
+                        .replace("{job_name}", object.get("job_name").toString())
+                        .replace("{file_package}", object.get("file_package").toString())
+                        .replace("{file_name}", object.get("file_name").toString())
+                        .replace("{function_name}", object.get("function_name").toString());
+        }
+        return null;
     }
 
     private static String getAndQuery(JSONObject object, String...names) {

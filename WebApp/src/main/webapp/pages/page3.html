@@ -38,71 +38,50 @@
     <div id="content_header"></div>
     <div id="site_content">
         <div class="form_settings">
-            <select id="jobNameList" onmousedown="value = ''" onchange="getTables(value);"/>
-            <input type="submit" value="refresh" onclick="getJobNameList(document.getElementById('search').value);" class="submit" style="float:right">
+            <select id="jobNameList" onmousedown="value = ''" onchange="getFirstTable(value);"/>
+            <input type="submit" value="refresh" onclick="getJobNameList(document.getElementById('search').value);"
+                   class="submit" style="float:right">
             <input id="search" type="date" name="name" value="" style="float:right"/>
         </div>
-        <div id="tables" style="margin: 0 auto; overflow: hidden; height: 300px; text-align:center; min-width :1300px">
+        <div id="tables" style="margin: 0 auto; overflow: hidden; height: 300px; text-align:center; min-width :1370px">
             <div id="a" class="inline">
                 <table class="inlineTable">
                     <thead>
-                        <td colspan="2">Package목록(전체)</td>
-                        <tr><th>패키지명</th><th>테스트 커버리지(%)</th><tr>
+                    <td colspan="2">Package목록(전체)</td>
+                    <tr>
+                        <th>패키지명</th>
+                        <th>테스트 커버리지(%)</th>
+                    <tr>
                     </thead>
-                    <tbody>
-                        <tr><td>Item 1</td><td>Description of Item 1</td></tr>
-                        <tr><td>Item 2</td><td>Description of Item 2</td></tr>
-                        <tr><td>Item 3</td><td>Description of Item 3</td></tr>
-                        <tr><td>Item 4</td><td>Description of Item 4</td></tr>
-                        <tr><td>Item 1</td><td>Description of Item 1</td></tr>
-                        <tr><td>Item 2</td><td>Description of Item 2</td></tr>
-                        <tr><td>Item 3</td><td>Description of Item 3</td></tr>
-                        <tr><td>Item 4</td><td>Description of Item 4</td></tr>
-                        <tr><td>Item 2</td><td>Description of Item 2</td></tr>
-                        <tr><td>Item 3</td><td>Description of Item 3</td></tr>
-                        <tr><td>Item 4</td><td>Description of Item 4</td></tr>
+                    <tbody id="cTable1_tbody">
                     </tbody>
                 </table>
             </div>
             <div id="b" class="inline">
                 <table class="inlineTable">
                     <thead>
-                        <td colspan="3">Class 목록</td>
-                        <tr><th>클래스(물리명)</th><th>클래스(논리명)</th><th>테스트 커버리지(%)</th><tr>
+                    <td colspan="3">Class 목록</td>
+                    <tr>
+                        <th>클래스(물리명)</th>
+                        <th>클래스(논리명)</th>
+                        <th>테스트 커버리지(%)</th>
+                    <tr>
                     </thead>
-                    <tbody>
-                        <tr><td>Item 1</td><td>Item 1</td><td>Description of Item 1</td></tr>
-                        <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                        <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                        <tr><td>Item 4</td><td>Item 4</td><td>Description of Item 4</td></tr>
-                        <tr><td>Item 1</td><td>Item 1</td><td>Description of Item 1</td></tr>
-                        <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                        <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                        <tr><td>Item 4</td><td>Item 4</td><td>Description of Item 4</td></tr>
-                        <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                        <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                        <tr><td>Item 4</td><td>Item 4</td><td>Description of Item 4</td></tr>
+                    <tbody id="cTable2_tbody">
                     </tbody>
                 </table>
             </div>
             <div id="c" class="inline">
                 <table class="inlineTable">
                     <thead>
-                        <td colspan="3">Operation(Function) 목록</td>
-                        <tr><th>Operation(물리명)</th><th>Operation(논리명)</th><th>테스트 커버리지(%)</th><tr>
+                    <td colspan="3">Operation(Function) 목록</td>
+                    <tr>
+                        <th>Operation(물리명)</th>
+                        <th>Operation(논리명)</th>
+                        <th>테스트 커버리지(%)</th>
+                    <tr>
                     </thead>
-                    <tbody>
-                        <tr><td>Item 1</td><td>Item 1</td><td>Description of Item 1</td></tr>
-                        <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                        <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                        <tr><td>Item 4</td><td>Item 4</td><td>Description of Item 4</td></tr>
-                        <tr><td>Item 1</td><td>Item 1</td><td>Description of Item 1</td></tr>
-                        <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                        <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                        <tr><td>Item 4</td><td>Item 4</td><td>Description of Item 4</td></tr>
-                        <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                        <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                        <tr><td>Item 4</td><td>Item 4</td><td>Description of Item 4</td></tr>
+                    <tbody id="cTable3_tbody">
                     </tbody>
                 </table>
             </div>
@@ -112,80 +91,7 @@
         </div>
         <!-- Tab content -->
         <div id="source" class="tabcontent">
-            <textarea id="sourceArea" name="sourceArea">package com.mccabe.rest;
-
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-import java.sql.*;
-
-public class DBService {
-
-    // property : method [getOverView, detailView, getExcel], where [ex)2017-12-11],
-    // ex) {"method" : "getOverView", "where" : "2017-12-11"}
-    public String doProcess(String msg) {
-        JSONArray result = null;
-        try {
-            JSONObject jsonObject = (JSONObject) new JSONParser().parse(msg);
-            switch (jsonObject.get("method").toString()) {
-                case "getOverView":
-                    result = getDataFromTable(Query.getOverView(jsonObject.get("where").toString()));
-                    break;
-                case "getCategoryList":
-                    result = getDataFromTable(Query.getCategoryList(jsonObject.get("where").toString()));
-                    break;
-                case "getSubDetailView":
-                    result = getDataFromTable(Query.getSubDetailView(jsonObject));
-                    break;
-                case "detailView":
-                    result = getDataFromTable(Query.getDetailView(jsonObject.get("where")));
-                    break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return result.toString();
-    }
-
-    private JSONArray getDataFromTable(String query) throws Exception {
-        Statement statement = getConnection();
-        ResultSet resultSet = statement.executeQuery(query);
-        JSONArray result = mashalingJSON(resultSet);
-        statement.getConnection().close();
-        return result;
-    }
-
-    private Statement getConnection() throws Exception {
-        String ejb = "mccabe/oracle";
-        String normal = "java:comp/env/mccabe/oracle";
-        final Context initContext = new InitialContext();
-        DataSource ds = (DataSource) initContext.lookup(normal);
-        if (ds != null) {
-            return ds.getConnection().createStatement();
-        }
-        throw new Exception("can't find mccabe/oracle.");
-    }
-
-    private JSONArray mashalingJSON(ResultSet rs) throws SQLException {
-        JSONArray json = new JSONArray();
-        ResultSetMetaData rsmd = rs.getMetaData();
-        while (rs.next()) {
-            int numColumns = rsmd.getColumnCount();
-            JSONObject obj = new JSONObject();
-            for (int i = 1; i <= numColumns; i++) {
-                String column_name = rsmd.getColumnName(i);
-                obj.put(Query.Category.valueOf(column_name).getDesc(), rs.getObject(column_name));
-            }
-            json.add(obj);
-        }
-        return json;
-    }
-}
-</textarea>
+            <textarea id="sourceArea"></textarea>
         </div>
     </div>
     <div id="content_footer"></div>

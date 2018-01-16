@@ -5,9 +5,12 @@ var subDetailCategory = ["프로그램 영문명", "프로그램 한글명", "Fu
     "업무명", "담당자", "유형", "전체라인수", "Covered 라인수", "Coverage(%)"];
 var tableCategory = ["프로그램 영문명", "프로그램 한글명", "Function 영문명", "Function 한글명", "서비스 ID",
     "업무명", "담당자", "유형", "전체라인수", "Covered 라인수", "Coverage(%)"];
+var table1Category = ["패키지명", "Coverage(%)"];
+var table2Category = ["프로그램 영문명", "프로그램 한글명", "Coverage(%)"];
+var table3Category = ["Function 영문명", "Function 한글명", "Coverage(%)"];
 
 function summary_refresh(date) {
-    var data = {"method" : "getOverView", "where" : date};
+    var data = {"method": "getOverView", "where": date};
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
             var header = "", content = "";
@@ -57,9 +60,10 @@ function getCategoryList(date) {
 }
 
 function getSubDetailView(item) {
-    var data = {"method" : "getSubDetailView", "category" : item,
-        "where" : document.getElementById('search').value,  "JOB_NAME" : document.getElementById('JOB_NAME').value,
-        "MANAGER" : document.getElementById('MANAGER').value,"FILE_TYPE" : document.getElementById('FILE_TYPE').value
+    var data = {
+        "method": "getSubDetailView", "category": item,
+        "where": document.getElementById('search').value, "JOB_NAME": document.getElementById('JOB_NAME').value,
+        "MANAGER": document.getElementById('MANAGER').value, "FILE_TYPE": document.getElementById('FILE_TYPE').value
     };
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -100,7 +104,6 @@ function sendServer(data, callback) {
 
 function getJobNameList(date) {
     if (document.getElementById("jobNameList").childElementCount > 0) {
-        getSubDetailView(document.getElementById("jobNameList").options[document.getElementById("jobNameList").selectedIndex].value)
         return;
     }
     var data = {"method": "getJobList", "where": date};
@@ -119,9 +122,10 @@ function getJobNameList(date) {
 }
 
 function getTables(item) {
-    var data = {"method" : "getSubDetailView", "category" : item,
-        "where" : document.getElementById('search').value,  "JOB_NAME" : document.getElementById('JOB_NAME').value,
-        "MANAGER" : document.getElementById('MANAGER').value,"FILE_TYPE" : document.getElementById('FILE_TYPE').value
+    var data = {
+        "method": "getSubDetailView", "category": item,
+        "where": document.getElementById('search').value, "JOB_NAME": document.getElementById('JOB_NAME').value,
+        "MANAGER": document.getElementById('MANAGER').value, "FILE_TYPE": document.getElementById('FILE_TYPE').value
     };
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -150,6 +154,136 @@ function getTables(item) {
         document.getElementById("table").innerHTML = header + "</table>";
     }
 }
+var job_name;
+function getFirstTable(item) {
+    var data = {
+        "method": "getJobListTable", "order": "1", "where": document.getElementById('search').value,
+        "job_name": item
+    };
+    job_name = item;
+    var callback = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var content = "";
+            jsonArray = JSON.parse(this.responseText);
+            for (var index in jsonArray) {
+                content += "<tr>";
+                for (var entry in table1Category) {
+                    content += "<td>" + jsonArray[index][table1Category[entry]] + "</td>";
+                }
+            }
+            document.getElementById("cTable1_tbody").innerHTML = content;
+            addRowHandlers("cTable1_tbody");
+        }
+    };
+    if (item != null) {
+        sendServer(data, callback);
+    }
+}
+var file_package;
+function getSecondTable(package) {
+    var data = {
+        "method": "getJobListTable", "order": "2", "where": document.getElementById('search').value,
+        "file_package": package, "job_name": job_name
+    };
+    file_package = package;
+    var callback = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var content = "";
+            jsonArray = JSON.parse(this.responseText);
+            for (var index in jsonArray) {
+                content += "<tr>";
+                for (var entry in table2Category) {
+                    content += "<td>" + jsonArray[index][table2Category[entry]] + "</td>";
+                }
+            }
+            document.getElementById("cTable2_tbody").innerHTML = content;
+            addRowHandlers("cTable2_tbody");
+        }
+    };
+    if (package != null) {
+        sendServer(data, callback);
+    }
+}
+
+var file_name
+function getThirdTable(name) {
+    var data = {
+        "method": "getJobListTable", "order": "3", "where": document.getElementById('search').value,
+        "file_package": file_package, "job_name": job_name, "file_name" : name
+    };
+    file_name = name;
+    var callback = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var content = "";
+            jsonArray = JSON.parse(this.responseText);
+            for (var index in jsonArray) {
+                content += "<tr>";
+                for (var entry in table3Category) {
+                    content += "<td>" + jsonArray[index][table3Category[entry]] + "</td>";
+                }
+            }
+            document.getElementById("cTable3_tbody").innerHTML = content;
+            addRowHandlers("cTable3_tbody");
+        }
+    };
+    if (name != null) {
+        sendServer(data, callback);
+    }
+}
+var function_name;
+function getSourceView(name) {
+    var data = {
+        "method": "getCodes", "order": "4", "where": document.getElementById('search').value,
+        "file_package": file_package, "job_name": job_name, "file_name" : file_name, "function_name" : name
+    };
+    function_name = name;
+    createCodeMirror();
+    var callback = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            var jsonArray = JSON.parse(this.responseText);
+            mirror.setValue(jsonArray[0]["CODES"]);
+        }
+    };
+    if (name != null) {
+        sendServer(data, callback);
+    }
+}
+
+function addRowHandlers(tableId) {
+    var table = document.getElementById(tableId);
+    var rows = table.getElementsByTagName("tr");
+    for (i = 0; i < rows.length; i++) {
+        var currentRow = table.rows[i];
+        var createClickHandler;
+        if (tableId == "cTable1_tbody") {
+            createClickHandler = function (row) {
+                return function () {
+                    var cell = row.getElementsByTagName("td")[0];
+                    var id = cell.innerHTML;
+                    getSecondTable(id);
+                };
+            };
+        } else if (tableId == 'cTable2_tbody') {
+            createClickHandler = function (row) {
+                return function () {
+                    var cell = row.getElementsByTagName("td")[0];
+                    var id = cell.innerHTML;
+                    getThirdTable(id);
+                };
+            };
+        } else if (tableId = 'cTable3_tbody') {
+            createClickHandler = function (row) {
+                return function () {
+                    var cell = row.getElementsByTagName("td")[0];
+                    var id = cell.innerHTML;
+                    getSourceView(id);
+                    openTab(null, 'source');
+                };
+            };
+        }
+        currentRow.onclick = createClickHandler(currentRow);
+    }
+}
 
 function createChart() {
     var myLineChart = new Chart(document.getElementById("chartArea"), {
@@ -171,9 +305,9 @@ function createChart() {
         },
         options: {
             maintainAspectRatio: false,
-            title:{
-                display:true,
-                text:'Chart.js Line Chart'
+            title: {
+                display: true,
+                text: 'Chart.js Line Chart'
             },
             tooltips: {
                 mode: 'index',
@@ -215,15 +349,17 @@ function openTab(evt, id) {
     }
     if (id == 'source') {
         document.getElementById(id).style.display = "block";
-        evt.currentTarget.className += " active";
-        createCodeMirror()
+        if (evt != null)
+            evt.currentTarget.className += " active";
     } else {
         document.getElementById('chartContainer').style.display = "block";
-        evt.currentTarget.className += " active";
+        if (evt != null)
+            evt.currentTarget.className += " active";
         createChart();
     }
 
 }
+
 var mirror = null;
 function createCodeMirror() {
     if (mirror == null) {
@@ -239,7 +375,7 @@ function createCodeMirror() {
 
 function exportToCsv(filename) {
     var str = ConvertToCSV(jsonArray, arguments);
-    var blob = new Blob([str], { type: 'text/csv;charset=utf-8;' });
+    var blob = new Blob([str], {type: 'text/csv;charset=utf-8;'});
     var link = document.createElement("a");
     if (link.download !== undefined) { // feature detection
         // Browsers that support HTML5 download attribute
@@ -255,7 +391,7 @@ function exportToCsv(filename) {
 
 function exportToCsvForStatus(filename, rawString) {
     var str = ConvertToStatusCSV(JSON.parse(rawString));
-    var blob = new Blob([str], { type: 'text/csv;charset=utf-8;' });
+    var blob = new Blob([str], {type: 'text/csv;charset=utf-8;'});
     var link = document.createElement("a");
     if (link.download !== undefined) { // feature detection
         // Browsers that support HTML5 download attribute
