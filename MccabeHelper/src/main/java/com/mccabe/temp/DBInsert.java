@@ -265,7 +265,7 @@ public class DBInsert extends McCabeConfig {
                     log("try decoding " + charset.displayName());
                     BufferedReader reader = new BufferedReader(
                             new InputStreamReader(
-                                    new FileInputStream(reportPath), charset.displayName()));
+                                    new FileInputStream(reportPath + ".txt"), charset.displayName()));
                     list = reader.lines().collect(Collectors.toList());
                 } catch (Exception e) {
                     log("Exception. try encoding next.");
@@ -278,7 +278,7 @@ public class DBInsert extends McCabeConfig {
                 FileUtil.write_UTF_8(new File(reportPath + ".txt"));
                 BufferedReader reader = new BufferedReader(
                         new InputStreamReader(
-                                new FileInputStream(reportPath), "UTF-8"));
+                                new FileInputStream(reportPath + ".txt"), "UTF-8"));
                 list = reader.lines().collect(Collectors.toList());
             }
             return list;
