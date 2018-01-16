@@ -15,24 +15,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.charset.MalformedInputException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.mccabe.util.KyoboUtil.*;
 
 public class DBInsert extends McCabeConfig {
-    private static final Charset[] SUPPORT_CHAR = {Charset.forName("EUC-KR"), StandardCharsets.UTF_8};
+    private static final Charset[] SUPPORT_CHAR = { Charset.forName("UTF-8"), Charset.forName("EUC-KR")};
     private static Map<String, List<String>> packageNames;
     private Connection connection = null;
     private PreparedStatement preparedStatement;
@@ -263,7 +263,10 @@ public class DBInsert extends McCabeConfig {
             for (Charset charset : SUPPORT_CHAR) {
                 try {
                     log("try decoding " + charset.displayName());
-                    list = Files.readAllLines(Paths.get(reportPath + ".txt"), charset);
+                    BufferedReader reader = new BufferedReader(
+                            new InputStreamReader(
+                                    new FileInputStream(reportPath), charset.displayName()));
+                    list = reader.lines().collect(Collectors.toList());
                 } catch (Exception e) {
                     log("Exception. try encoding next.");
                     continue;
