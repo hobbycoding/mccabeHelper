@@ -15,25 +15,24 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.mccabe.util.KyoboUtil.*;
 
 public class DBInsert extends McCabeConfig {
-    private static final Charset[] SUPPORT_CHAR = { Charset.forName("UTF-8"), Charset.forName("EUC-KR")};
+    private static final Charset[] SUPPORT_CHAR = {StandardCharsets.UTF_8, Charset.forName("EUC-KR")};
     private static Map<String, List<String>> packageNames;
     private Connection connection = null;
     private PreparedStatement preparedStatement;
@@ -214,7 +213,13 @@ public class DBInsert extends McCabeConfig {
 
         private void parseCoverdLineTextFile(String reportPath) throws IOException {
             log("[Parse File] : " + reportPath + ".txt");
-            List<String> list = getListFromTxtFile(reportPath);
+            List<String> list;
+            try {
+                list = Files.readAllLines(Paths.get(reportPath + ".txt"), StandardCharsets.UTF_8);
+            } catch (MalformedInputException e) {
+                log("MalformedInputException. try encoding EUC-KR");
+                list = Files.readAllLines(Paths.get(reportPath + ".txt"), Charset.forName("EUC-KR"));
+            }
             List<Properties> temp = new ArrayList<>();
             int index = 1;
             for (int i = 0; i < methodContent.size(); ) {
@@ -257,30 +262,6 @@ public class DBInsert extends McCabeConfig {
                     code = "";
                 }
             }
-        }
-
-        private List<String> getListFromTxtFile(String reportPath) throws IOException {
-            List<String> list = null;
-            for (Charset charset : SUPPORT_CHAR) {
-                try (Stream<String> stream = Files.lines(Paths.get(reportPath + ".txt"), charset)) {
-                    log("try decoding " + charset.displayName());
-                    list = stream.collect(Collectors.toList());
-                } catch (Exception e) {
-                    log("Exception. try encoding next.");
-                    continue;
-                }
-            }
-            if (list == null) {
-                log("try to rewrite ISO8859_1");
-                FileUtil.write_UTF_8(new File(reportPath + ".txt"));
-                try (Stream<String> stream = Files.lines(Paths.get(reportPath + ".txt"), Charset.forName("UTF-8"))) {
-                    log("try decoding " + "UTF-8");
-                    list = stream.collect(Collectors.toList());
-                } catch (Exception e) {
-                    log("Exception. try encoding next.");
-                }
-            }
-            return list;
         }
 
         private void parsePackageName() throws SQLException {
