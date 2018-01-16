@@ -276,7 +276,10 @@ public class DBInsert extends McCabeConfig {
             if (list == null) {
                 log("try to rewrite ISO8859_1");
                 FileUtil.write_UTF_8(new File(reportPath + ".txt"));
-                list = Files.readAllLines(Paths.get(reportPath + ".txt"));
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(
+                                new FileInputStream(reportPath), "UTF-8"));
+                list = reader.lines().collect(Collectors.toList());
             }
             return list;
         }
