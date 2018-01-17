@@ -1,6 +1,5 @@
 package com.mccabe.rest;
 
-import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -9,18 +8,17 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.io.BufferedReader;
-import java.io.Reader;
 import java.sql.*;
-import java.util.stream.Collectors;
 
 public class DBService {
 
     // property : method [getOverView, detailView, getExcel], where [ex)2017-12-11],
     // ex) {"method" : "getOverView", "where" : "2017-12-11"}
     public String doProcess(String msg) {
-        JSONArray result = null;
+        Object result = null;
+        JSONObject jsonObject = null;
         try {
-            JSONObject jsonObject = (JSONObject) new JSONParser().parse(msg);
+            jsonObject = (JSONObject) new JSONParser().parse(msg);
             switch (jsonObject.get("method").toString()) {
                 case "getOverView":
                     result = getDataFromTable(Query.getOverView(jsonObject.get("where").toString()));
@@ -42,6 +40,9 @@ public class DBService {
                     break;
                 case "getCodes":
                     result = getCLOBFromTable(Query.getJoblistTable(jsonObject));
+                    break;
+                case "getChartView":
+                    result = getDataFromTable(Query.getChartView(jsonObject), true);
                     break;
             }
         } catch (Exception e) {
@@ -82,12 +83,21 @@ public class DBService {
         return jsonArray;
     }
 
-    private JSONArray getDataFromTable(String query) throws Exception {
+    private Object getDataFromTable(String query) throws Exception {
+        return getDataFromTable(query, false);
+    }
+
+    private Object getDataFromTable(String query, boolean direct) throws Exception {
         Connection connection = getConnection();
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery(query);
         try {
-            JSONArray result = mashalingJSON(resultSet);
+            Object result;
+            if (!direct) {
+                result = marshallingJSON(resultSet);
+            } else {
+                result = directCreateJSON(resultSet);
+            }
             return result;
         } catch (Exception e) {
             throw e;
@@ -123,7 +133,20 @@ public class DBService {
         throw new Exception("can't find mccabe/oracle.");
     }
 
-    private JSONArray mashalingJSON(ResultSet rs) throws SQLException {
+    private Object directCreateJSON(ResultSet resultSet) throws SQLException {
+        JSONObject result = new JSONObject();
+        JSONArray label = new JSONArray();
+        JSONArray data = new JSONArray();
+        while (resultSet.next()) {
+            label.add(resultSet.getString("LABAEL"));
+            data.add(resultSet.getInt("DATA"));
+        }
+        result.put("label", label);
+        result.put("data", data);
+        return result;
+    }
+
+    private JSONArray marshallingJSON(ResultSet rs) throws SQLException {
         JSONArray json = new JSONArray();
         ResultSetMetaData rsmd = rs.getMetaData();
         while (rs.next()) {

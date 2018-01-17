@@ -121,39 +121,6 @@ function getJobNameList(date) {
     sendServer(data, callback);
 }
 
-function getTables(item) {
-    var data = {
-        "method": "getSubDetailView", "category": item,
-        "where": document.getElementById('search').value, "JOB_NAME": document.getElementById('JOB_NAME').value,
-        "MANAGER": document.getElementById('MANAGER').value, "FILE_TYPE": document.getElementById('FILE_TYPE').value
-    };
-    var callback = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            var header = "", content = "";
-            jsonArray = JSON.parse(this.responseText);
-            header += "<table style=\"width:100%; border-spacing:0;\"><tr>";
-            for (var index in jsonArray) {
-                content += "<tr>";
-                for (var entry in tableCategory) {
-                    if (index == 0)
-                        header += "<th>" + tableCategory[entry] + "</th>";
-                    content += "<td>" + jsonArray[index][tableCategory[entry]] + "</td>";
-                }
-            }
-            header += "</tr>";
-            document.getElementById("table").innerHTML = header + content + "</table>";
-        }
-    };
-    if (item != null) {
-        sendServer(data, callback);
-    } else {
-        var header = "<table style=\"width:100%; border-spacing:0;\"><tr>";
-        for (var entry in tableCategory) {
-            header += "<th>" + tableCategory[entry] + "</th>";
-        }
-        document.getElementById("table").innerHTML = header + "</table>";
-    }
-}
 var job_name;
 function getFirstTable(item) {
     var data = {
@@ -179,6 +146,7 @@ function getFirstTable(item) {
         sendServer(data, callback);
     }
 }
+
 var file_package;
 function getSecondTable(package) {
     var data = {
@@ -205,11 +173,11 @@ function getSecondTable(package) {
     }
 }
 
-var file_name
+var file_name;
 function getThirdTable(name) {
     var data = {
         "method": "getJobListTable", "order": "3", "where": document.getElementById('search').value,
-        "file_package": file_package, "job_name": job_name, "file_name" : name
+        "file_package": file_package, "job_name": job_name, "file_name": name
     };
     file_name = name;
     var callback = function () {
@@ -230,11 +198,12 @@ function getThirdTable(name) {
         sendServer(data, callback);
     }
 }
+
 var function_name;
 function getSourceView(name) {
     var data = {
         "method": "getCodes", "order": "4", "where": document.getElementById('search').value,
-        "file_package": file_package, "job_name": job_name, "file_name" : file_name, "function_name" : name
+        "file_package": file_package, "job_name": job_name, "file_name": file_name, "function_name": name
     };
     function_name = name;
     createCodeMirror();
@@ -249,6 +218,17 @@ function getSourceView(name) {
     }
 }
 
+function getChartView(name, data, tab) {
+    var callback = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            jsonArray = JSON.parse(this.responseText);
+            createChart(name,jsonArray[0]["data"], jsonArray[0]["label"]);
+            openTab(null, tab);
+        }
+    };
+    sendServer(data, callback);
+}
+
 function addRowHandlers(tableId) {
     var table = document.getElementById(tableId);
     var rows = table.getElementsByTagName("tr");
@@ -260,6 +240,14 @@ function addRowHandlers(tableId) {
                 return function () {
                     var cell = row.getElementsByTagName("td")[0];
                     var id = cell.innerHTML;
+                    if (document.title == "chartView") {
+                        var data = {
+                            "method": "getChartView", "order":"1", "from": document.getElementById('search').value,
+                            "to": document.getElementById('to').value,
+                            "job_name": job_name, "file_package":id
+                        };
+                        getChartView(job_name, data, "Package");
+                    }
                     getSecondTable(id);
                 };
             };
@@ -268,6 +256,14 @@ function addRowHandlers(tableId) {
                 return function () {
                     var cell = row.getElementsByTagName("td")[0];
                     var id = cell.innerHTML;
+                    if (document.title == "chartView") {
+                        var data = {
+                            "method": "getChartView", "order":"2", "from": document.getElementById('search').value,
+                            "to": document.getElementById('to').value,
+                            "job_name": job_name, "file_package":file_package, "file_name":id
+                        };
+                        getChartView(job_name, data, "Class");
+                    }
                     getThirdTable(id);
                 };
             };
@@ -276,8 +272,17 @@ function addRowHandlers(tableId) {
                 return function () {
                     var cell = row.getElementsByTagName("td")[0];
                     var id = cell.innerHTML;
-                    getSourceView(id);
-                    openTab(null, 'source');
+                    if (document.title == "chartView") {
+                        var data = {
+                            "method": "getChartView", "order":"2", "from": document.getElementById('search').value,
+                            "to": document.getElementById('to').value,
+                            "job_name": job_name, "file_package":file_package, "file_name":file_name, "function_name":id
+                        };
+                        getChartView(job_name, data, "Function");
+                    } else {
+                        getSourceView(id);
+                        openTab(null, 'source');
+                    }
                 };
             };
         }
@@ -285,55 +290,58 @@ function addRowHandlers(tableId) {
     }
 }
 
-function createChart() {
+function createChart(name, label, data) {
+    var data = {
+        // labels: ["12-8","12-9","12-10","12-11","12-12","12-13","12-14","12-15"],
+        labels:label,
+        datasets: [
+            {
+                label: "",
+                fill:false,
+                backgroundColor:"rgb(75, 192, 192)",
+                borderColor: "rgb(75, 192, 192)",
+                data: data
+                // data: [0, 20, 40, 50, 55, 70, 8, 13, 21, 34]
+            }
+        ]
+    };
+    data.datasets[0].label = name;
+    var options = {
+        maintainAspectRatio: false,
+        title: {
+            display: true,
+            text: 'Coverage(%)'
+        },
+        tooltips: {
+            mode: 'index',
+            intersect: false,
+        },
+        hover: {
+            mode: 'nearest',
+            intersect: true
+        },
+        scales: {
+            xAxes: [{
+                display: true,
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Month'
+                }
+            }],
+            yAxes: [{
+                display: true,
+                ticks: {
+                    beginAtZero: true,
+                    stepSize: 20,
+                    max: 100
+                }
+            }]
+        }
+    }
     var myLineChart = new Chart(document.getElementById("chartArea"), {
         type: 'line',
-        data: {
-            labels: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            datasets: [
-                {
-                    label: "My Second dataset",
-                    fillColor: "rgba(151,187,205,0.2)",
-                    strokeColor: "rgba(151,187,205,1)",
-                    pointColor: "rgba(151,187,205,1)",
-                    pointStrokeColor: "#fff",
-                    pointHighlightFill: "#fff",
-                    pointHighlightStroke: "rgba(151,187,205,1)",
-                    data: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
-                }
-            ]
-        },
-        options: {
-            maintainAspectRatio: false,
-            title: {
-                display: true,
-                text: 'Chart.js Line Chart'
-            },
-            tooltips: {
-                mode: 'index',
-                intersect: false,
-            },
-            hover: {
-                mode: 'nearest',
-                intersect: true
-            },
-            scales: {
-                xAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Month'
-                    }
-                }],
-                yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Value'
-                    }
-                }]
-            }
-        }
+        data: data,
+        options: options
     });
 }
 
@@ -353,18 +361,21 @@ function openTab(evt, id) {
             evt.currentTarget.className += " active";
     } else {
         document.getElementById('chartContainer').style.display = "block";
-        if (evt != null)
+        if (evt != null) {
             evt.currentTarget.className += " active";
+        } else {
+            document.getElementById(id).className += " active";
+        }
         createChart();
     }
-
 }
 
 var mirror = null;
+
 function createCodeMirror() {
     if (mirror == null) {
         mirror = CodeMirror.fromTextArea(document.getElementById("sourceArea"), {
-            lineNumbers: true,
+            lineNumbers: false,
             mode: "text/x-java",
             matchBrackets: true,
             readOnly: true

@@ -19,7 +19,7 @@ public class Query {
             "JOB_NAME, MANAGER, FILE_TYPE, NUM_OF_LINE, COV_COVERED_LINE, COV_COVERAGE FROM REPORT_TABLE " +
             "WHERE FILE_DATE = '{date}'  AND JOB_CATEGORY = '{category}'";
     private static final String TABLE_1 = "SELECT FILE_PACKAGE, ROUND(AVG(COV_COVERAGE), 2) COV_COVERAGE " +
-            "FROM REPORT_TABLE WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' GROUP BY FILE_PACKAGE";
+            "FROM REPORT_TABLE WHERE FILE_DATE <= '{date}' AND JOB_NAME='{job_name}' GROUP BY FILE_PACKAGE";
     private static final String TABLE_2 = "SELECT FILE_NAME, FILE_NAME_KO, ROUND(AVG(COV_COVERAGE), 2) COV_COVERAGE " +
             "FROM REPORT_TABLE WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' AND FILE_PACKAGE = '{file_package}' " +
             "GROUP BY FILE_NAME, FILE_NAME_KO";
@@ -27,6 +27,8 @@ public class Query {
             "WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' AND FILE_PACKAGE = '{file_package}' AND FILE_NAME = '{file_name}'";
     private static final String TABLE_4 = "SELECT CODES FROM REPORT_TABLE WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' " +
             "AND FILE_PACKAGE = '{file_package}' AND FILE_NAME = '{file_name}' AND FUNTION_NAME = '{function_name}'";
+    private static final String CHART1 = "SELECT FILE_DATE label, ROUND(AVG(COV_COVERAGE), 2) data FROM REPORT_TABLE WHERE " +
+            "FILE_PACKAGE='{file_package}' AND JOB_NAME='{job_name}' AND FILE_DATE <= '{from}'";
 
     public enum Category {
         SYSTEM_ID("시스템"), JOB_CATEGORY("업무분류"), TOTAL_PROGRAM("전체Program"), TOTAL_TESTED("테스트된 Program"),
@@ -50,8 +52,8 @@ public class Query {
             return this.desc.equals(desc) ? true : false;
         }
 
-    }
 
+    }
     public static String getOverView(String where) {
         return OVERVIEW.replace("{date}", where);
     }
@@ -97,6 +99,34 @@ public class Query {
                         .replace("{function_name}", object.get("function_name").toString());
         }
         return null;
+    }
+
+    public static String getChartView(JSONObject object) {
+        String result = "";
+        switch (object.get("order").toString()) {
+            case "1" :
+                result = CHART1.replace("{file_package}", object.get("file_package").toString())
+                        .replace("{job_name}", object.get("job_name").toString())
+                        .replace("{from}", object.get("from").toString());
+                break;
+            case "2" :
+                result = CHART1.replace("{file_package}", object.get("file_package").toString())
+                        .replace("{job_name}", object.get("job_name").toString())
+                        .replace("{from}", object.get("from").toString());
+                result += " AND FILE_NAME='" + object.get("file_name") + "' ";
+                break;
+            case "3" :
+                result = CHART1.replace("{file_package}", object.get("file_package").toString())
+                        .replace("{job_name}", object.get("job_name").toString())
+                        .replace("{from}", object.get("from").toString());
+                result += " AND FILE_NAME='" + object.get("file_name") + "' AND FUNTION_NAME='" + object.get("function_name") + "'";
+                break;
+        }
+        if (object.containsKey("to") && object.get("to").toString().length() > 1) {
+            result+= " AND FILE_DATE >= '" + object.get("to") + "'";
+        }
+        result+= " GROUP BY FILE_DATE";
+        return result;
     }
 
     private static String getAndQuery(JSONObject object, String...names) {

@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>examples</title>
+    <title>chartView</title>
     <meta name="description" content=""/>
     <meta name="keywords" content=""/>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
@@ -35,29 +35,25 @@
     <div id="content_header"></div>
     <div id="site_content">
         <div class="form_settings">
-            <select id="jobNameList" onmousedown="value = ''" onchange="getTables(value);"/>
+            <select id="jobNameList" onmousedown="value = ''" onchange="getFirstTable(value);"/>
             <input type="submit" value="refresh" onclick="getJobNameList(document.getElementById('search').value);" class="submit" style="float:right">
-            <input id="search" type="date" name="name" value="" style="float:right"/>
+            <div style="float:right">
+                <input id="to" type="date" name="name" value="" /> ~
+                <input id="search" type="date" name="name" value="" />
+            </div>
+
         </div>
         <div id="tables" style="margin: 0 auto; overflow: hidden; height: 300px; text-align:center; min-width :1370px">
             <div id="a" class="inline">
                 <table class="inlineTable">
                     <thead>
                     <td colspan="2">Package목록(전체)</td>
-                    <tr><th>패키지명</th><th>테스트 커버리지(%)</th><tr>
+                    <tr>
+                        <th>패키지명</th>
+                        <th>테스트 커버리지(%)</th>
+                    <tr>
                     </thead>
-                    <tbody>
-                    <tr><td>Item 1</td><td>Description of Item 1</td></tr>
-                    <tr><td>Item 2</td><td>Description of Item 2</td></tr>
-                    <tr><td>Item 3</td><td>Description of Item 3</td></tr>
-                    <tr><td>Item 4</td><td>Description of Item 4</td></tr>
-                    <tr><td>Item 1</td><td>Description of Item 1</td></tr>
-                    <tr><td>Item 2</td><td>Description of Item 2</td></tr>
-                    <tr><td>Item 3</td><td>Description of Item 3</td></tr>
-                    <tr><td>Item 4</td><td>Description of Item 4</td></tr>
-                    <tr><td>Item 2</td><td>Description of Item 2</td></tr>
-                    <tr><td>Item 3</td><td>Description of Item 3</td></tr>
-                    <tr><td>Item e</td><td>Description of Item 4</td></tr>
+                    <tbody id="cTable1_tbody">
                     </tbody>
                 </table>
             </div>
@@ -65,20 +61,13 @@
                 <table class="inlineTable">
                     <thead>
                     <td colspan="3">Class 목록</td>
-                    <tr><th>클래스(물리명)</th><th>클래스(논리명)</th><th>테스트 커버리지(%)</th><tr>
+                    <tr>
+                        <th>클래스(물리명)</th>
+                        <th>클래스(논리명)</th>
+                        <th>테스트 커버리지(%)</th>
+                    <tr>
                     </thead>
-                    <tbody>
-                    <tr><td>Item 1</td><td>Item 1</td><td>Description of Item 1</td></tr>
-                    <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                    <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                    <tr><td>Item 4</td><td>Item 4</td><td>Description of Item 4</td></tr>
-                    <tr><td>Item 1</td><td>Item 1</td><td>Description of Item 1</td></tr>
-                    <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                    <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                    <tr><td>Item 4</td><td>Item 4</td><td>Description of Item 4</td></tr>
-                    <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                    <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                    <tr><td>Item e</td><td>Item 4</td><td>Description of Item 4</td></tr>
+                    <tbody id="cTable2_tbody">
                     </tbody>
                 </table>
             </div>
@@ -86,28 +75,21 @@
                 <table class="inlineTable">
                     <thead>
                     <td colspan="3">Operation(Function) 목록</td>
-                    <tr><th>Operation(물리명)</th><th>Operation(논리명)</th><th>테스트 커버리지(%)</th><tr>
+                    <tr>
+                        <th>Operation(물리명)</th>
+                        <th>Operation(논리명)</th>
+                        <th>테스트 커버리지(%)</th>
+                    <tr>
                     </thead>
-                    <tbody>
-                    <tr><td>Item 1</td><td>Item 1</td><td>Description of Item 1</td></tr>
-                    <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                    <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                    <tr><td>Item 4</td><td>Item 4</td><td>Description of Item 4</td></tr>
-                    <tr><td>Item 1</td><td>Item 1</td><td>Description of Item 1</td></tr>
-                    <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                    <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                    <tr><td>Item 4</td><td>Item 4</td><td>Description of Item 4</td></tr>
-                    <tr><td>Item 2</td><td>Item 2</td><td>Description of Item 2</td></tr>
-                    <tr><td>Item 3</td><td>Item 3</td><td>Description of Item 3</td></tr>
-                    <tr><td>Item e</td><td>Item 4</td><td>Description of Item 4</td></tr>
+                    <tbody id="cTable3_tbody">
                     </tbody>
                 </table>
             </div>
         </div>
         <div class="tab">
-            <button class="tablinks" onclick="openTab(event, 'Package')">Package</button>
-            <button class="tablinks" onclick="openTab(event, 'Class')">Class</button>
-            <button class="tablinks" onclick="openTab(event, 'Function')">Function</button>
+            <button id="Package" class="tablinks" onclick="openTab(event, 'Package')">Package</button>
+            <button id="Class" class="tablinks" onclick="openTab(event, 'Class')">Class</button>
+            <button id="Function" class="tablinks" onclick="openTab(event, 'Function')">Function</button>
         </div>
         <!-- Tab content -->
         <div id="chartContainer" class="tabcontent">
@@ -121,5 +103,8 @@
             href="http://www.html5webtemplates.co.uk">Website templates</a>
     </div>
 </div>
+<script>
+    document.getElementById("search").valueAsDate = new Date();
+</script>
 </body>
 </html>
