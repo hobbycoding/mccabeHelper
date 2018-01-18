@@ -38,7 +38,7 @@
             <select id="jobNameList" onmousedown="value = ''" onchange="getFirstTable(value);"/>
             <input type="submit" value="refresh" onclick="getJobNameList(document.getElementById('search').value);" class="submit" style="float:right">
             <div style="float:right">
-                <input id="to" type="date" name="name" value="" /> ~
+                <input id="from" type="date" name="name" value="" /> ~
                 <input id="search" type="date" name="name" value="" />
             </div>
 
@@ -104,6 +104,7 @@
     </div>
 </div>
 <script>
+    document.getElementById("from").valueAsDate = new Date(new Date().getTime() - 24 * 60 * 60 * 1000 * 60);
     document.getElementById("search").valueAsDate = new Date();
 </script>
 </body>

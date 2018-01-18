@@ -128,6 +128,9 @@ function getFirstTable(item) {
         "job_name": item
     };
     job_name = item;
+    if (document.title == "chartView") {
+        data.from = document.getElementById('from').value;
+    }
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
             var content = "";
@@ -154,6 +157,9 @@ function getSecondTable(package) {
         "file_package": package, "job_name": job_name
     };
     file_package = package;
+    if (document.title == "chartView") {
+        data.from = document.getElementById('from').value;
+    }
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
             var content = "";
@@ -180,6 +186,9 @@ function getThirdTable(name) {
         "file_package": file_package, "job_name": job_name, "file_name": name
     };
     file_name = name;
+    if (document.title == "chartView") {
+        data.from = document.getElementById('from').value;
+    }
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
             var content = "";
@@ -222,7 +231,7 @@ function getChartView(name, data, tab) {
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
             jsonArray = JSON.parse(this.responseText);
-            createChart(name,jsonArray[0]["data"], jsonArray[0]["label"]);
+            createChart(name, jsonArray.data, jsonArray.label);
             openTab(null, tab);
         }
     };
@@ -242,11 +251,11 @@ function addRowHandlers(tableId) {
                     var id = cell.innerHTML;
                     if (document.title == "chartView") {
                         var data = {
-                            "method": "getChartView", "order":"1", "from": document.getElementById('search').value,
-                            "to": document.getElementById('to').value,
+                            "method": "getChartView", "order":"1", "from": document.getElementById('from').value,
+                            "to": document.getElementById('search').value,
                             "job_name": job_name, "file_package":id
                         };
-                        getChartView(job_name, data, "Package");
+                        getChartView(id, data, "Package");
                     }
                     getSecondTable(id);
                 };
@@ -258,11 +267,11 @@ function addRowHandlers(tableId) {
                     var id = cell.innerHTML;
                     if (document.title == "chartView") {
                         var data = {
-                            "method": "getChartView", "order":"2", "from": document.getElementById('search').value,
-                            "to": document.getElementById('to').value,
+                            "method": "getChartView", "order":"2", "from": document.getElementById('from').value,
+                            "to": document.getElementById('search').value,
                             "job_name": job_name, "file_package":file_package, "file_name":id
                         };
-                        getChartView(job_name, data, "Class");
+                        getChartView(id, data, "Class");
                     }
                     getThirdTable(id);
                 };
@@ -274,11 +283,11 @@ function addRowHandlers(tableId) {
                     var id = cell.innerHTML;
                     if (document.title == "chartView") {
                         var data = {
-                            "method": "getChartView", "order":"2", "from": document.getElementById('search').value,
-                            "to": document.getElementById('to').value,
+                            "method": "getChartView", "order":"2", "from": document.getElementById('from').value,
+                            "to": document.getElementById('search').value,
                             "job_name": job_name, "file_package":file_package, "file_name":file_name, "function_name":id
                         };
-                        getChartView(job_name, data, "Function");
+                        getChartView(id, data, "Function");
                     } else {
                         getSourceView(id);
                         openTab(null, 'source');
@@ -290,22 +299,20 @@ function addRowHandlers(tableId) {
     }
 }
 
-function createChart(name, label, data) {
-    var data = {
-        // labels: ["12-8","12-9","12-10","12-11","12-12","12-13","12-14","12-15"],
+var chart;
+function createChart(name, data, label) {
+    var chartData = {
         labels:label,
         datasets: [
             {
-                label: "",
+                label: name,
                 fill:false,
                 backgroundColor:"rgb(75, 192, 192)",
                 borderColor: "rgb(75, 192, 192)",
                 data: data
-                // data: [0, 20, 40, 50, 55, 70, 8, 13, 21, 34]
             }
         ]
     };
-    data.datasets[0].label = name;
     var options = {
         maintainAspectRatio: false,
         title: {
@@ -325,7 +332,6 @@ function createChart(name, label, data) {
                 display: true,
                 scaleLabel: {
                     display: true,
-                    labelString: 'Month'
                 }
             }],
             yAxes: [{
@@ -338,11 +344,16 @@ function createChart(name, label, data) {
             }]
         }
     }
-    var myLineChart = new Chart(document.getElementById("chartArea"), {
-        type: 'line',
-        data: data,
-        options: options
-    });
+    if (chart == null) {
+        chart = new Chart(document.getElementById("chartArea"), {
+            type: 'line',
+            data: chartData,
+            options: options
+        });
+    } else {
+        chart.config.data = chartData;
+        chart.update();
+    }
 }
 
 function openTab(evt, id) {
@@ -366,7 +377,7 @@ function openTab(evt, id) {
         } else {
             document.getElementById(id).className += " active";
         }
-        createChart();
+        // createChart();
     }
 }
 

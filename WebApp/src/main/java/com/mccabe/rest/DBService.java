@@ -96,7 +96,7 @@ public class DBService {
             if (!direct) {
                 result = marshallingJSON(resultSet);
             } else {
-                result = directCreateJSON(resultSet);
+                result = createJSONObject(resultSet);
             }
             return result;
         } catch (Exception e) {
@@ -133,13 +133,13 @@ public class DBService {
         throw new Exception("can't find mccabe/oracle.");
     }
 
-    private Object directCreateJSON(ResultSet resultSet) throws SQLException {
+    private Object createJSONObject(ResultSet resultSet) throws SQLException {
         JSONObject result = new JSONObject();
         JSONArray label = new JSONArray();
         JSONArray data = new JSONArray();
         while (resultSet.next()) {
-            label.add(resultSet.getString("LABAEL"));
-            data.add(resultSet.getInt("DATA"));
+            label.add(resultSet.getString("label"));
+            data.add(resultSet.getInt("data"));
         }
         result.put("label", label);
         result.put("data", data);

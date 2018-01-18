@@ -19,16 +19,15 @@ public class Query {
             "JOB_NAME, MANAGER, FILE_TYPE, NUM_OF_LINE, COV_COVERED_LINE, COV_COVERAGE FROM REPORT_TABLE " +
             "WHERE FILE_DATE = '{date}'  AND JOB_CATEGORY = '{category}'";
     private static final String TABLE_1 = "SELECT FILE_PACKAGE, ROUND(AVG(COV_COVERAGE), 2) COV_COVERAGE " +
-            "FROM REPORT_TABLE WHERE FILE_DATE <= '{date}' AND JOB_NAME='{job_name}' GROUP BY FILE_PACKAGE";
+            "FROM REPORT_TABLE WHERE JOB_NAME='{job_name}' ";
     private static final String TABLE_2 = "SELECT FILE_NAME, FILE_NAME_KO, ROUND(AVG(COV_COVERAGE), 2) COV_COVERAGE " +
-            "FROM REPORT_TABLE WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' AND FILE_PACKAGE = '{file_package}' " +
-            "GROUP BY FILE_NAME, FILE_NAME_KO";
+            "FROM REPORT_TABLE WHERE JOB_NAME='{job_name}' AND FILE_PACKAGE = '{file_package}' ";
     private static final String TABLE_3 = "SELECT FUNTION_NAME, FUNTION_NAME_KO, COV_COVERAGE FROM REPORT_TABLE " +
-            "WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' AND FILE_PACKAGE = '{file_package}' AND FILE_NAME = '{file_name}'";
-    private static final String TABLE_4 = "SELECT CODES FROM REPORT_TABLE WHERE FILE_DATE = '{date}' AND JOB_NAME='{job_name}' " +
+            "WHERE JOB_NAME='{job_name}' AND FILE_PACKAGE = '{file_package}' AND FILE_NAME = '{file_name}'";
+    private static final String TABLE_4 = "SELECT CODES FROM REPORT_TABLE WHERE JOB_NAME='{job_name}' " +
             "AND FILE_PACKAGE = '{file_package}' AND FILE_NAME = '{file_name}' AND FUNTION_NAME = '{function_name}'";
-    private static final String CHART1 = "SELECT FILE_DATE label, ROUND(AVG(COV_COVERAGE), 2) data FROM REPORT_TABLE WHERE " +
-            "FILE_PACKAGE='{file_package}' AND JOB_NAME='{job_name}' AND FILE_DATE <= '{from}'";
+    private static final String CHART_QUERY = "SELECT FILE_DATE label, ROUND(AVG(COV_COVERAGE), 2) data FROM REPORT_TABLE WHERE " +
+            "FILE_PACKAGE='{file_package}' AND JOB_NAME='{job_name}' AND FILE_DATE >= '{from}' AND FILE_DATE <= '{to}'";
 
     public enum Category {
         SYSTEM_ID("시스템"), JOB_CATEGORY("업무분류"), TOTAL_PROGRAM("전체Program"), TOTAL_TESTED("테스트된 Program"),
@@ -54,6 +53,7 @@ public class Query {
 
 
     }
+
     public static String getOverView(String where) {
         return OVERVIEW.replace("{date}", where);
     }
@@ -61,7 +61,7 @@ public class Query {
     public static String getSubDetailView(JSONObject jsonObject) {
         String result = SUBDETAIL.replace("{date}", jsonObject.get("where").toString())
                 .replace("{category}", jsonObject.get("category").toString());
-        result+= getAndQuery(jsonObject, "JOB_NAME", "MANAGER", "FILE_TYPE");
+        result += getAndQuery(jsonObject, "JOB_NAME", "MANAGER", "FILE_TYPE");
         return result;
     }
 
@@ -78,62 +78,89 @@ public class Query {
     }
 
     public static String getJoblistTable(JSONObject object) {
+        String result = "";
         switch (object.get("order").toString()) {
-            case "1" :
-                return TABLE_1.replace("{date}", object.get("where").toString())
-                        .replace("{job_name}", object.get("job_name").toString());
-            case "2" :
-                return TABLE_2.replace("{date}", object.get("where").toString())
-                        .replace("{job_name}", object.get("job_name").toString())
+            case "1":
+                result = TABLE_1.replace("{job_name}", object.get("job_name").toString());
+                if (object.containsKey("from")) {
+                    result += " AND FILE_DATE >= '" + object.get("from") + "'"
+                            + " AND FILE_DATE <= '" + object.get("where") + "'";
+                } else {
+                    result += " AND FILE_DATE <= '" + object.get("where") + "'";
+                }
+                result += " GROUP BY FILE_PACKAGE";
+                break;
+            case "2":
+                result = TABLE_2.replace("{job_name}", object.get("job_name").toString())
                         .replace("{file_package}", object.get("file_package").toString());
-            case "3" :
-                return TABLE_3.replace("{date}", object.get("where").toString())
-                        .replace("{job_name}", object.get("job_name").toString())
+                if (object.containsKey("from")) {
+                    result += " AND FILE_DATE >= '" + object.get("from") + "'"
+                            + " AND FILE_DATE <= '" + object.get("where") + "'";
+                } else {
+                    result += " AND FILE_DATE <= '" + object.get("where") + "'";
+                }
+                result += " GROUP BY FILE_NAME, FILE_NAME_KO";
+                break;
+            case "3":
+                result = TABLE_3.replace("{job_name}", object.get("job_name").toString())
                         .replace("{file_package}", object.get("file_package").toString())
                         .replace("{file_name}", object.get("file_name").toString());
-            case "4" :
-                return TABLE_4.replace("{date}", object.get("where").toString())
-                        .replace("{job_name}", object.get("job_name").toString())
+                if (object.containsKey("from")) {
+                    result += " AND FILE_DATE >= '" + object.get("from") + "'"
+                            + " AND FILE_DATE <= '" + object.get("where") + "'";
+                } else {
+                    result += " AND FILE_DATE <= '" + object.get("where") + "'";
+                }
+                break;
+            case "4":
+                result = TABLE_4.replace("{job_name}", object.get("job_name").toString())
                         .replace("{file_package}", object.get("file_package").toString())
                         .replace("{file_name}", object.get("file_name").toString())
                         .replace("{function_name}", object.get("function_name").toString());
+                if (object.containsKey("from")) {
+                    result += " AND FILE_DATE >= '" + object.get("from") + "'"
+                            + " AND FILE_DATE <= '" + object.get("where") + "'";
+                } else {
+                    result += " AND FILE_DATE <= '" + object.get("where") + "'";
+                }
+                break;
         }
-        return null;
+        return result;
     }
 
     public static String getChartView(JSONObject object) {
         String result = "";
         switch (object.get("order").toString()) {
-            case "1" :
-                result = CHART1.replace("{file_package}", object.get("file_package").toString())
+            case "1":
+                result = CHART_QUERY.replace("{file_package}", object.get("file_package").toString())
                         .replace("{job_name}", object.get("job_name").toString())
-                        .replace("{from}", object.get("from").toString());
+                        .replace("{from}", object.get("from").toString())
+                        .replace("{to}", object.get("to").toString());
                 break;
-            case "2" :
-                result = CHART1.replace("{file_package}", object.get("file_package").toString())
+            case "2":
+                result = CHART_QUERY.replace("{file_package}", object.get("file_package").toString())
                         .replace("{job_name}", object.get("job_name").toString())
-                        .replace("{from}", object.get("from").toString());
+                        .replace("{from}", object.get("from").toString())
+                        .replace("{to}", object.get("to").toString());
                 result += " AND FILE_NAME='" + object.get("file_name") + "' ";
                 break;
-            case "3" :
-                result = CHART1.replace("{file_package}", object.get("file_package").toString())
+            case "3":
+                result = CHART_QUERY.replace("{file_package}", object.get("file_package").toString())
                         .replace("{job_name}", object.get("job_name").toString())
-                        .replace("{from}", object.get("from").toString());
+                        .replace("{from}", object.get("from").toString())
+                        .replace("{to}", object.get("to").toString());
                 result += " AND FILE_NAME='" + object.get("file_name") + "' AND FUNTION_NAME='" + object.get("function_name") + "'";
                 break;
         }
-        if (object.containsKey("to") && object.get("to").toString().length() > 1) {
-            result+= " AND FILE_DATE >= '" + object.get("to") + "'";
-        }
-        result+= " GROUP BY FILE_DATE";
+        result += " GROUP BY FILE_DATE";
         return result;
     }
 
-    private static String getAndQuery(JSONObject object, String...names) {
+    private static String getAndQuery(JSONObject object, String... names) {
         String result = "";
         for (String name : names) {
             if (object.containsKey(name) && object.get(name).toString().length() > 0) {
-                result+= " AND " + name + " ='" + object.get(name) + "'";
+                result += " AND " + name + " ='" + object.get(name) + "'";
             }
         }
         return result;
