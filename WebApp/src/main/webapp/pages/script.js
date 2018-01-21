@@ -103,10 +103,10 @@ function sendServer(data, callback) {
 }
 
 function getJobNameList(date) {
-    if (document.getElementById("jobNameList").childElementCount > 0) {
-        return;
-    }
     var data = {"method": "getJobList", "where": date};
+    if (document.title == "chartView") {
+        data.from = document.getElementById('from').value;
+    }
     var callback = function () {
         var content = "";
         if (this.readyState == 4 && this.status == 200) {
@@ -116,12 +116,14 @@ function getJobNameList(date) {
                 content += "<option value=\"" + jsonArray[index]["업무명"] + "\">" + v + "</option>";
             }
             document.getElementById("jobNameList").innerHTML = content;
+            clearTables();
         }
     };
     sendServer(data, callback);
 }
 
 var job_name;
+
 function getFirstTable(item) {
     var data = {
         "method": "getJobListTable", "order": "1", "where": document.getElementById('search').value,
@@ -142,6 +144,8 @@ function getFirstTable(item) {
                 }
             }
             document.getElementById("cTable1_tbody").innerHTML = content;
+            document.getElementById("cTable2_tbody").innerHTML = "";
+            document.getElementById("cTable3_tbody").innerHTML = "";
             addRowHandlers("cTable1_tbody");
         }
     };
@@ -149,8 +153,8 @@ function getFirstTable(item) {
         sendServer(data, callback);
     }
 }
-
 var file_package;
+
 function getSecondTable(package) {
     var data = {
         "method": "getJobListTable", "order": "2", "where": document.getElementById('search').value,
@@ -171,6 +175,7 @@ function getSecondTable(package) {
                 }
             }
             document.getElementById("cTable2_tbody").innerHTML = content;
+            document.getElementById("cTable3_tbody").innerHTML = "";
             addRowHandlers("cTable2_tbody");
         }
     };
@@ -178,8 +183,8 @@ function getSecondTable(package) {
         sendServer(data, callback);
     }
 }
-
 var file_name;
+
 function getThirdTable(name) {
     var data = {
         "method": "getJobListTable", "order": "3", "where": document.getElementById('search').value,
@@ -206,6 +211,12 @@ function getThirdTable(name) {
     if (name != null) {
         sendServer(data, callback);
     }
+}
+
+function clearTables() {
+    document.getElementById("cTable1_tbody").innerHTML = "";
+    document.getElementById("cTable2_tbody").innerHTML = "";
+    document.getElementById("cTable3_tbody").innerHTML = "";
 }
 
 var function_name;

@@ -33,7 +33,7 @@ public class DBService {
                     result = getDataFromTable(Query.getDetailView(jsonObject.get("where")));
                     break;
                 case "getJobList":
-                    result = getDataFromTable(Query.getJoblist(jsonObject.get("where").toString()));
+                    result = getDataFromTable(Query.getJoblist(jsonObject));
                     break;
                 case "getJobListTable":
                     result = getDataFromTable(Query.getJoblistTable(jsonObject));

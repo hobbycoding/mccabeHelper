@@ -14,7 +14,7 @@ public class Query {
             "      GROUP BY SYSTEM_ID, JOB_CATEGORY, FILE_PACKAGE, FILE_NAME)\n" +
             "GROUP BY SYSTEM_ID, JOB_CATEGORY";
     private static final String CATEGORYLIST = "SELECT JOB_CATEGORY FROM REPORT_TABLE WHERE FILE_DATE = '{date}' GROUP BY JOB_CATEGORY";
-    private static final String JOBLIST = "SELECT JOB_NAME FROM REPORT_TABLE WHERE FILE_DATE = '{date}' GROUP BY JOB_NAME";
+    private static final String JOBLIST = "SELECT JOB_NAME FROM REPORT_TABLE WHERE ";
     private static final String SUBDETAIL = "SELECT FILE_NAME, FILE_NAME_KO, FUNTION_NAME, FUNTION_NAME_KO, SERVICE_ID, " +
             "JOB_NAME, MANAGER, FILE_TYPE, NUM_OF_LINE, COV_COVERED_LINE, COV_COVERAGE FROM REPORT_TABLE " +
             "WHERE FILE_DATE = '{date}'  AND JOB_CATEGORY = '{category}'";
@@ -73,8 +73,8 @@ public class Query {
         return CATEGORYLIST.replace("{date}", where);
     }
 
-    public static String getJoblist(String where) {
-        return JOBLIST.replace("{date}", where);
+    public static String getJoblist(JSONObject object) {
+        return JOBLIST + createDateField(object) + " GROUP BY JOB_NAME";
     }
 
     public static String getJoblistTable(JSONObject object) {
@@ -82,47 +82,25 @@ public class Query {
         switch (object.get("order").toString()) {
             case "1":
                 result = TABLE_1.replace("{job_name}", object.get("job_name").toString());
-                if (object.containsKey("from")) {
-                    result += " AND FILE_DATE >= '" + object.get("from") + "'"
-                            + " AND FILE_DATE <= '" + object.get("where") + "'";
-                } else {
-                    result += " AND FILE_DATE <= '" + object.get("where") + "'";
-                }
-                result += " GROUP BY FILE_PACKAGE";
+                result += " AND " + createDateField(object) + " GROUP BY FILE_PACKAGE";
                 break;
             case "2":
                 result = TABLE_2.replace("{job_name}", object.get("job_name").toString())
                         .replace("{file_package}", object.get("file_package").toString());
-                if (object.containsKey("from")) {
-                    result += " AND FILE_DATE >= '" + object.get("from") + "'"
-                            + " AND FILE_DATE <= '" + object.get("where") + "'";
-                } else {
-                    result += " AND FILE_DATE <= '" + object.get("where") + "'";
-                }
-                result += " GROUP BY FILE_NAME, FILE_NAME_KO";
+                result += " AND " + createDateField(object) + " GROUP BY FILE_NAME, FILE_NAME_KO";
                 break;
             case "3":
                 result = TABLE_3.replace("{job_name}", object.get("job_name").toString())
                         .replace("{file_package}", object.get("file_package").toString())
                         .replace("{file_name}", object.get("file_name").toString());
-                if (object.containsKey("from")) {
-                    result += " AND FILE_DATE >= '" + object.get("from") + "'"
-                            + " AND FILE_DATE <= '" + object.get("where") + "'";
-                } else {
-                    result += " AND FILE_DATE <= '" + object.get("where") + "'";
-                }
+                result+= " AND " + createDateField(object);
                 break;
             case "4":
                 result = TABLE_4.replace("{job_name}", object.get("job_name").toString())
                         .replace("{file_package}", object.get("file_package").toString())
                         .replace("{file_name}", object.get("file_name").toString())
                         .replace("{function_name}", object.get("function_name").toString());
-                if (object.containsKey("from")) {
-                    result += " AND FILE_DATE >= '" + object.get("from") + "'"
-                            + " AND FILE_DATE <= '" + object.get("where") + "'";
-                } else {
-                    result += " AND FILE_DATE <= '" + object.get("where") + "'";
-                }
+                result+= " AND " + createDateField(object);
                 break;
         }
         return result;
@@ -162,6 +140,17 @@ public class Query {
             if (object.containsKey(name) && object.get(name).toString().length() > 0) {
                 result += " AND " + name + " ='" + object.get(name) + "'";
             }
+        }
+        return result;
+    }
+
+    private static String createDateField(JSONObject object) {
+        String result = "";
+        if (object.containsKey("from")) {
+            result += " FILE_DATE >= '" + object.get("from") + "'"
+                    + " AND FILE_DATE <= '" + object.get("where") + "'";
+        } else {
+            result += " FILE_DATE = '" + object.get("where") + "'";
         }
         return result;
     }
