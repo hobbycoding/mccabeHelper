@@ -40,7 +40,6 @@ public class McProcess extends McCabeConfig {
                     FileUtils.copyDirectory(new File(property.getProperty("COMDIR")), new File(property.getProperty("projectDir") + fs + fileName.split("_")[0]));
                     fileNameList.add(fileName);
                 }
-                makeFileList(fileNameList);
             } else {
                 List<File> fileListAll = inst.gatheringAll(property, "");
                 property.setProperty("fileName", property.getProperty("projectDir") + property.getProperty("fs") + property.getProperty("projectName"));
@@ -59,27 +58,6 @@ public class McProcess extends McCabeConfig {
         }
 
     }
-
-    private void makeFileList(HashSet<String> nameList) throws Exception {
-        File fileList = new File(property.getProperty("projectDir") + fs + FILE_LIST_JSON);
-        JSONArray jsonArray;
-        if (fileList.exists()) {
-            JSONParser parser = new JSONParser();
-            jsonArray = (JSONArray) parser.parse(new FileReader(fileList));
-        } else {
-            jsonArray = new JSONArray();
-        }
-        if (nameList.size() > 0) {
-            nameList.addAll(jsonArray);
-            FileWriter writer = new FileWriter(fileList, false);
-            JSONArray result = new JSONArray();
-            result.addAll(nameList);
-            result.writeJSONString(writer);
-            writer.close();
-        } else {
-            log("[WARN] No files to process.");
-        }
-     }
 
     public Properties setConfig() {
         if (property.getProperty("mcHome") == null) property.put("mcHome", MCCABE_HOME);        // 파라메타 받아야 함

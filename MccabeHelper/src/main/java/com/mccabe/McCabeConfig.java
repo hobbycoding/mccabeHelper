@@ -78,11 +78,14 @@ public class McCabeConfig {
                         break;
                     case "WORK_HOME":
                         MCCABE_HOME = entry.getValue().toString();
-                        TRACEFILE_HOME = MCCABE_HOME + fs + "tracefiles";
+                        if (!properties.containsKey("TRACEFILE_HOME"))
+                            TRACEFILE_HOME = MCCABE_HOME + fs + "tracefiles";
+                        if (!properties.containsKey("PROJECT_DIR"))
+                            PROJECT_DIR = MCCABE_HOME + fs + "projects";
+                        if (!properties.containsKey("REPORT_DIR"))
+                            REPORT_DIR = MCCABE_HOME + fs + "report";
                         LATEST_SVN_LOG_FILE = MCCABE_HOME + fs + "jenkins.log";
                         INSTRUMENTED_SRC_DIR = MCCABE_HOME + fs + "instsrc";
-                        PROJECT_DIR = MCCABE_HOME + fs + "projects";
-                        REPORT_DIR = MCCABE_HOME + fs + "report";
                         PCF_TEMPLATE = MCCABE_HOME + fs + "pcfTemplate.pcf";
                         log = new WLog(new File(MCCABE_HOME + fs + "mclog.log"));
                         break;
@@ -126,6 +129,15 @@ public class McCabeConfig {
                         break;
                     case "SPLIT_FILE" :
                         SPLIT_FILE = Boolean.parseBoolean(entry.getValue().toString());
+                        break;
+                    case "TRACEFILE_HOME" :
+                        TRACEFILE_HOME = entry.getValue().toString();
+                        break;
+                    case "PROJECT_DIR" :
+                        PROJECT_DIR = entry.getValue().toString();
+                        break;
+                    case "REPORT_DIR" :
+                        REPORT_DIR = entry.getValue().toString();
                         break;
                 }
             }

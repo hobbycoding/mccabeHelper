@@ -62,7 +62,6 @@ public class DBInsert extends McCabeConfig {
                 KyoboUtil.putInsertQueryInPrepared(sourceFile, preparedStatement);
             }
             executeQuery();
-            clearFileList();
         } catch (Exception e) {
             log(e.getMessage());
             e.printStackTrace();
@@ -73,20 +72,6 @@ public class DBInsert extends McCabeConfig {
         if (KyoboUtil.isHaveYesterdayData(connection)) {
             log("[Today is " + KyoboUtil.getDate() + ". update " + KyoboUtil.getDate(-1) + " columns.");
             KyoboUtil.updateYesterdayData(connection);
-        }
-    }
-
-    private void clearFileList() throws IOException {
-        if (property.containsKey("selected") && property.getProperty("selected").length() > 1) {
-            if (others != null) {
-                FileWriter writer = new FileWriter(PROJECT_DIR + fs + property.getProperty("programName") + fs + FILE_LIST_JSON, false);
-                JSONArray result = new JSONArray();
-                result.addAll(others);
-                result.writeJSONString(writer);
-                writer.close();
-            }
-        } else {
-            new File(PROJECT_DIR + fs + property.getProperty("programName") + fs + FILE_LIST_JSON).delete();
         }
     }
 
@@ -119,14 +104,9 @@ public class DBInsert extends McCabeConfig {
 
     private List<File> getFileList() throws Exception {
         List<File> result = new ArrayList<>();
-        Path fileList_json = Paths.get(PROJECT_DIR + fs + property.getProperty("programName") + fs + FILE_LIST_JSON);
         JSONArray fileList = new JSONArray();
-        if (Files.exists(fileList_json)) {
-            fileList = (JSONArray) new JSONParser().parse(new String(Files.readAllBytes(fileList_json), "UTF-8"));
-        } else {
-            for (File file : FileUtil.getFilesRecursive(new File(property.getProperty("srcDir")), "", "", ".java", 0)) {
-                fileList.add(FileUtil.getRoleFileName(file, property.getProperty("srcDir")));
-            }
+        for (File file : FileUtil.getFilesRecursive(new File(property.getProperty("srcDir")), "", "", ".java", 0)) {
+            fileList.add(FileUtil.getRoleFileName(file, property.getProperty("srcDir")));
         }
         if (property.containsKey("selected") && property.getProperty("selected").length() > 1) {
             log("Selected package Found. " + property.getProperty("selected"));

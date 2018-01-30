@@ -177,19 +177,21 @@ public class KyoboUtil {
         String[] splite = raw.split("::");
         String desc = "";
         Category selected = Category.NONE;
-        if (splite[1].contains("배치")) {
-            String v = splite[2];
-            if (splite[splite.length - 1].contains("Auto"))
-                selected = Category.AUTO;
-            else selected = Category.MANUAL;
-            desc = v;
-        } else {
-            String v = splite[1].substring(splite[1].indexOf(".") + 1, splite[1].length());
-            for (Category category : Category.values()) {
-                if (category.isEquals(v))
-                    selected = category;
+        if (splite.length < 2) {
+            if (splite[1].contains("배치")) {
+                String v = splite[2];
+                if (splite[splite.length - 1].contains("Auto"))
+                    selected = Category.AUTO;
+                else selected = Category.MANUAL;
+                desc = v;
+            } else {
+                String v = splite[1].substring(splite[1].indexOf(".") + 1, splite[1].length());
+                for (Category category : Category.values()) {
+                    if (category.isEquals(v))
+                        selected = category;
+                }
+                desc = splite[2];
             }
-            desc = splite[2];
         }
         tags.setProperty(REPORT_TABLE.FILE_TYPE.name(), selected.name());
         tags.setProperty(REPORT_TABLE.JOB_NAME.name(), desc);

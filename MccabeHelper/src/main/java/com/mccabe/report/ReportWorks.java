@@ -205,7 +205,7 @@ public class ReportWorks extends McCabeConfig {
             createFolder();
             Job job = new Job(property.getProperty("programName", ""));
             File projectFolder = new File(PROJECT_DIR);
-            JSONArray fileList = getFileListFromJson(job, projectFolder);
+            JSONArray fileList = getFileListFromJson();
             ArrayList<File> pcfFiles;
             pcfFiles = FileUtil.findPCFFilesFromProjectDir(new File(projectFolder + fs + job.getSysName()), fileList);
             FileJob defaultJob = new FileJob(job.getSysName());
@@ -251,15 +251,11 @@ public class ReportWorks extends McCabeConfig {
         return subjobList;
     }
 
-    private JSONArray getFileListFromJson(Job job, File projectFolder) throws ParseException, IOException {
+    private JSONArray getFileListFromJson() throws ParseException, IOException {
         JSONArray fileList = null;
-        Path fileList_json = Paths.get(projectFolder + fs + job.getSysName() + fs + "fileList.json");
-        if (Files.exists(fileList_json)) {
-            fileList = (JSONArray) new JSONParser().parse(new String(Files.readAllBytes(fileList_json), "UTF-8"));
-        }
-        if (fileList != null && property.containsKey("selected") && property.getProperty("selected").length() > 1) {
+        if (property.containsKey("selected") && property.getProperty("selected").length() > 1) {
             log("Selected package Found. " + property.getProperty("selected"));
-            return getMatchedFiles(fileList, null, property);
+            fileList = (JSONArray) new JSONParser().parse(property.getProperty("selected"));
         }
         return fileList;
     }

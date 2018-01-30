@@ -120,8 +120,11 @@ public class FileUtil extends McCabeConfig {
                     if (e.getName().endsWith(".pcf") ) {
                         if (nameList == null) {
                             list.add(e);
-                        } else if (nameList != null && nameList.contains(dir.getName().replace(".pcf", ""))) {
-                            list.add(e);
+                        } else {
+                            for (Object element : nameList.toArray()) {
+                                if (e.getName().replace(".pcf", "").contains(element.toString()))
+                                    list.add(e);
+                            }
                         }
                     }
                 }
