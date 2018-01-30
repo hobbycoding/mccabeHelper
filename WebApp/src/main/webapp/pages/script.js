@@ -132,6 +132,7 @@ function getFirstTable(item) {
     job_name = item;
     if (document.title == "chartView") {
         data.from = document.getElementById('from').value;
+        createChart("",[],[]);
     }
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -217,6 +218,9 @@ function clearTables() {
     document.getElementById("cTable1_tbody").innerHTML = "";
     document.getElementById("cTable2_tbody").innerHTML = "";
     document.getElementById("cTable3_tbody").innerHTML = "";
+    if (document.title == "chartView") {
+        createChart("",[],[]);
+    }
 }
 
 var function_name;
@@ -294,7 +298,7 @@ function addRowHandlers(tableId) {
                     var id = cell.innerHTML;
                     if (document.title == "chartView") {
                         var data = {
-                            "method": "getChartView", "order":"2", "from": document.getElementById('from').value,
+                            "method": "getChartView", "order":"3", "from": document.getElementById('from').value,
                             "to": document.getElementById('search').value,
                             "job_name": job_name, "file_package":file_package, "file_name":file_name, "function_name":id
                         };

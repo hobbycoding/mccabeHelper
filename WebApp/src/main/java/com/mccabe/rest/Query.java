@@ -22,7 +22,7 @@ public class Query {
             "FROM REPORT_TABLE WHERE JOB_NAME='{job_name}' ";
     private static final String TABLE_2 = "SELECT FILE_NAME, FILE_NAME_KO, ROUND(AVG(COV_COVERAGE), 2) COV_COVERAGE " +
             "FROM REPORT_TABLE WHERE JOB_NAME='{job_name}' AND FILE_PACKAGE = '{file_package}' ";
-    private static final String TABLE_3 = "SELECT FUNTION_NAME, FUNTION_NAME_KO, COV_COVERAGE FROM REPORT_TABLE " +
+    private static final String TABLE_3 = "SELECT FUNTION_NAME, FUNTION_NAME_KO, ROUND(AVG(COV_COVERAGE), 2) COV_COVERAGE FROM REPORT_TABLE " +
             "WHERE JOB_NAME='{job_name}' AND FILE_PACKAGE = '{file_package}' AND FILE_NAME = '{file_name}'";
     private static final String TABLE_4 = "SELECT CODES FROM REPORT_TABLE WHERE JOB_NAME='{job_name}' " +
             "AND FILE_PACKAGE = '{file_package}' AND FILE_NAME = '{file_name}' AND FUNTION_NAME = '{function_name}'";
@@ -93,7 +93,7 @@ public class Query {
                 result = TABLE_3.replace("{job_name}", object.get("job_name").toString())
                         .replace("{file_package}", object.get("file_package").toString())
                         .replace("{file_name}", object.get("file_name").toString());
-                result+= " AND " + createDateField(object);
+                result+= " AND " + createDateField(object) + " GROUP BY FUNTION_NAME, FUNTION_NAME_KO";
                 break;
             case "4":
                 result = TABLE_4.replace("{job_name}", object.get("job_name").toString())
