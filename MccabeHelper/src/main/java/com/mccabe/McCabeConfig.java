@@ -141,6 +141,7 @@ public class McCabeConfig {
                         break;
                 }
             }
+            log("SYSTEM_PROPERTIES : " + properties);
             return properties;
         }
         return System.getProperties();
