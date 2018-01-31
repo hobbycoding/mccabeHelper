@@ -207,7 +207,7 @@ public class ReportWorks extends McCabeConfig {
             File projectFolder = new File(PROJECT_DIR);
             JSONArray fileList = getFileListFromJson();
             ArrayList<File> pcfFiles;
-            pcfFiles = FileUtil.findPCFFilesFromProjectDir(new File(projectFolder + fs + job.getSysName()), fileList);
+            pcfFiles = FileUtil.findPCFFilesFromProjectDir(new File(projectFolder.getPath()), fileList);
             FileJob defaultJob = new FileJob(job.getSysName());
             HashMap<String, FileJob> subJobList = getSubJobList();
             for (File file : pcfFiles) {
