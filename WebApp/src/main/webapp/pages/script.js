@@ -1,5 +1,5 @@
 var jsonArray;
-var summaryCategory = ["시스템", "업무분류", "전체Program", "테스트된 Program", "80% 미만 Program",
+var summaryCategory = ["시스템", "업무분류", "전체Program", "테스트된 Program","80% 이상 Program", "80% 미만 Program",
     "전체 Funtion", "테스트된 Function", "총라인수", "테스트라인수", "COVERAGE", "미테스트 Program"];
 var subDetailCategory = ["프로그램 영문명", "프로그램 한글명", "Function 영문명", "Function 한글명", "서비스 ID",
     "업무명", "담당자", "유형", "전체라인수", "Covered 라인수", "Coverage(%)"];
@@ -16,10 +16,14 @@ function summary_refresh(date) {
             var header = "", content = "";
             jsonArray = JSON.parse(this.responseText);
             header += "<table style=\"width:100%; border-spacing:0;\"><tr>";
+            if (jsonArray.length == 0 ) {
+                summary_refresh(null);
+                return;
+            }
             for (var index in jsonArray) {
                 content += "<tr>";
                 for (var entry in summaryCategory) {
-                    if (index == 0)
+                    if (index == undefined || index == 0)
                         header += "<th>" + summaryCategory[entry] + "</th>";
                     content += "<td>" + jsonArray[index][summaryCategory[entry]] + "</td>";
                 }
@@ -412,7 +416,7 @@ function createCodeMirror() {
 
 function exportToCsv(filename) {
     var str = ConvertToCSV(jsonArray, arguments);
-    var blob = new Blob([str], {type: 'text/csv;charset=utf-8;'});
+    var blob = new Blob(["\ufeff" + str], {type: 'text/csv;charset=utf-8;'});
     var link = document.createElement("a");
     if (link.download !== undefined) { // feature detection
         // Browsers that support HTML5 download attribute
