@@ -105,7 +105,7 @@ public class FileUtil extends McCabeConfig {
     }
 
     public static ArrayList<File> findPCFFilesFromProjectDir(File dir, JSONArray nameList) throws Exception {
-        return findPCFFilesFromProjectDir(dir, nameList, StringUtils.countMatches(dir.getPath(), fs) + 2);
+        return findPCFFilesFromProjectDir(dir, nameList, StringUtils.countMatches(dir.getPath(), fs) + 3);
     }
 
     public static ArrayList<File> findPCFFilesFromProjectDir(File dir, JSONArray nameList, int cnt) throws Exception {
