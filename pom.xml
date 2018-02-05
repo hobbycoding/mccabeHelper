@@ -15,7 +15,7 @@
         </repository>
     </repositories>
     <modules>
-        <module>MccabeFramework</module>
+        <module>MccabeCommon</module>
         <module>MccabeHelper</module>
         <module>sampleCode</module>
         <module>WebApp</module>
