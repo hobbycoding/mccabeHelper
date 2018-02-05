@@ -1,5 +1,7 @@
 package com.mccabe;
 
+import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,10 +12,14 @@ import java.util.Properties;
 import static com.mccabe.Mccabe.Mccabe_PATH.*;
 
 public class Mccabe {
-    private static Logger logger = LoggerFactory.getLogger(Mccabe.class);
-    private static Properties properties = new Properties();
-    private static boolean isWin = false;
-    private static String fs = System.lineSeparator();
+    protected static Logger logger = LoggerFactory.getLogger(Mccabe.class);
+    protected static Properties properties = new Properties();
+    protected static boolean isWin = false;
+    protected static String fs = System.lineSeparator();
+    protected static String [] fileType = {"*.java"};
+    protected static String[] exceptionFileNames = null;
+    protected static boolean spliteFileInProject = false;
+
     public enum Mccabe_PATH {
         MCCABE_HOME, PROJECT_DIR, REPORT_DIR, TRACEFILE_HOME, MCCABE_BIN, CLI, PROGRAM_NAME, SRC_DIR,
         INSTRUMENTED_SRC_DIR, PROJECT_PROGRAM_DIR;
@@ -42,19 +48,18 @@ public class Mccabe {
         }
     }
 
-    public static String getPath(Mccabe_PATH path) throws Exception {
-        if (properties.containsKey(path.name())) {
-            return properties.getProperty(path.name());
-        }
-        throw new Exception("not found " + path.name());
-    }
-
     private static void initPathProperties() throws Exception {
         Properties clone = (Properties) properties.clone();
         for (Map.Entry<Object, Object> entry : clone.entrySet()) {
             switch (entry.getKey().toString()) {
                 case "FS":
                     fs = entry.getValue().toString();
+                    break;
+                case "fileType":
+                    fileType = (String[]) ((JSONArray) new JSONParser().parse(entry.getValue().toString())).toArray();
+                    break;
+                case "exceptionFileNames":
+                    exceptionFileNames = (String[]) ((JSONArray) new JSONParser().parse(entry.getValue().toString())).toArray();
                     break;
                 case "WORK_HOME":
                     if (!properties.containsKey(TRACEFILE_HOME.name()))

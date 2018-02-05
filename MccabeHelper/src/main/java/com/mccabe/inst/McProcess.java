@@ -23,7 +23,6 @@ public class McProcess extends McCabeConfig {
             List<File> fileList = inst.gathering(property, "");
             //TODO : shit code...but i don't really do anything
             if (SPLIT_FILE) {
-                HashSet<String> fileNameList = new HashSet<>();
                 for (File file : fileList) {
                     String srcDir = property.containsKey("tempDir") ? property.getProperty("tempDir") : property.getProperty("srcDir");
                     String fileName = FileUtil.getRoleFileName(file, srcDir);
@@ -38,7 +37,6 @@ public class McProcess extends McCabeConfig {
                     PathVecChanger changer = new PathVecChanger(property);
                     changer.start();
                     FileUtils.copyDirectory(new File(property.getProperty("COMDIR")), new File(property.getProperty("projectDir") + fs + fileName.split("_")[0]));
-                    fileNameList.add(fileName);
                 }
             } else {
                 List<File> fileListAll = inst.gatheringAll(property, "");
