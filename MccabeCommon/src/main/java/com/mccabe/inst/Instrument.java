@@ -1,6 +1,7 @@
 package com.mccabe.inst;
 
 import com.mccabe.Mccabe;
+import com.mccabe.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -9,11 +10,12 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static com.mccabe.Mccabe.Mccabe_PATH.PROJECT_PROGRAM_DIR;
+import static com.mccabe.Mccabe.Mccabe_PATH.SRC_DIR;
 
 public class Instrument extends Mccabe {
     public static void main(String[] args) throws Exception {
@@ -40,8 +42,9 @@ public class Instrument extends Mccabe {
     }
 
     private void createPCFFile(File file) throws IOException {
-        List<String> lines = Arrays.asList("The first line", "The second line");
-        Path pcf = Paths.get("the-file-name.txt");
+        Path pcf = Paths.get(FileUtil.getRoleFileName(file, SRC_DIR.getPath()));
+        List<String> lines = new ArrayList<>();
+
         Files.write(pcf, lines, Charset.forName("UTF-8"));
     }
 

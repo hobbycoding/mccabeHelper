@@ -1,4 +1,4 @@
-package com.mccabe.inst;
+package com.mccabe.util;
 
 import com.mccabe.Mccabe;
 import org.apache.commons.io.FileUtils;

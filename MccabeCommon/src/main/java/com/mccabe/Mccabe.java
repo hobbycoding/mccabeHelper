@@ -6,12 +6,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileInputStream;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 import static com.mccabe.Mccabe.Mccabe_PATH.*;
 
 public class Mccabe {
+    private static final String [] DEFAULT_CW_OPTIONS = {"-PATHVEC", "-CLASS", "-MODSIG", "-HALSTEAD", "-PARAM",
+            "-DATA", "-NOCLASSMSGS", "-OVERLOAD", "-MODE"};
+    private static final String [] DEFAULT_PCF_OPTIONS = {"METRICS_LEVEL 3", "EXPORTTREE", "SCOPEINST", "NO_COVERAGE_SERVER"};
+    private static final String JAVA_VERSION = "JDK 1.6";
     protected static Logger logger = LoggerFactory.getLogger(Mccabe.class);
     protected static Properties properties = new Properties();
     protected static boolean isWin = false;
@@ -31,6 +34,30 @@ public class Mccabe {
 
         public String getPath() {
             return path;
+        }
+    }
+
+    public enum PCF {
+        PROGRAM, INSTDIR, INSTOUT, COMDIR, DIR;
+        private static List<String> options = new ArrayList<>();
+        private static List<String> cwOptions = new ArrayList<>();
+        private static String jdkVersion;
+        private String value;
+
+        public String getCWOptions() {
+            String ret = " ";
+            for (String op : cwOptions) {
+                ret+= op + " ";
+            }
+            return ret;
+        }
+
+        public void export(List<String> list) {
+            for (PCF e : values()) {
+                list.add(e.name() + " " + e.value);
+            }
+            list.addAll(options);
+            list.add("cw_Java_inst ");
         }
     }
 
@@ -85,5 +112,8 @@ public class Mccabe {
                 logger.debug(name + " path set: " + element.getPath());
             }
         }
+        PCF.cwOptions.addAll(Arrays.asList(DEFAULT_CW_OPTIONS));
+        PCF.options.addAll(Arrays.asList(DEFAULT_PCF_OPTIONS));
+        PCF.jdkVersion = JAVA_VERSION;
     }
 }
