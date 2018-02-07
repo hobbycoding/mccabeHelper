@@ -145,8 +145,10 @@ public class DBInsert extends McCabeConfig {
             String reportPath = REPORT_DIR + fs + property.getProperty("programName") + fs +
                     property.getProperty("programName") + "_" + FileUtil.getRoleFileName(file, property.getProperty("srcDir"));
             parseReportCSVFile(reportPath);
-            parseCoverdLineTextFile(reportPath);
             parsePackageName();
+            if (property.containsKey("doNotParseCoveredLineTextFile") && Boolean.parseBoolean(property.getProperty("doNotParseCoveredLineTextFile")))
+                return;
+            parseCoverdLineTextFile(reportPath);
         }
 
         public void setClassName(String className) {

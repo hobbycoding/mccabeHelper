@@ -177,7 +177,7 @@ public class KyoboUtil {
         String[] splite = raw.split("::");
         String desc = "";
         Category selected = Category.NONE;
-        if (splite.length < 2) {
+        if (splite.length > 2) {
             if (splite[1].contains("배치")) {
                 String v = splite[2];
                 if (splite[splite.length - 1].contains("Auto"))
