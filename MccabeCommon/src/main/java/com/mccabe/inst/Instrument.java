@@ -14,8 +14,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.mccabe.Mccabe.Mccabe_PATH.PROJECT_PROGRAM_DIR;
-import static com.mccabe.Mccabe.Mccabe_PATH.SRC_DIR;
+import static com.mccabe.Mccabe.McCABE_PATH.PROJECT_PROGRAM_DIR;
+import static com.mccabe.Mccabe.McCABE_PATH.SRC_DIR;
+import static com.mccabe.Mccabe.McCABE_Properties.fileType;
 
 public class Instrument extends Mccabe {
     public static void main(String[] args) throws Exception {
@@ -42,16 +43,16 @@ public class Instrument extends Mccabe {
     }
 
     private void createPCFFile(File file) throws IOException {
-        Path pcf = Paths.get(FileUtil.getRoleFileName(file, SRC_DIR.getPath()));
+        Path filePath = Paths.get(FileUtil.getRoleFileName(file, SRC_DIR.getPath()) + ".pcf");
         List<String> lines = new ArrayList<>();
-
-        Files.write(pcf, lines, Charset.forName("UTF-8"));
+//        PCF.PROGRAM.setValue();
+        Files.write(filePath, lines, Charset.forName("UTF-8"));
     }
 
     private Collection<File> getFileList() throws Exception {
         File fileListPath = new File(PROJECT_PROGRAM_DIR.getPath());
         if (!fileListPath.isDirectory())
             throw new Exception(fileListPath.getPath() + " is not a directory.");
-        return FileUtils.listFiles(fileListPath, fileType, true);
+        return FileUtils.listFiles(fileListPath, fileType.getArray(), true);
     }
 }

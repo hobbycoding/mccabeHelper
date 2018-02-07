@@ -8,7 +8,9 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.util.*;
 
-import static com.mccabe.Mccabe.Mccabe_PATH.*;
+import static com.mccabe.Mccabe.McCABE_PATH.*;
+import static com.mccabe.Mccabe.McCABE_Properties.ProgramName;
+import static com.mccabe.Mccabe.McCABE_Properties.isWindows;
 
 public class Mccabe {
     private static final String [] DEFAULT_CW_OPTIONS = {"-PATHVEC", "-CLASS", "-MODSIG", "-HALSTEAD", "-PARAM",
@@ -17,14 +19,12 @@ public class Mccabe {
     private static final String JAVA_VERSION = "JDK 1.6";
     protected static Logger logger = LoggerFactory.getLogger(Mccabe.class);
     protected static Properties properties = new Properties();
-    protected static boolean isWin = false;
     protected static String fs = System.lineSeparator();
-    protected static String [] fileType = {"*.java"};
     protected static String[] exceptionFileNames = null;
     protected static boolean spliteFileInProject = false;
 
-    public enum Mccabe_PATH {
-        MCCABE_HOME, PROJECT_DIR, REPORT_DIR, TRACEFILE_HOME, MCCABE_BIN, CLI, PROGRAM_NAME, SRC_DIR,
+    public enum McCABE_PATH {
+        MCCABE_HOME, PROJECT_DIR, REPORT_DIR, TRACEFILE_HOME, MCCABE_BIN, CLI, SRC_DIR,
         INSTRUMENTED_SRC_DIR, PROJECT_PROGRAM_DIR;
         private String path;
 
@@ -36,6 +36,36 @@ public class Mccabe {
             return path;
         }
     }
+    
+    public enum McCABE_Properties {
+        ProgramName("string", ""), isWindows("boolean", "false"), fileType("array", "[\"*.java\"}"),
+        exceptionFileNames("boolean", ""), spliteFileInProject("boolean", "false");
+        private String kind;
+        private String value;
+
+        McCABE_Properties(String kind, String value) {
+            this.kind = kind;
+            this.value = value;
+        }
+
+        public String getString() throws Exception {
+            if (!kind.equals("string"))
+                throw new Exception("value is not string. the value is " + kind);
+            return value;
+        }
+
+        public boolean getBoolean() throws Exception {
+            if (!kind.equals("boolean"))
+                throw new Exception("value is not boolean. the value is " + kind);
+            return Boolean.parseBoolean(value);
+        }
+
+        public String[] getArray() throws Exception {
+            if (!kind.equals("array"))
+                throw new Exception("value is not array. the value is " + kind);
+            return (String[]) ((JSONArray) new JSONParser().parse(value)).toArray();
+        }
+    }
 
     public enum PCF {
         PROGRAM, INSTDIR, INSTOUT, COMDIR, DIR;
@@ -44,20 +74,24 @@ public class Mccabe {
         private static String jdkVersion;
         private String value;
 
-        public String getCWOptions() {
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public void export(List<String> list, String filePath) {
+            for (PCF e : values()) {
+                list.add(e.name() + " " + e.value);
+            }
+            list.addAll(options);
+            list.add("cw_Java_inst " + filePath + getCWOptions() + jdkVersion);
+        }
+
+        private String getCWOptions() {
             String ret = " ";
             for (String op : cwOptions) {
                 ret+= op + " ";
             }
             return ret;
-        }
-
-        public void export(List<String> list) {
-            for (PCF e : values()) {
-                list.add(e.name() + " " + e.value);
-            }
-            list.addAll(options);
-            list.add("cw_Java_inst ");
         }
     }
 
@@ -65,9 +99,9 @@ public class Mccabe {
         if (args.length > 0) {
             properties.load(new FileInputStream(args[0]));
             if (System.getProperty("os.name").toString().toLowerCase().contains("win"))
-                isWin = true;
-            if (!properties.containsKey(Mccabe_PATH.MCCABE_HOME.name()) &&
-                    System.getProperty((Mccabe_PATH.MCCABE_HOME.name())) == null) {
+                isWindows.value = "true";
+            if (!properties.containsKey(McCABE_PATH.MCCABE_HOME.name()) &&
+                    System.getProperty((McCABE_PATH.MCCABE_HOME.name())) == null) {
                 logger.error("MCCABE_HOME not set.");
                 throw new Exception("MCCABE_HOME not set.");
             }
@@ -81,12 +115,6 @@ public class Mccabe {
             switch (entry.getKey().toString()) {
                 case "FS":
                     fs = entry.getValue().toString();
-                    break;
-                case "fileType":
-                    fileType = (String[]) ((JSONArray) new JSONParser().parse(entry.getValue().toString())).toArray();
-                    break;
-                case "exceptionFileNames":
-                    exceptionFileNames = (String[]) ((JSONArray) new JSONParser().parse(entry.getValue().toString())).toArray();
                     break;
                 case "WORK_HOME":
                     if (!properties.containsKey(TRACEFILE_HOME.name()))
@@ -104,14 +132,20 @@ public class Mccabe {
             }
         }
         properties.setProperty(PROJECT_PROGRAM_DIR.name(),
-                properties.getProperty(PROJECT_DIR.name() + fs + PROGRAM_NAME.name()));
-        for (Mccabe_PATH element : Mccabe_PATH.values()) {
+                properties.getProperty(PROJECT_DIR.name() + fs + ProgramName.getString()));
+        for (McCABE_PATH element : McCABE_PATH.values()) {
             String name = element.name();
             if (properties.contains(name)) {
                 element.setPath(properties.getProperty(name));
                 logger.debug(name + " path set: " + element.getPath());
             }
         }
+        for (McCABE_Properties element : McCABE_Properties.values()) {
+            if (properties.contains(element.name())) {
+                element.value = properties.getProperty(element.name());
+            }
+        }
+        // make PCF options.
         PCF.cwOptions.addAll(Arrays.asList(DEFAULT_CW_OPTIONS));
         PCF.options.addAll(Arrays.asList(DEFAULT_PCF_OPTIONS));
         PCF.jdkVersion = JAVA_VERSION;
