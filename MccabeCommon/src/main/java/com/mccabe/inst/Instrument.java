@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.mccabe.Mccabe.McCABE_PATH.PROJECT_PROGRAM_DIR;
-import static com.mccabe.Mccabe.McCABE_PATH.SRC_DIR;
+import static com.mccabe.Mccabe.McCABE_PATH.*;
+import static com.mccabe.Mccabe.McCABE_Properties.programName;
 import static com.mccabe.Mccabe.McCABE_Properties.fileType;
 
 public class Instrument extends Mccabe {
@@ -34,7 +34,7 @@ public class Instrument extends Mccabe {
         }
     }
 
-    private void instrument(Collection<File> fileList) throws IOException {
+    private void instrument(Collection<File> fileList) throws Exception {
         if (spliteFileInProject) {
             for(File file : fileList) {
                 createPCFFile(file);
@@ -42,17 +42,37 @@ public class Instrument extends Mccabe {
         }
     }
 
-    private void createPCFFile(File file) throws IOException {
-        Path filePath = Paths.get(FileUtil.getRoleFileName(file, SRC_DIR.getPath()) + ".pcf");
+    private void createPCFFile(File file) throws Exception {
+        String roleFileName = FileUtil.getRoleFileName(file, SRC_DIR.getPath());
+        Path filePath = Paths.get(PROJECT_PROGRAM_DIR.getPath() + fs + roleFileName + ".pcf");
         List<String> lines = new ArrayList<>();
-//        PCF.PROGRAM.setValue();
+        PCF.PROGRAM.setValue(programName.getString() + "_" + roleFileName);
+        PCF.INSTDIR.setValue(INSTRUMENTED_SRC_DIR.getPath());
+        PCF.INSTOUT.setValue(TRACEFILE_HOME.getPath() + fs + programName.getString() + fs + roleFileName + "_inst.out");
+        PCF.COMDIR.setValue(PROJECT_PROGRAM_DIR.getPath());
+        PCF.DIR.setValue(SRC_DIR.getPath());
+        PCF.export(lines, file.getAbsolutePath());
         Files.write(filePath, lines, Charset.forName("UTF-8"));
+        logger.debug("create file : " + filePath.toString());
     }
 
     private Collection<File> getFileList() throws Exception {
-        File fileListPath = new File(PROJECT_PROGRAM_DIR.getPath());
-        if (!fileListPath.isDirectory())
-            throw new Exception(fileListPath.getPath() + " is not a directory.");
+        File fileListPath = new File(SRC_DIR.getPath());
+        if (!fileListPath.exists())
+            throw new Exception("source directory does not exist.");
         return FileUtils.listFiles(fileListPath, fileType.getArray(), true);
+    }
+
+    private void runCommand(String cmd, File workingDir) throws Exception {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            cmd = cmd + " MC_WRITE_LOG=1";
+            Process child = rt.exec(cmd, null, workingDir);
+            child.waitFor();
+        } catch (IOException e1) {
+            throw new Exception("Error running CLI: " + e1.getMessage());
+        } catch (InterruptedException e2) {
+            throw new Exception("Error running CLI: " + e2.getMessage());
+        }
     }
 }

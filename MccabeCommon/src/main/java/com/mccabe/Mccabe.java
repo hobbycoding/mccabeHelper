@@ -5,11 +5,14 @@ import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static com.mccabe.Mccabe.McCABE_PATH.*;
-import static com.mccabe.Mccabe.McCABE_Properties.ProgramName;
+import static com.mccabe.Mccabe.McCABE_Properties.programName;
 import static com.mccabe.Mccabe.McCABE_Properties.isWindows;
 
 public class Mccabe {
@@ -19,14 +22,19 @@ public class Mccabe {
     private static final String JAVA_VERSION = "JDK 1.6";
     protected static Logger logger = LoggerFactory.getLogger(Mccabe.class);
     protected static Properties properties = new Properties();
-    protected static String fs = System.lineSeparator();
+    protected static String fs = File.separator;
     protected static String[] exceptionFileNames = null;
-    protected static boolean spliteFileInProject = false;
+    protected static boolean spliteFileInProject = true;
 
     public enum McCABE_PATH {
-        MCCABE_HOME, PROJECT_DIR, REPORT_DIR, TRACEFILE_HOME, MCCABE_BIN, CLI, SRC_DIR,
-        INSTRUMENTED_SRC_DIR, PROJECT_PROGRAM_DIR;
+        MCCABE_HOME(false), MCCABE_BIN(false), CLI(false), SRC_DIR((false)), INSTRUMENTED_SRC_DIR(false), PROJECT_PROGRAM_DIR(false),
+        PROJECT_DIR(true), REPORT_DIR(true), TRACEFILE_HOME(true);
         private String path;
+        private boolean createDir;
+
+        McCABE_PATH(boolean createDir) {
+            this.createDir = createDir;
+        }
 
         public void setPath(String path) {
             this.path = path;
@@ -38,7 +46,7 @@ public class Mccabe {
     }
     
     public enum McCABE_Properties {
-        ProgramName("string", ""), isWindows("boolean", "false"), fileType("array", "[\"*.java\"}"),
+        programName("string", ""), isWindows("boolean", "false"), fileType("array", "[\"java\"]"),
         exceptionFileNames("boolean", ""), spliteFileInProject("boolean", "false");
         private String kind;
         private String value;
@@ -63,7 +71,10 @@ public class Mccabe {
         public String[] getArray() throws Exception {
             if (!kind.equals("array"))
                 throw new Exception("value is not array. the value is " + kind);
-            return (String[]) ((JSONArray) new JSONParser().parse(value)).toArray();
+            JSONArray array = ((JSONArray) new JSONParser().parse(value));
+            String [] result = new String[array.size()];
+            array.toArray(result);
+            return result;
         }
     }
 
@@ -78,7 +89,7 @@ public class Mccabe {
             this.value = value;
         }
 
-        public void export(List<String> list, String filePath) {
+        public static void export(List<String> list, String filePath) {
             for (PCF e : values()) {
                 list.add(e.name() + " " + e.value);
             }
@@ -86,7 +97,7 @@ public class Mccabe {
             list.add("cw_Java_inst " + filePath + getCWOptions() + jdkVersion);
         }
 
-        private String getCWOptions() {
+        private static String getCWOptions() {
             String ret = " ";
             for (String op : cwOptions) {
                 ret+= op + " ";
@@ -116,7 +127,7 @@ public class Mccabe {
                 case "FS":
                     fs = entry.getValue().toString();
                     break;
-                case "WORK_HOME":
+                case "MCCABE_HOME":
                     if (!properties.containsKey(TRACEFILE_HOME.name()))
                         properties.setProperty(TRACEFILE_HOME.name(), entry.getValue().toString() + fs + "tracefiles");
                     if (!properties.containsKey(PROJECT_DIR.name()))
@@ -131,20 +142,23 @@ public class Mccabe {
                     break;
             }
         }
-        properties.setProperty(PROJECT_PROGRAM_DIR.name(),
-                properties.getProperty(PROJECT_DIR.name() + fs + ProgramName.getString()));
         for (McCABE_PATH element : McCABE_PATH.values()) {
             String name = element.name();
-            if (properties.contains(name)) {
+            if (properties.containsKey(name)) {
                 element.setPath(properties.getProperty(name));
                 logger.debug(name + " path set: " + element.getPath());
+                if (element.createDir && Files.notExists(Paths.get(element.getPath()))) {
+                    Files.createDirectories(Paths.get(element.getPath()));
+                    logger.debug(name + " path not exist. create.");
+                }
             }
         }
         for (McCABE_Properties element : McCABE_Properties.values()) {
-            if (properties.contains(element.name())) {
+            if (properties.containsKey(element.name())) {
                 element.value = properties.getProperty(element.name());
             }
         }
+        PROJECT_PROGRAM_DIR.setPath(PROJECT_DIR.getPath() + fs + programName.getString());
         // make PCF options.
         PCF.cwOptions.addAll(Arrays.asList(DEFAULT_CW_OPTIONS));
         PCF.options.addAll(Arrays.asList(DEFAULT_PCF_OPTIONS));
