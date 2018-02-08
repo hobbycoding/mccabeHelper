@@ -7,7 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -80,21 +82,49 @@ public class Mccabe {
 
     public enum PCF {
         PROGRAM, INSTDIR, INSTOUT, COMDIR, DIR;
+        private static Path filePath;
         private static List<String> options = new ArrayList<>();
         private static List<String> cwOptions = new ArrayList<>();
         private static String jdkVersion;
         private String value;
 
+        public static void setFilePath(Path filePath) throws IOException {
+            if (Files.notExists(filePath.getParent())) {
+                Files.createDirectories(filePath.getParent());
+                logger.debug(filePath.getParent() + " path not exist. create.");
+            }
+            if (Files.notExists(filePath)) {
+                Files.createFile(filePath);
+                logger.debug(filePath + " path not exist. create.");
+            }
+            PCF.filePath = filePath;
+        }
+
+        public static Path getFilePath() {
+            return filePath;
+        }
+
         public void setValue(String value) {
             this.value = value;
         }
 
-        public static void export(List<String> list, String filePath) {
+        public static void addFile(List<String> list, Object obj) {
+            if (obj instanceof Collection) {
+                for (File element : (Collection<File>) obj) {
+                    String pathWithPackageOnly = element.getAbsolutePath().substring(SRC_DIR.getPath().length() + 1);
+                    list.add("cw_Java_inst " + pathWithPackageOnly + getCWOptions() + jdkVersion);
+                }
+            } else {
+                String pathWithPackageOnly = ((File)obj).getAbsolutePath().substring(SRC_DIR.getPath().length() + 1);
+                list.add("cw_Java_inst " + pathWithPackageOnly + getCWOptions() + jdkVersion);
+            }
+        }
+
+        public static void export(List<String> list) {
             for (PCF e : values()) {
                 list.add(e.name() + " " + e.value);
             }
             list.addAll(options);
-            list.add("cw_Java_inst " + filePath + getCWOptions() + jdkVersion);
         }
 
         private static String getCWOptions() {

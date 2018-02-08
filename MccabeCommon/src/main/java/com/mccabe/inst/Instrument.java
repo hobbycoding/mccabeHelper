@@ -17,6 +17,7 @@ import java.util.List;
 import static com.mccabe.Mccabe.McCABE_PATH.*;
 import static com.mccabe.Mccabe.McCABE_Properties.programName;
 import static com.mccabe.Mccabe.McCABE_Properties.fileType;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 public class Instrument extends Mccabe {
     public static void main(String[] args) throws Exception {
@@ -36,24 +37,34 @@ public class Instrument extends Mccabe {
 
     private void instrument(Collection<File> fileList) throws Exception {
         if (spliteFileInProject) {
-            for(File file : fileList) {
+            for (File file : fileList) {
+                String roleFileName = FileUtil.getRoleFileName(file, SRC_DIR.getPath());
+                String projectPath = PROJECT_PROGRAM_DIR.getPath() + fs + roleFileName;
+                INSTRUMENTED_SRC_DIR.setPath(projectPath);
+                PCF.setFilePath(Paths.get(projectPath + fs + roleFileName + ".pcf"));
+                PCF.PROGRAM.setValue(programName.getString() + "_" + roleFileName);
+                PCF.INSTOUT.setValue(TRACEFILE_HOME.getPath() + fs + programName.getString() + fs + roleFileName + "_inst.out");
+                PCF.COMDIR.setValue(PROJECT_PROGRAM_DIR.getPath());
                 createPCFFile(file);
             }
+        } else {
+            INSTRUMENTED_SRC_DIR.setPath(PROJECT_PROGRAM_DIR.getPath());
+            PCF.PROGRAM.setValue(programName.getString());
+            PCF.setFilePath(Paths.get(PROJECT_PROGRAM_DIR.getPath() + ".pcf"));
+            PCF.INSTOUT.setValue(INSTRUMENTED_SRC_DIR.getPath() + fs +  "inst.out");
+            PCF.COMDIR.setValue(INSTRUMENTED_SRC_DIR.getPath());
+            createPCFFile(fileList);
         }
     }
 
-    private void createPCFFile(File file) throws Exception {
-        String roleFileName = FileUtil.getRoleFileName(file, SRC_DIR.getPath());
-        Path filePath = Paths.get(PROJECT_PROGRAM_DIR.getPath() + fs + roleFileName + ".pcf");
+    private void createPCFFile(Object file) throws Exception {
         List<String> lines = new ArrayList<>();
-        PCF.PROGRAM.setValue(programName.getString() + "_" + roleFileName);
         PCF.INSTDIR.setValue(INSTRUMENTED_SRC_DIR.getPath());
-        PCF.INSTOUT.setValue(TRACEFILE_HOME.getPath() + fs + programName.getString() + fs + roleFileName + "_inst.out");
-        PCF.COMDIR.setValue(PROJECT_PROGRAM_DIR.getPath());
         PCF.DIR.setValue(SRC_DIR.getPath());
-        PCF.export(lines, file.getAbsolutePath());
-        Files.write(filePath, lines, Charset.forName("UTF-8"));
-        logger.debug("create file : " + filePath.toString());
+        PCF.addFile(lines, file);
+        PCF.export(lines);
+        Files.write(PCF.getFilePath(), lines, Charset.forName("UTF-8"), CREATE);
+        logger.debug("create file : " + PCF.getFilePath().toString());
     }
 
     private Collection<File> getFileList() throws Exception {
