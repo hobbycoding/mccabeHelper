@@ -5,6 +5,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.io.StringReader;
 import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -69,9 +70,7 @@ public class KyoboUtil {
                 preparedStatement.setInt(19, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.START_LINE.name(), "0"))); // START_LINE
                 preparedStatement.setInt(20, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.NUM_OF_LINE.name(), "0"))); // NUM_OF_LINE
                 String data = entry.getValue().getProperty(REPORT_TABLE.CODES.name(), "");
-                Clob clob = preparedStatement.getConnection().createClob();
-                clob.setString(1, data);
-                preparedStatement.setClob(21, clob); // CODES
+                preparedStatement.setCharacterStream(21, new StringReader(data)); // CODES
                 preparedStatement.addBatch();
                 preparedStatement.clearParameters();
             }
