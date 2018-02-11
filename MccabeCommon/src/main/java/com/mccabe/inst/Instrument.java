@@ -46,6 +46,7 @@ public class Instrument extends Mccabe {
                 PCF.INSTOUT.setValue(TRACEFILE_HOME.getPath() + fs + programName.getString() + fs + roleFileName + "_inst.out");
                 PCF.COMDIR.setValue(PROJECT_PROGRAM_DIR.getPath());
                 createPCFFile(file);
+                runCommand(PCF.getFilePath().toString(), PROJECT_DIR.getPath());
             }
         } else {
             INSTRUMENTED_SRC_DIR.setPath(PROJECT_PROGRAM_DIR.getPath());
@@ -54,6 +55,7 @@ public class Instrument extends Mccabe {
             PCF.INSTOUT.setValue(INSTRUMENTED_SRC_DIR.getPath() + fs +  "inst.out");
             PCF.COMDIR.setValue(INSTRUMENTED_SRC_DIR.getPath());
             createPCFFile(fileList);
+            runCommand(PCF.getFilePath().toString(), PROJECT_DIR.getPath());
         }
     }
 
@@ -74,11 +76,11 @@ public class Instrument extends Mccabe {
         return FileUtils.listFiles(fileListPath, fileType.getArray(), true);
     }
 
-    private void runCommand(String cmd, File workingDir) throws Exception {
+    private void runCommand(String cmd, String workingDir) throws Exception {
         Runtime rt = Runtime.getRuntime();
         try {
             cmd = cmd + " MC_WRITE_LOG=1";
-            Process child = rt.exec(cmd, null, workingDir);
+            Process child = rt.exec(cmd, null, new File(workingDir));
             child.waitFor();
         } catch (IOException e1) {
             throw new Exception("Error running CLI: " + e1.getMessage());
