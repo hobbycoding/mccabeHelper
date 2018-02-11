@@ -26,7 +26,7 @@ public class Mccabe {
     protected static Properties properties = new Properties();
     protected static String fs = File.separator;
     protected static String[] exceptionFileNames = null;
-    protected static boolean spliteFileInProject = true;
+    protected static boolean spliteFileInProject = false;
 
     public enum McCABE_PATH {
         MCCABE_HOME(false), MCCABE_BIN(false), CLI(false), SRC_DIR((false)), INSTRUMENTED_SRC_DIR(false), PROJECT_PROGRAM_DIR(false),
@@ -139,6 +139,16 @@ public class Mccabe {
     public static void checkAndSetProperties(String[] args) throws Exception {
         if (args.length > 0) {
             properties.load(new FileInputStream(args[0]));
+            checkAndSetProperties();
+        }
+    }
+
+    public static void checkAndSetProperties(Properties properties) throws Exception {
+        Mccabe.properties = properties;
+        checkAndSetProperties();
+    }
+
+    private static void checkAndSetProperties() throws Exception {
             if (System.getProperty("os.name").toString().toLowerCase().contains("win"))
                 isWindows.value = "true";
             if (!properties.containsKey(McCABE_PATH.MCCABE_HOME.name()) &&
@@ -147,7 +157,6 @@ public class Mccabe {
                 throw new Exception("MCCABE_HOME not set.");
             }
             initPathProperties();
-        }
     }
 
     private static void initPathProperties() throws Exception {

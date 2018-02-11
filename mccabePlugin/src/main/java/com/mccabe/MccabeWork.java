@@ -6,21 +6,32 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.util.Properties;
+
 @Mojo( name = "MccabeWork")
 public class MccabeWork extends AbstractMojo {
     private static final String INST = "instrument";
     private static final String REPORT = "report";
     @Parameter(property = "type",defaultValue = "instrument")
     private String type;
-    @Parameter(property = "propertyPath",defaultValue = "/usr/mccabe/helper/mccabe.properties")
-    private String propertyPath;
+    // properties
+    @Parameter(property = "MCCABE_HOME", defaultValue = "/usr/mccabe/helper/mccabe.properties")
+    private String MCCABE_HOME;
+    @Parameter(property = "programName", defaultValue = "/usr/mccabe/helper/mccabe.properties")
+    private String programName;
+    @Parameter(property = "SRC_DIR", defaultValue = "/usr/mccabe/helper/mccabe.properties")
+    private String SRC_DIR;
+    @Parameter(property = "PROJECT_DIR", defaultValue = "/usr/mccabe/helper/mccabe.properties")
+    private String PROJECT_DIR;
+
 
     public void execute() throws MojoExecutionException {
-        System.out.println("[execute : " + type + "]\n" + "[path : " + propertyPath + "]");
         try {
             switch (type) {
                 case INST :
                     Instrument instrument = new Instrument();
+                    instrument.checkAndSetProperties(makeProperties());
+                    instrument.start();
                     break;
                 case REPORT :
                     break;
@@ -28,5 +39,14 @@ public class MccabeWork extends AbstractMojo {
         } catch (Exception e) {
             throw new MojoExecutionException("error", e);
         }
+    }
+
+    private Properties makeProperties() {
+        Properties properties = new Properties();
+        properties.setProperty("MCCABE_HOME", MCCABE_HOME);
+        properties.setProperty("programName", programName);
+        properties.setProperty("SRC_DIR", SRC_DIR);
+        properties.setProperty("PROJECT_DIR", PROJECT_DIR);
+        return properties;
     }
 }

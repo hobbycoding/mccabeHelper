@@ -26,7 +26,7 @@ public class Instrument extends Mccabe {
         instrument.start();
     }
 
-    private void start() {
+    public void start() {
         try {
             Collection<File> fileList = getFileList();
             instrument(fileList);

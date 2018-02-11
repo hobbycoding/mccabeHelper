@@ -12,6 +12,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>signUI</module>
+        <module>testplugin</module>
     </modules>
 
 
