@@ -13,18 +13,18 @@ import com.mccabe.util.KyoboUtil;
 import com.mccabe.util.MCCABERoleSet;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -165,13 +165,13 @@ public class DBInsert extends McCabeConfig {
             return classContent;
         }
 
-        private String parseReportCSVFile(String reportPath) throws IOException {
+        protected String parseReportCSVFile(String reportPath) throws IOException {
             for (String kind : REPORT_KIND) {
                 log("[Parse File] : " + reportPath + "_" + kind + ".csv");
                 List<String> list = Files.readAllLines(Paths.get(reportPath + "_" + kind + ".csv"));
                 setDate(list.get(0));
                 for (String line : list) {
-                    if (StringUtils.countMatches(line, ",") >= 3 && line.contains(".") && !line.startsWith("Total") && !line.startsWith("Average")) {
+                    if (StringUtils.countMatches(line, ",") == 3 && line.contains(".") && !line.startsWith("Total") && !line.startsWith("Average")) {
                         if (line.startsWith("\"")) {
                             String sub = line.substring(line.indexOf("\""), line.lastIndexOf("\""));
                             line = line.replace(sub, sub.replace(",", "%%"));

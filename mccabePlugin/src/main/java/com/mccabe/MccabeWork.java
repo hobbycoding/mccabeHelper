@@ -15,13 +15,13 @@ public class MccabeWork extends AbstractMojo {
     @Parameter(property = "type",defaultValue = "instrument")
     private String type;
     // properties
-    @Parameter(property = "MCCABE_HOME", defaultValue = "/usr/mccabe/helper/mccabe.properties")
+    @Parameter(property = "MCCABE_HOME", defaultValue = "/usr/mccabe")
     private String MCCABE_HOME;
-    @Parameter(property = "programName", defaultValue = "/usr/mccabe/helper/mccabe.properties")
+    @Parameter(property = "programName", defaultValue = "default")
     private String programName;
-    @Parameter(property = "SRC_DIR", defaultValue = "/usr/mccabe/helper/mccabe.properties")
+    @Parameter(property = "SRC_DIR", defaultValue = "/usr/mccabe/src")
     private String SRC_DIR;
-    @Parameter(property = "PROJECT_DIR", defaultValue = "/usr/mccabe/helper/mccabe.properties")
+    @Parameter(property = "PROJECT_DIR", defaultValue = "/usr/mccabe/projects")
     private String PROJECT_DIR;
 
 
