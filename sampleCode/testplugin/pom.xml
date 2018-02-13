@@ -9,8 +9,14 @@
         <version>1.1-SNAPSHOT</version>
     </parent>
     <artifactId>testplugin</artifactId>
+    <properties>
+        <mccabe.home>/Users/hyoju/mcccabe</mccabe.home>
+        <mccabe.bin>/usr/mccabe/bin</mccabe.bin>
+        <program.name>${artifactId}</program.name>
+        <source.dir>${project.basedir}/src</source.dir>
+    </properties>
     <build>
-        <sourceDirectory>/Users/hyoju/Documents/source/3rd/mccabeHelper/sampleCode/signUI/src</sourceDirectory>
+        <sourceDirectory>${project.dir}/${program.name}/src</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>com.mccabe</groupId>
@@ -18,10 +24,10 @@
                 <version>1.1-SNAPSHOT</version>
                 <configuration>
                     <type>instrument</type>
-                    <MCCABE_HOME>D:\\testspace\\mccabe\\test</MCCABE_HOME>
-                    <programName>TEST-deploy_kv3_app_sfa-TEST-COVERAGE</programName>
-                    <SRC_DIR>D:\\testspace\\mccabe\\test\\origin</SRC_DIR>
-                    <PROJECT_DIR>D:\\testspace\\mccabe\\test\\makeProject</PROJECT_DIR>
+                    <MCCABE_HOME>${mccabe.home}</MCCABE_HOME>
+                    <MCCABE_BIN>${mccabe.bin}</MCCABE_BIN>
+                    <programName>${program.name}</programName>
+                    <SRC_DIR>${source.dir}</SRC_DIR>
                 </configuration>
                 <executions>
                     <execution>
