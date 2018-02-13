@@ -136,19 +136,24 @@ public class DBInsert extends McCabeConfig {
             this.file = file;
         }
 
-        public void parse() throws Exception {
-            CompilationUnit cu = JavaParser.parse(file);
-            packageName = cu.getPackage() != null ? cu.getPackage().getPackageName() : "";
-            new MethodVisitor().visit(cu, this);
-            if (!file.getName().equals(className.concat(".java")))
-                log("file : [" + file.getName() + "] and class [" + className + "] are not equal. use class.");
-            String reportPath = REPORT_DIR + fs + property.getProperty("programName") + fs +
-                    property.getProperty("programName") + "_" + FileUtil.getRoleFileName(file, property.getProperty("srcDir"));
-            parseReportCSVFile(reportPath);
-            parsePackageName();
-            if (property.containsKey("doNotParseCoveredLineTextFile") && Boolean.parseBoolean(property.getProperty("doNotParseCoveredLineTextFile")))
-                return;
-            parseCoverdLineTextFile(reportPath);
+        public void parse() {
+            try {
+                CompilationUnit cu = JavaParser.parse(file);
+                packageName = cu.getPackage() != null ? cu.getPackage().getPackageName() : "";
+                new MethodVisitor().visit(cu, this);
+                if (!file.getName().equals(className.concat(".java")))
+                    log("file : [" + file.getName() + "] and class [" + className + "] are not equal. use class.");
+                String reportPath = REPORT_DIR + fs + property.getProperty("programName") + fs +
+                        property.getProperty("programName") + "_" + FileUtil.getRoleFileName(file, property.getProperty("srcDir"));
+                parseReportCSVFile(reportPath);
+                parsePackageName();
+                if (property.containsKey("doNotParseCoveredLineTextFile") && Boolean.parseBoolean(property.getProperty("doNotParseCoveredLineTextFile")))
+                    return;
+                parseCoverdLineTextFile(reportPath);
+            } catch (Exception e) {
+                log("[Error] " + e.getMessage() + "\n skip file. [" + file.getName() + "]");
+                e.printStackTrace();
+            }
         }
 
         public void setClassName(String className) {
@@ -184,9 +189,13 @@ public class DBInsert extends McCabeConfig {
                         if (k.equals("codecov")) {
                             k = "COV";
                         } else k = "BRANCH";
-                        p.setProperty(k + "_CODE_LINE", e[1]);
-                        p.setProperty(k + "_COVERED_LINE", e[2]);
-                        p.setProperty(k + "_COVERAGE", e[3]);
+                        if (p == null) {
+                            log("[WARN] " + methodName + " not found. [" + line + "].");
+                        } else {
+                            p.setProperty(k + "_CODE_LINE", e[1]);
+                            p.setProperty(k + "_COVERED_LINE", e[2]);
+                            p.setProperty(k + "_COVERAGE", e[3]);
+                        }
                     }
                 }
             }
