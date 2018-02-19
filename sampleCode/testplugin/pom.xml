@@ -10,7 +10,7 @@
     </parent>
     <artifactId>testplugin</artifactId>
     <properties>
-        <mccabe.home>/Users/hyoju/mcccabe</mccabe.home>
+        <mccabe.home>/svn/mccabe/mavenTest</mccabe.home>
         <mccabe.bin>/usr/mccabe/bin</mccabe.bin>
         <program.name>${artifactId}</program.name>
         <source.dir>${project.basedir}/src</source.dir>
