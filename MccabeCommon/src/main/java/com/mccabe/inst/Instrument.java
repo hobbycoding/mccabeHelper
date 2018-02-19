@@ -8,15 +8,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import static com.mccabe.Mccabe.McCABE_PATH.*;
-import static com.mccabe.Mccabe.McCABE_Properties.programName;
 import static com.mccabe.Mccabe.McCABE_Properties.fileType;
+import static com.mccabe.Mccabe.McCABE_Properties.programName;
 import static java.nio.file.StandardOpenOption.CREATE;
 
 public class Instrument extends Mccabe {
@@ -76,11 +75,11 @@ public class Instrument extends Mccabe {
         return FileUtils.listFiles(fileListPath, fileType.getArray(), true);
     }
 
-    private void runCommand(String cmd, String workingDir) throws Exception {
+    private void runCommand(String pcfPath, String workingDir) throws Exception {
         Runtime rt = Runtime.getRuntime();
         try {
-            cmd = cmd + " MC_WRITE_LOG=1";
-            Process child = rt.exec(cmd, null, new File(workingDir));
+            pcfPath = CLI.getPath() +  pcfPath + " MC_WRITE_LOG=1";
+            Process child = rt.exec(pcfPath, null, new File(workingDir));
             child.waitFor();
         } catch (IOException e1) {
             throw new Exception("Error running CLI: " + e1.getMessage());

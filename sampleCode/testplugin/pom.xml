@@ -16,7 +16,7 @@
         <source.dir>${project.basedir}/src</source.dir>
     </properties>
     <build>
-        <sourceDirectory>${project.dir}/${program.name}/src</sourceDirectory>
+        <sourceDirectory>${project.basedir}/target/${program.name}</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>com.mccabe</groupId>
@@ -26,15 +26,16 @@
                     <type>instrument</type>
                     <MCCABE_HOME>${mccabe.home}</MCCABE_HOME>
                     <MCCABE_BIN>${mccabe.bin}</MCCABE_BIN>
-                    <programName>${program.name}</programName>
                     <SRC_DIR>${source.dir}</SRC_DIR>
+                    <PROJECT_DIR>${project.basedir}/target</PROJECT_DIR>
+                    <programName>${program.name}</programName>
                 </configuration>
                 <executions>
                     <execution>
                         <goals>
                             <goal>MccabeWork</goal>
                         </goals>
-                        <phase>initialize</phase>
+                        <phase>process-resources</phase>
                     </execution>
                 </executions>
             </plugin>
