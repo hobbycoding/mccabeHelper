@@ -177,7 +177,7 @@ public class Mccabe {
                         properties.setProperty(INSTRUMENTED_SRC_DIR.name(), entry.getValue().toString() + fs + "instsrc");
                     break;
                 case "MCCABE_BIN":
-                    properties.setProperty(CLI.name(), entry.getValue().toString() + fs + "cli ");
+                    properties.setProperty(CLI.name(), entry.getValue().toString() + fs + "cli export -pcf ");
                     break;
             }
         }
