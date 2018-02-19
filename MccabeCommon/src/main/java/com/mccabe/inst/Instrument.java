@@ -51,8 +51,8 @@ public class Instrument extends Mccabe {
             INSTRUMENTED_SRC_DIR.setPath(PROJECT_PROGRAM_DIR.getPath());
             PCF.PROGRAM.setValue(programName.getString());
             PCF.setFilePath(Paths.get(PROJECT_PROGRAM_DIR.getPath() + ".pcf"));
-            PCF.INSTOUT.setValue(INSTRUMENTED_SRC_DIR.getPath() + fs +  "inst.out");
-            PCF.COMDIR.setValue(INSTRUMENTED_SRC_DIR.getPath());
+            PCF.INSTOUT.setValue(INSTRUMENTED_SRC_DIR.getPath() + fs + programName.getString() + "_inst.out");
+            PCF.COMDIR.setValue(PROJECT_PROGRAM_DIR.getPath());
             createPCFFile(fileList);
             runCommand(PCF.getFilePath().toString(), PROJECT_DIR.getPath());
         }
