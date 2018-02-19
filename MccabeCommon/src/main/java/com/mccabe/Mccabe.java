@@ -120,11 +120,12 @@ public class Mccabe {
             }
         }
 
-        public static void export(List<String> list) {
+        public static void export(List<String> list, Object file) {
             for (PCF e : values()) {
                 list.add(e.name() + " " + e.value);
             }
             list.addAll(options);
+            addFile(list, file);
         }
 
         private static String getCWOptions() {

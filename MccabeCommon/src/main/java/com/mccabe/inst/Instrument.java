@@ -62,8 +62,7 @@ public class Instrument extends Mccabe {
         List<String> lines = new ArrayList<>();
         PCF.INSTDIR.setValue(INSTRUMENTED_SRC_DIR.getPath());
         PCF.DIR.setValue(SRC_DIR.getPath());
-        PCF.addFile(lines, file);
-        PCF.export(lines);
+        PCF.export(lines, file);
         Files.write(PCF.getFilePath(), lines, Charset.forName("UTF-8"), CREATE);
         logger.debug("create file : " + PCF.getFilePath().toString());
     }
