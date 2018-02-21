@@ -174,8 +174,11 @@ public class Mccabe {
     }
 
     private static void checkAndSetProperties() throws Exception {
-        if (System.getProperty("logLevel") != null)
+        if (System.getProperty("logLevel") != null) {
+            System.out.println("logLevel : " + System.getProperty("logLevel"));
+            System.out.println("logLevel : " + Level.toLevel(System.getProperty("logLevel")));
             logger.setLevel(Level.toLevel(System.getProperty("logLevel")));
+        }
         if (System.getProperty("os.name").toString().toLowerCase().contains("win"))
             isWindows.value = "true";
         if (!properties.containsKey(McCABE_PATH.MCCABE_HOME.name()) &&
