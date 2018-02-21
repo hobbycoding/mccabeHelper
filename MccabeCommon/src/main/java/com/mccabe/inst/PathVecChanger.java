@@ -44,6 +44,8 @@ public class PathVecChanger extends Mccabe {
                 }
             }
         }
+        if (!outPath.endsWith(fs))
+            outPath+=fs;
         if (isWindows.getBoolean())
             outPath = outPath.replace("\\", "\\\\");
         String content = IOUtils.toString(new FileInputStream(file), "UTF-8");
