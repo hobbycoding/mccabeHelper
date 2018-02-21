@@ -3,7 +3,8 @@ package com.mccabe;
 import org.apache.commons.io.FilenameUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
-import org.slf4j.Logger;
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -20,11 +21,11 @@ import static com.mccabe.Mccabe.McCABE_Properties.isWindows;
 import static com.mccabe.Mccabe.McCABE_Properties.splitFileInProject;
 
 public class Mccabe {
-    private static final String [] DEFAULT_CW_OPTIONS = {"-PATHVEC", "-CLASS", "-MODSIG", "-HALSTEAD", "-PARAM",
+    private static final String[] DEFAULT_CW_OPTIONS = {"-PATHVEC", "-CLASS", "-MODSIG", "-HALSTEAD", "-PARAM",
             "-DATA", "-NOCLASSMSGS", "-OVERLOAD", "-MODE"};
-    private static final String [] DEFAULT_PCF_OPTIONS = {"METRICS_LEVEL 3", "EXPORTTREE", "SCOPEINST", "NO_COVERAGE_SERVER"};
+    private static final String[] DEFAULT_PCF_OPTIONS = {"METRICS_LEVEL 3", "EXPORTTREE", "SCOPEINST", "NO_COVERAGE_SERVER"};
     private static final String JAVA_VERSION = "JDK 1.6";
-    protected static Logger logger = LoggerFactory.getLogger(Mccabe.class);
+    protected static Logger logger = (Logger) LoggerFactory.getLogger(Mccabe.class);
     protected static Properties properties = new Properties();
     protected static String fs = File.separator;
 
@@ -62,7 +63,7 @@ public class Mccabe {
             throw new Exception("not found path.");
         }
     }
-    
+
     public enum McCABE_Properties {
         programName("string", ""), isWindows("boolean", "false"), fileType("array", "[\"java\"]"),
         exceptionFileNames("array", "[]"), splitFileInProject("boolean", "false"), traceFileOutPath("string", "");
@@ -90,7 +91,7 @@ public class Mccabe {
             if (!kind.equals("array"))
                 throw new Exception("value is not array. the value is " + kind);
             JSONArray array = ((JSONArray) new JSONParser().parse(value));
-            String [] result = new String[array.size()];
+            String[] result = new String[array.size()];
             array.toArray(result);
             return result;
         }
@@ -138,7 +139,7 @@ public class Mccabe {
                     list.add("cw_Java_inst " + pathWithPackageOnly + getCWOptions() + jdkVersion);
                 }
             } else {
-                String pathWithPackageOnly = ((File)obj).getAbsolutePath().substring(SRC_DIR.getPath().length() + 1);
+                String pathWithPackageOnly = ((File) obj).getAbsolutePath().substring(SRC_DIR.getPath().length() + 1);
                 list.add("cw_Java_inst " + pathWithPackageOnly + getCWOptions() + jdkVersion);
             }
         }
@@ -154,7 +155,7 @@ public class Mccabe {
         private static String getCWOptions() {
             String ret = " ";
             for (String op : cwOptions) {
-                ret+= op + " ";
+                ret += op + " ";
             }
             return ret;
         }
@@ -173,14 +174,16 @@ public class Mccabe {
     }
 
     private static void checkAndSetProperties() throws Exception {
-            if (System.getProperty("os.name").toString().toLowerCase().contains("win"))
-                isWindows.value = "true";
-            if (!properties.containsKey(McCABE_PATH.MCCABE_HOME.name()) &&
-                    System.getProperty((McCABE_PATH.MCCABE_HOME.name())) == null) {
-                logger.error("MCCABE_HOME not set.");
-                throw new Exception("MCCABE_HOME not set.");
-            }
-            initPathProperties();
+        if (System.getProperty("logLevel") != null)
+            logger.setLevel(Level.toLevel(System.getProperty("logLevel")));
+        if (System.getProperty("os.name").toString().toLowerCase().contains("win"))
+            isWindows.value = "true";
+        if (!properties.containsKey(McCABE_PATH.MCCABE_HOME.name()) &&
+                System.getProperty((McCABE_PATH.MCCABE_HOME.name())) == null) {
+            logger.error("MCCABE_HOME not set.");
+            throw new Exception("MCCABE_HOME not set.");
+        }
+        initPathProperties();
     }
 
     private static void initPathProperties() throws Exception {
