@@ -36,6 +36,7 @@
                     <dependency>
                         <groupId>com.mccabe</groupId>
                         <artifactId>MccabeCommon</artifactId>
+                        <version>${version}</version>
                         <exclusions>
                             <exclusion>
                                 <groupId>org.slf4j</groupId>
