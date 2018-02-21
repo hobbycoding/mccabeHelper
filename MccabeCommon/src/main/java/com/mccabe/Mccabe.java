@@ -1,5 +1,6 @@
 package com.mccabe;
 
+import org.apache.commons.io.FilenameUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import java.util.*;
 import static com.mccabe.Mccabe.McCABE_PATH.*;
 import static com.mccabe.Mccabe.McCABE_Properties.programName;
 import static com.mccabe.Mccabe.McCABE_Properties.isWindows;
+import static com.mccabe.Mccabe.McCABE_Properties.splitFileInProject;
 
 public class Mccabe {
     private static final String [] DEFAULT_CW_OPTIONS = {"-PATHVEC", "-CLASS", "-MODSIG", "-HALSTEAD", "-PARAM",
@@ -116,6 +118,11 @@ public class Mccabe {
 
         public static Path getFilePath() {
             return filePath;
+        }
+
+        public static String getAbsolutePathForPathVec() throws Exception {
+                return COMDIR.value + fs + "com" + fs + "mccabe" + fs + "PathVec_" + programName.getString()
+                        + FilenameUtils.removeExtension(getFilePath().getFileName().toString()) + ".java";
         }
 
         public void setValue(String value) {

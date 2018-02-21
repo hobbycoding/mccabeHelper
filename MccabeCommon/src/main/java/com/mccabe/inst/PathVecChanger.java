@@ -20,7 +20,7 @@ public class PathVecChanger extends Mccabe {
 
     public void start() {
         try {
-            String pathVecFile = COMDIR.getFilePath() + fs + "com" + fs + "mccabe" + fs + "PathVec_" + programName.getString() + PCF.getFilePath().getFileName() + ".java";
+            String pathVecFile = PCF.getAbsolutePathForPathVec();
             logger.debug("[File Path] : " + pathVecFile);
             logger.debug("[Will Change OutPath] : " + traceFileOutPath.getString());
             readFile(pathVecFile, traceFileOutPath.getString());
