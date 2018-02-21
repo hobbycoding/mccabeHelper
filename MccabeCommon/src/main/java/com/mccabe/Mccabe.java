@@ -121,8 +121,10 @@ public class Mccabe {
         }
 
         public static String getAbsolutePathForPathVec() throws Exception {
-                return COMDIR.value + fs + "com" + fs + "mccabe" + fs + "PathVec_" + programName.getString()
-                        + FilenameUtils.removeExtension(getFilePath().getFileName().toString()) + ".java";
+            String absolute = COMDIR.value + fs + "com" + fs + "mccabe" + fs + "PathVec_" + programName.getString();
+            if (splitFileInProject.getBoolean())
+                return absolute + FilenameUtils.removeExtension(getFilePath().getFileName().toString()) + ".java";
+            return absolute + ".java";
         }
 
         public void setValue(String value) {
