@@ -19,7 +19,7 @@ public class PathVecChanger extends Mccabe {
     }
 
     public void start() {
-        try {
+            try {
             String pathVecFile = PCF.getAbsolutePathForPathVec();
             logger.debug("[File Path] : " + pathVecFile);
             logger.debug("[Will Change OutPath] : " + traceFileOutPath.getString());
