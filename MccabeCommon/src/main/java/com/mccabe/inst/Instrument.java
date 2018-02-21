@@ -16,6 +16,7 @@ import java.util.List;
 import static com.mccabe.Mccabe.McCABE_PATH.*;
 import static com.mccabe.Mccabe.McCABE_Properties.fileType;
 import static com.mccabe.Mccabe.McCABE_Properties.programName;
+import static com.mccabe.Mccabe.McCABE_Properties.splitFileInProject;
 import static java.nio.file.StandardOpenOption.CREATE;
 
 public class Instrument extends Mccabe {
@@ -35,7 +36,7 @@ public class Instrument extends Mccabe {
     }
 
     private void instrument(Collection<File> fileList) throws Exception {
-        if (spliteFileInProject) {
+        if (splitFileInProject.getBoolean()) {
             for (File file : fileList) {
                 String roleFileName = FileUtil.getRoleFileName(file, SRC_DIR.getPath());
                 String projectPath = PROJECT_PROGRAM_DIR.getPath() + fs + roleFileName;
@@ -46,15 +47,17 @@ public class Instrument extends Mccabe {
                 PCF.COMDIR.setValue(PROJECT_PROGRAM_DIR.getPath());
                 createPCFFile(file);
                 runCommand(PCF.getFilePath().toString(), PROJECT_DIR.getPath());
+                new PathVecChanger().start();
             }
         } else {
             INSTRUMENTED_SRC_DIR.setPath(PROJECT_PROGRAM_DIR.getPath());
             PCF.PROGRAM.setValue(programName.getString());
             PCF.setFilePath(Paths.get(PROJECT_PROGRAM_DIR.getPath() + ".pcf"));
-            PCF.INSTOUT.setValue(INSTRUMENTED_SRC_DIR.getPath() + fs + programName.getString() + "_inst.out");
+            PCF.INSTOUT.setValue(TRACEFILE_HOME.getPath() + fs + programName.getString() + "_inst.out");
             PCF.COMDIR.setValue(PROJECT_PROGRAM_DIR.getPath());
             createPCFFile(fileList);
             runCommand(PCF.getFilePath().toString(), PROJECT_DIR.getPath());
+            new PathVecChanger().start();
         }
     }
 

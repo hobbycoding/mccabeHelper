@@ -25,8 +25,6 @@ public class Mccabe {
     protected static Logger logger = LoggerFactory.getLogger(Mccabe.class);
     protected static Properties properties = new Properties();
     protected static String fs = File.separator;
-    protected static String[] exceptionFileNames = null;
-    protected static boolean spliteFileInProject = false;
 
     public enum McCABE_PATH {
         MCCABE_HOME(false), MCCABE_BIN(false), CLI(false), SRC_DIR((false)), INSTRUMENTED_SRC_DIR(false), PROJECT_PROGRAM_DIR(false),
@@ -42,14 +40,30 @@ public class Mccabe {
             this.path = path;
         }
 
-        public String getPath() {
-            return path;
+        public String getPath() throws Exception {
+            if (path != null)
+                return path;
+            switch (this) {
+                case TRACEFILE_HOME:
+                    return MCCABE_HOME.path + fs + "tracefiles";
+                case PROJECT_DIR:
+                    return MCCABE_HOME.path + fs + "projects";
+                case REPORT_DIR:
+                    return MCCABE_HOME.path + fs + "report";
+                case INSTRUMENTED_SRC_DIR:
+                    return MCCABE_HOME.path + fs + "instsrc";
+                case PROJECT_PROGRAM_DIR:
+                    return PROJECT_DIR.getPath() + fs + programName.getString();
+                case CLI:
+                    return MCCABE_BIN.path + fs + "cli export -pcf ";
+            }
+            throw new Exception("not found path.");
         }
     }
     
     public enum McCABE_Properties {
         programName("string", ""), isWindows("boolean", "false"), fileType("array", "[\"java\"]"),
-        exceptionFileNames("boolean", ""), spliteFileInProject("boolean", "false");
+        exceptionFileNames("array", "[]"), splitFileInProject("boolean", "false"), traceFileOutPath("string", "");
         private String kind;
         private String value;
 
@@ -108,7 +122,7 @@ public class Mccabe {
             this.value = value;
         }
 
-        public static void addFile(List<String> list, Object obj) {
+        public static void addFile(List<String> list, Object obj) throws Exception {
             if (obj instanceof Collection) {
                 for (File element : (Collection<File>) obj) {
                     String pathWithPackageOnly = element.getAbsolutePath().substring(SRC_DIR.getPath().length() + 1);
@@ -120,7 +134,7 @@ public class Mccabe {
             }
         }
 
-        public static void export(List<String> list, Object file) {
+        public static void export(List<String> list, Object file) throws Exception {
             for (PCF e : values()) {
                 list.add(e.name() + " " + e.value);
             }
@@ -161,27 +175,6 @@ public class Mccabe {
     }
 
     private static void initPathProperties() throws Exception {
-        Properties clone = (Properties) properties.clone();
-        for (Map.Entry<Object, Object> entry : clone.entrySet()) {
-            switch (entry.getKey().toString()) {
-                case "FS":
-                    fs = entry.getValue().toString();
-                    break;
-                case "MCCABE_HOME":
-                    if (!properties.containsKey(TRACEFILE_HOME.name()))
-                        properties.setProperty(TRACEFILE_HOME.name(), entry.getValue().toString() + fs + "tracefiles");
-                    if (!properties.containsKey(PROJECT_DIR.name()))
-                        properties.setProperty(PROJECT_DIR.name(), entry.getValue().toString() + fs + "projects");
-                    if (!properties.containsKey(REPORT_DIR.name()))
-                        properties.setProperty(REPORT_DIR.name(), entry.getValue().toString() + fs + "report");
-                    if (!properties.containsKey(INSTRUMENTED_SRC_DIR))
-                        properties.setProperty(INSTRUMENTED_SRC_DIR.name(), entry.getValue().toString() + fs + "instsrc");
-                    break;
-                case "MCCABE_BIN":
-                    properties.setProperty(CLI.name(), entry.getValue().toString() + fs + "cli export -pcf ");
-                    break;
-            }
-        }
         for (McCABE_PATH element : McCABE_PATH.values()) {
             String name = element.name();
             if (properties.containsKey(name)) {
@@ -198,7 +191,6 @@ public class Mccabe {
                 element.value = properties.getProperty(element.name());
             }
         }
-        PROJECT_PROGRAM_DIR.setPath(PROJECT_DIR.getPath() + fs + programName.getString());
         // make PCF options.
         PCF.cwOptions.addAll(Arrays.asList(DEFAULT_CW_OPTIONS));
         PCF.options.addAll(Arrays.asList(DEFAULT_PCF_OPTIONS));

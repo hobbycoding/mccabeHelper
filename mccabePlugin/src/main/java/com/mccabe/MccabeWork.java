@@ -14,11 +14,9 @@ public class MccabeWork extends AbstractMojo {
     private static final String REPORT = "report";
     @Parameter(property = "type",defaultValue = "instrument")
     private String type;
-    // properties
+    // PATH
     @Parameter(property = "MCCABE_HOME")
     private String MCCABE_HOME;
-    @Parameter(property = "programName")
-    private String programName;
     @Parameter(property = "SRC_DIR")
     private String SRC_DIR;
     @Parameter(property = "PROJECT_DIR")
@@ -31,6 +29,11 @@ public class MccabeWork extends AbstractMojo {
     private String REPORT_DIR;
     @Parameter(property = "TRACEFILE_HOME")
     private String TRACEFILE_HOME;
+    // properties
+    @Parameter(property = "programName")
+    private String programName;
+    @Parameter(property = "traceFileOutPath")
+    private String traceFileOutPath;
 
     public void execute() throws MojoExecutionException {
         try {
@@ -52,12 +55,13 @@ public class MccabeWork extends AbstractMojo {
         Properties properties = new Properties();
         setProperty(properties, "MCCABE_HOME", MCCABE_HOME);
         setProperty(properties, "MCCABE_BIN", MCCABE_BIN);
-        setProperty(properties, "programName", programName);
         setProperty(properties, "SRC_DIR", SRC_DIR);
         setProperty(properties, "PROJECT_DIR", PROJECT_DIR);
         setProperty(properties, "INSTRUMENTED_SRC_DIR", INSTRUMENTED_SRC_DIR);
         setProperty(properties, "REPORT_DIR", REPORT_DIR);
         setProperty(properties, "TRACEFILE_HOME", TRACEFILE_HOME);
+        setProperty(properties, "programName", programName);
+        setProperty(properties, "traceFileOutPath", traceFileOutPath);
         return properties;
     }
 

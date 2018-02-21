@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import static com.mccabe.Mccabe.McCABE_Properties.exceptionFileNames;
+
 
 public class FileUtil extends Mccabe {
 
@@ -50,7 +52,7 @@ public class FileUtil extends Mccabe {
                 String packageName = absoutePath.substring(prop.getProperty("srcDir").length());
                 if ("".equals(packageName)) continue;
                 boolean flag = false;
-                for (String fileName : exceptionFileNames) {
+                for (String fileName : exceptionFileNames.getArray()) {
                     if (packageName.endsWith(fileName)) {
                         flag = true;
                         break;    // 예외 파일은 복사하지 않음. 예. .svn 파일

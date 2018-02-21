@@ -14,6 +14,7 @@
         <mccabe.bin>/usr/mccabe/bin</mccabe.bin>
         <program.name>${artifactId}</program.name>
         <source.dir>${project.basedir}/src</source.dir>
+        <traceFile.OutPath>/svn/mccabe/mavenTest/tracefiles/${program.name}</traceFile.OutPath>
     </properties>
     <build>
         <sourceDirectory>${project.basedir}/target/${program.name}</sourceDirectory>
@@ -29,6 +30,7 @@
                     <SRC_DIR>${source.dir}</SRC_DIR>
                     <PROJECT_DIR>${project.basedir}/target</PROJECT_DIR>
                     <programName>${program.name}</programName>
+                    <traceFileOutPath>${traceFile.OutPath}</traceFileOutPath>
                 </configuration>
                 <executions>
                     <execution>
