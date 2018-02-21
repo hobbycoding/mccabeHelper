@@ -32,23 +32,6 @@
                     <programName>${program.name}</programName>
                     <traceFileOutPath>${traceFile.OutPath}</traceFileOutPath>
                 </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.mccabe</groupId>
-                        <artifactId>MccabeCommon</artifactId>
-                        <version>${version}</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>org.slf4j</groupId>
-                                <artifactId>slf4j-api</artifactId>
-                            </exclusion>
-                            <exclusion>
-                                <groupId>ch.qos.logback</groupId>
-                                <artifactId>logback-classic</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
                 <executions>
                     <execution>
                         <goals>
