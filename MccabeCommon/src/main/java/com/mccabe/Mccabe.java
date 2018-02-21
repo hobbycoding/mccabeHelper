@@ -3,8 +3,7 @@ package com.mccabe;
 import org.apache.commons.io.FilenameUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.parser.JSONParser;
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -25,7 +24,7 @@ public class Mccabe {
             "-DATA", "-NOCLASSMSGS", "-OVERLOAD", "-MODE"};
     private static final String[] DEFAULT_PCF_OPTIONS = {"METRICS_LEVEL 3", "EXPORTTREE", "SCOPEINST", "NO_COVERAGE_SERVER"};
     private static final String JAVA_VERSION = "JDK 1.6";
-    protected static Logger logger = (Logger) LoggerFactory.getLogger(Mccabe.class);
+    protected static Logger logger = LoggerFactory.getLogger(Mccabe.class);
     protected static Properties properties = new Properties();
     protected static String fs = File.separator;
 
@@ -174,11 +173,6 @@ public class Mccabe {
     }
 
     private static void checkAndSetProperties() throws Exception {
-        if (System.getProperty("logLevel") != null) {
-            System.out.println("logLevel : " + System.getProperty("logLevel"));
-            System.out.println("logLevel : " + Level.toLevel(System.getProperty("logLevel")));
-            logger.setLevel(Level.toLevel(System.getProperty("logLevel")));
-        }
         if (System.getProperty("os.name").toString().toLowerCase().contains("win"))
             isWindows.value = "true";
         if (!properties.containsKey(McCABE_PATH.MCCABE_HOME.name()) &&
