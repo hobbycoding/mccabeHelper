@@ -239,6 +239,7 @@ function getSourceView(name) {
         if (this.readyState == 4 && this.status == 200) {
             var jsonArray = JSON.parse(this.responseText);
             mirror.setValue(jsonArray[0]["CODES"]);
+            mirror.markText({line: 0, ch: 26}, {line: 0, ch: 42}, {className: "styled-background"});
         }
     };
     if (name != null) {
@@ -408,7 +409,8 @@ function createCodeMirror() {
             lineNumbers: false,
             mode: "text/x-java",
             matchBrackets: true,
-            readOnly: true
+            readOnly: true,
+            styleSelectedText: true
         });
     }
     mirror.refresh();

@@ -442,3 +442,5 @@ table tr td {
     max-width :1370px;
     min-width :1370px;
 }
+
+.styled-background { background-color: #ff7; }

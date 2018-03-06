@@ -34,8 +34,6 @@ import static com.mccabe.util.KyoboUtil.*;
 public class DBInsert extends McCabeConfig {
     private static final Charset[] SUPPORT_CHAR = {StandardCharsets.UTF_8, Charset.forName("EUC-KR")};
     private static Map<String, List<String>> packageNames;
-    private Connection connection = null;
-    private PreparedStatement preparedStatement;
     private JSONArray others;
 
     public DBInsert(Properties properties) {
@@ -48,57 +46,50 @@ public class DBInsert extends McCabeConfig {
     }
 
     public void start() {
-        try {
-            connectDB();
-            setPackageNames();
+        try (Connection connection = createConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(REPORT_QUERY)) {
+            setPackageNames(connection);
             List<File> fileList = getFileList();
             if (property.containsKey("weeklySave") &&
                     Boolean.parseBoolean(property.getProperty("weeklySave"))) {
-                updateParsedSourceIfHaveSavedData();
+                updateParsedSourceIfHaveSavedData(connection);
             }
             for (File file : fileList) {
                 SourceFile sourceFile = new SourceFile(file);
                 sourceFile.parse();
                 KyoboUtil.putInsertQueryInPrepared(sourceFile, preparedStatement);
             }
-            executeQuery();
+            executeQuery(preparedStatement);
         } catch (Exception e) {
             log(e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void updateParsedSourceIfHaveSavedData() throws SQLException {
+    private void updateParsedSourceIfHaveSavedData(Connection connection) throws SQLException {
         if (KyoboUtil.isHaveYesterdayData(connection)) {
             log("[Today is " + KyoboUtil.getDate() + ". update " + KyoboUtil.getDate(-1) + " columns.");
             KyoboUtil.updateYesterdayData(connection);
         }
     }
 
-    private void executeQuery() throws SQLException {
+    private void executeQuery(PreparedStatement preparedStatement) throws SQLException {
         try {
             preparedStatement.executeBatch();
             log("[Insert / Update] Done.");
         } catch (Exception e) {
             throw e;
-        } finally {
-            try {
-                preparedStatement.close();
-                connection.close();
-            } catch (SQLException e) {
-                throw e;
-            }
         }
     }
 
-    private void connectDB() throws Exception {
+    private Connection createConnection() throws Exception {
         Class.forName(property.getProperty("JDBC_Driver"));
-        connection = DriverManager.getConnection(property.getProperty("db_url"),
+        return DriverManager.getConnection(property.getProperty("db_url"),
                 property.getProperty("db_id"), property.getProperty("db_pass"));
-        preparedStatement = connection.prepareStatement(REPORT_QUERY);
+
     }
 
-    private void setPackageNames() throws SQLException {
+    private void setPackageNames(Connection connection) throws SQLException {
         packageNames = KyoboUtil.getCategoryNameFromDB(connection);
     }
 
