@@ -237,9 +237,13 @@ function getSourceView(name) {
     createCodeMirror();
     var callback = function () {
         if (this.readyState == 4 && this.status == 200) {
-            var jsonArray = JSON.parse(this.responseText);
-            mirror.setValue(jsonArray[0]["CODES"]);
-            mirror.markText({line: 0, ch: 26}, {line: 0, ch: 42}, {className: "styled-background"});
+            var jsonObject = JSON.parse(this.responseText);
+            mirror.setValue(jsonObject.CODES);
+            for (var index in jsonObject.LINES) {
+                var l = jsonObject.LINES[index].line;
+                var c = jsonObject.LINES[index].ch;
+                mirror.markText({line: l, ch: 0}, {line: l, ch: c}, {className: "styled-background"});
+            }
         }
     };
     if (name != null) {

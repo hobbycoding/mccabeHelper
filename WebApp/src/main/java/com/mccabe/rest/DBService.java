@@ -51,36 +51,47 @@ public class DBService {
         return result.toString();
     }
 
-    private synchronized JSONArray getCLOBFromTable(String query) throws Exception {
+    private synchronized JSONObject getCLOBFromTable(String query) throws Exception {
         JSONArray jsonArray = new JSONArray();
         JSONObject object = new JSONObject();
         Connection connection = getConnection();
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery(query);
+        //{line: 0, ch: 26}, {line: 0, ch: 42}, {className: "styled-background"}
         try {
             while (resultSet.next()) {
                 StringBuffer strOut = new StringBuffer();
                 String aux;
                 try {
-                    BufferedReader br = new BufferedReader(resultSet.getClob("CODES").
-                            getCharacterStream());
+                    BufferedReader br = new BufferedReader(resultSet.getClob("CODES").getCharacterStream());
+                    int index = 0;
                     while ((aux = br.readLine()) != null) {
+                        if (aux.contains("|")) {
+                            JSONObject o = new JSONObject();
+                            o.put("line", index);
+                            o.put("ch", aux.length());
+                            jsonArray.add(o);
+                            StringBuilder c = new StringBuilder(aux);
+                            c.setCharAt(7, 'X');
+                            aux = c.toString();
+                        }
                         strOut.append(aux);
                         strOut.append(System.getProperty("line.separator"));
+                        index++;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
                 String clobStr = strOut.toString();
                 object.put("CODES", clobStr);
-                jsonArray.add(object);
+                object.put("LINES", jsonArray);
             }
         } catch (Exception e) {
             throw e;
         } finally {
             close(connection, statement, resultSet);
         }
-        return jsonArray;
+        return object;
     }
 
     private Object getDataFromTable(String query) throws Exception {
