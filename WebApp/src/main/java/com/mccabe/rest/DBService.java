@@ -8,7 +8,10 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.sql.DataSource;
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.StringReader;
 import java.sql.*;
+import java.util.Properties;
 
 public class DBService {
 
@@ -16,7 +19,7 @@ public class DBService {
     // ex) {"method" : "getOverView", "where" : "2017-12-11"}
     public String doProcess(String msg) {
         Object result = null;
-        JSONObject jsonObject = null;
+        JSONObject jsonObject;
         try {
             jsonObject = (JSONObject) new JSONParser().parse(msg);
             switch (jsonObject.get("method").toString()) {
@@ -57,7 +60,6 @@ public class DBService {
         Connection connection = getConnection();
         Statement statement = connection.createStatement();
         ResultSet resultSet = statement.executeQuery(query);
-        //{line: 0, ch: 26}, {line: 0, ch: 42}, {className: "styled-background"}
         try {
             while (resultSet.next()) {
                 StringBuffer strOut = new StringBuffer();
@@ -134,10 +136,21 @@ public class DBService {
     }
 
     private Connection getConnection() throws Exception {
-        String ejb = "mccabe/oracle";
-        String normal = "java:comp/env/mccabe/oracle";
+//        ejb = "mccabe/oracle";
+//        normal = "java:comp/env/mccabe/oracle";
+        String path;
+        if (System.getProperty("os.name").toString().toLowerCase().contains("win")) {
+            path = "C:\\mccabe\\datasource.properties";
+        } else {
+            path = "/app/mccabe/datasource.properties";
+        }
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(path));
+        if (properties.size() == 0 || properties.getProperty("dataSource").length() == 0) {
+            throw new Exception("dataSource properties not found");
+        }
         final Context initContext = new InitialContext();
-        DataSource ds = (DataSource) initContext.lookup(normal);
+        DataSource ds = (DataSource) initContext.lookup(properties.getProperty("dataSource"));
         if (ds != null) {
             return ds.getConnection();
         }
