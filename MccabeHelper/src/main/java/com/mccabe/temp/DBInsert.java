@@ -47,10 +47,12 @@ public class DBInsert extends McCabeConfig {
 
     public void start() {
         try (Connection connection = createConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(REPORT_QUERY)) {
-            connection.setAutoCommit(false);
+             PreparedStatement preparedStatement = connection.prepareStatement(REPORT_QUERY);
+             PreparedStatement preparedStatement2 = connection.prepareStatement(UPDATE_CODES_QUERY)) {
+
             setPackageNames(connection);
             List<File> fileList = getFileList();
+            List<SourceFile> sourceFiles = new ArrayList<>();
             if (property.containsKey("weeklySave") &&
                     Boolean.parseBoolean(property.getProperty("weeklySave"))) {
                 updateParsedSourceIfHaveSavedData(connection);
@@ -59,9 +61,16 @@ public class DBInsert extends McCabeConfig {
                 SourceFile sourceFile = new SourceFile(file);
                 sourceFile.parse();
                 KyoboUtil.putInsertQueryInPrepared(sourceFile, preparedStatement);
+                sourceFiles.add(sourceFile);
             }
             executeQuery(preparedStatement);
+            connection.setAutoCommit(false);
+            for (SourceFile file : sourceFiles) {
+                KyoboUtil.updateCodes(file, preparedStatement2);
+            }
+            executeQuery(preparedStatement2);
             connection.commit();
+            log("[Insert / Update] Done.");
         } catch (Exception e) {
             log(e.getMessage());
             e.printStackTrace();
@@ -78,7 +87,6 @@ public class DBInsert extends McCabeConfig {
     private void executeQuery(PreparedStatement preparedStatement) throws SQLException {
         try {
             preparedStatement.executeBatch();
-            log("[Insert / Update] Done.");
         } catch (Exception e) {
             throw e;
         }
@@ -88,6 +96,7 @@ public class DBInsert extends McCabeConfig {
         Class.forName(property.getProperty("JDBC_Driver"));
         return DriverManager.getConnection(property.getProperty("db_url"),
                 property.getProperty("db_id"), property.getProperty("db_pass"));
+
     }
 
     private void setPackageNames(Connection connection) throws SQLException {

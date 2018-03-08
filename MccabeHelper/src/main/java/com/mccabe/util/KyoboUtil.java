@@ -18,7 +18,7 @@ public class KyoboUtil {
             "USING (" +
             "  SELECT ? FILE_DATE, ? FILE_NAME, ? FILE_PACKAGE, ? FILE_NAME_KO, ? FUNTION_NAME, ? FUNTION_NAME_KO, " +
             "    ? SERVICE_ID, ? JOB_NAME, ? JOB_CATEGORY, ? SYSTEM_ID, ? MANAGER, ? FILE_TYPE, ? COV_CODE_LINE, ? COV_COVERED_LINE, " +
-            "    ? COV_COVERAGE, ? BRANCH_CODE_LINE, ? BRANCH_COVERED_LINE, ? BRANCH_COVERAGE, ? START_LINE, ? NUM_OF_LINE, ? CODES " +
+            "    ? COV_COVERAGE, ? BRANCH_CODE_LINE, ? BRANCH_COVERED_LINE, ? BRANCH_COVERAGE, ? START_LINE, ? NUM_OF_LINE, empty_clob() CODES " +
             "  FROM dual) T2 " +
             "ON (T1.FILE_NAME = T2.FILE_NAME AND T1.FUNTION_NAME = T2.FUNTION_NAME AND T1.FILE_DATE = T2.FILE_DATE ) " +
             "WHEN MATCHED THEN " + "UPDATE SET " +
@@ -46,6 +46,7 @@ public class KyoboUtil {
     public static final String SELECT_CHECK_QUERY = "SELECT count(*) cnt FROM REPORT_TABLE WHERE FILE_DATE = '{date}'";
     public static final String UPDATE_REPORT_QUERY = "UPDATE REPORT_TABLE SET FILE_DATE = '{new}' WHERE FILE_DATE = '{old}'";
     public static final String SELECT_PACKAGE_NAME = "SELECT PACKAGE_NAME, PACKAGE_NAME_KO, SYSTEM_ID FROM PACKAGE_NAME";
+    public static final String UPDATE_CODES_QUERY = "UPDATE REPORT_TABLE SET CODES = ? WHERE FILE_DATE = ? AND FILE_NAME = ? AND FUNTION_NAME = ?";
 
     public static void putInsertQueryInPrepared(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws Exception {
         try {
@@ -70,13 +71,23 @@ public class KyoboUtil {
                 preparedStatement.setFloat(18, Float.parseFloat(entry.getValue().getProperty(REPORT_TABLE.BRANCH_COVERAGE.name(), "0"))); // BRANCH_COVERAGE
                 preparedStatement.setInt(19, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.START_LINE.name(), "0"))); // START_LINE
                 preparedStatement.setInt(20, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.NUM_OF_LINE.name(), "0"))); // NUM_OF_LINE
-                String data = entry.getValue().getProperty(REPORT_TABLE.CODES.name(), "");
-                preparedStatement.setCharacterStream(21, new StringReader(data)); // CODES
                 preparedStatement.addBatch();
                 preparedStatement.clearParameters();
             }
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    public static void updateCodes(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws SQLException {
+        for (Map.Entry<String, Properties> entry : sourceFile.getMethodContent().entrySet()) {
+            String data = entry.getValue().getProperty(REPORT_TABLE.CODES.name(), "");
+            preparedStatement.setCharacterStream(1, new StringReader(data)); // CODES
+            preparedStatement.setString(2, sourceFile.date);
+            preparedStatement.setString(3, sourceFile.className);
+            preparedStatement.setString(4, entry.getKey());
+            preparedStatement.execute();
+            preparedStatement.clearParameters();
         }
     }
 
