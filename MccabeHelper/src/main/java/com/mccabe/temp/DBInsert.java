@@ -60,10 +60,10 @@ public class DBInsert extends McCabeConfig {
             for (File file : fileList) {
                 SourceFile sourceFile = new SourceFile(file);
                 sourceFile.parse();
+                log("[Start Insert / Update]");
                 KyoboUtil.putInsertQueryInPrepared(sourceFile, preparedStatement);
                 sourceFiles.add(sourceFile);
             }
-            executeQuery(preparedStatement);
             connection.setAutoCommit(false);
             for (SourceFile file : sourceFiles) {
                 KyoboUtil.updateCodes(file, preparedStatement2);
@@ -155,6 +155,7 @@ public class DBInsert extends McCabeConfig {
                 log("[Error] " + e.getMessage() + "\n skip file. [" + file.getName() + "]");
                 e.printStackTrace();
             }
+            log("Parse Done");
         }
 
         public void setClassName(String className) {
@@ -245,7 +246,6 @@ public class DBInsert extends McCabeConfig {
                     methodContent.get(method).setProperty(REPORT_TABLE.NUM_OF_LINE.name(), num);
                     i++;
                 }
-                System.out.println("index :" + index);
             }
 
             String code = "";

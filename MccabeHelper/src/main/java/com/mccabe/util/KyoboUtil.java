@@ -71,7 +71,7 @@ public class KyoboUtil {
                 preparedStatement.setFloat(18, Float.parseFloat(entry.getValue().getProperty(REPORT_TABLE.BRANCH_COVERAGE.name(), "0"))); // BRANCH_COVERAGE
                 preparedStatement.setInt(19, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.START_LINE.name(), "0"))); // START_LINE
                 preparedStatement.setInt(20, Integer.parseInt(entry.getValue().getProperty(REPORT_TABLE.NUM_OF_LINE.name(), "0"))); // NUM_OF_LINE
-                preparedStatement.addBatch();
+                preparedStatement.execute();
                 preparedStatement.clearParameters();
             }
         } catch (Exception e) {
