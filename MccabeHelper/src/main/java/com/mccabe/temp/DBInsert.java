@@ -48,6 +48,7 @@ public class DBInsert extends McCabeConfig {
     public void start() {
         try (Connection connection = createConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(REPORT_QUERY)) {
+            connection.setAutoCommit(false);
             setPackageNames(connection);
             List<File> fileList = getFileList();
             if (property.containsKey("weeklySave") &&
@@ -60,6 +61,7 @@ public class DBInsert extends McCabeConfig {
                 KyoboUtil.putInsertQueryInPrepared(sourceFile, preparedStatement);
             }
             executeQuery(preparedStatement);
+            connection.commit();
         } catch (Exception e) {
             log(e.getMessage());
             e.printStackTrace();
@@ -86,7 +88,6 @@ public class DBInsert extends McCabeConfig {
         Class.forName(property.getProperty("JDBC_Driver"));
         return DriverManager.getConnection(property.getProperty("db_url"),
                 property.getProperty("db_id"), property.getProperty("db_pass"));
-
     }
 
     private void setPackageNames(Connection connection) throws SQLException {
