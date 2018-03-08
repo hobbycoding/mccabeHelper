@@ -236,6 +236,7 @@ public class DBInsert extends McCabeConfig {
                     methodContent.get(method).setProperty(REPORT_TABLE.NUM_OF_LINE.name(), num);
                     i++;
                 }
+                System.out.println("index :" + index);
             }
 
             String code = "";
