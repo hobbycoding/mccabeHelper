@@ -21,6 +21,7 @@ import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.rmi.server.ExportException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -222,10 +223,22 @@ public class DBInsert extends McCabeConfig {
                     throw ex;
                 }
             }
-            List<Properties> temp = new ArrayList<>();
+            if  (list == null || list.size() < 7) {
+                throw new ExportException("Text file does not exist.");
+            }
+            List<Properties> methodProperties = new ArrayList<>();
+            List<String>  rawMethodString = new ArrayList<>();
+
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).startsWith("------")) {
+                    while (list.get(i++).length() != 0) {
+                        rawMethodString.add(list.get(i));
+                    }
+                }
+            }
             int index = 1;
             for (int i = 0; i < methodContent.size(); ) {
-                String line = "";
+                String line = "", method = "";
                 if (index < list.size() - 1 && list.get(++index).startsWith(MCCABERoleSet.getModuleLetter(i))) {
                     while (!list.get(index).startsWith(MCCABERoleSet.getModuleLetter(i + 1)) && list.get(index).length() != 0) {
                         line += list.get(index++) + "\n";
@@ -240,30 +253,26 @@ public class DBInsert extends McCabeConfig {
                             num = raw[raw.length - 1];
                         } else module = module.trim().concat(in.trim());
                     }
-                    String method = MCCABERoleSet.convert(module.substring(module.indexOf(".") + 1, module.length()));
-                    temp.add(methodContent.get(method));
+                    method = MCCABERoleSet.convert(module.substring(module.indexOf(".") + 1, module.length()));
+                    methodProperties.add(methodContent.get(method));
                     methodContent.get(method).setProperty(REPORT_TABLE.START_LINE.name(), start);
                     methodContent.get(method).setProperty(REPORT_TABLE.NUM_OF_LINE.name(), num);
                     i++;
                 }
             }
 
+            log("method parsing Done.");
             String code = "";
-            for (int i = 0; index < list.size(); index++) {
-                String v = list.get(index);
-                if (v.length() == 0)
-                    continue;
-                int start = Integer.parseInt(temp.get(i).getProperty(REPORT_TABLE.START_LINE.name()));
-                int end = start + Integer.parseInt(temp.get(i).getProperty(REPORT_TABLE.NUM_OF_LINE.name())) - 1;
-                if (v.startsWith(String.valueOf(start))) {
-                    while (!list.get(index).startsWith(String.valueOf(end))) {
-                        code += list.get(index++) + "\n";
-                    }
-                    code += list.get(index) + "\n";
-                    temp.get(i++).setProperty(REPORT_TABLE.CODES.name(), code);
-                    code = "";
-                }
+            while (list.get(++index).length() == 0) {
             }
+            for (Properties properties : methodProperties) {
+                while (list.get(index).length() != 0) {
+                    code += list.get(index++) + "\n";
+                }
+                properties.setProperty(REPORT_TABLE.CODES.name(), code);
+                index++;
+            }
+            log("code-part parsing Done.");
         }
 
         private void parsePackageName() throws SQLException {

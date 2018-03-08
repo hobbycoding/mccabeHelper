@@ -48,7 +48,7 @@ public class KyoboUtil {
     public static final String SELECT_PACKAGE_NAME = "SELECT PACKAGE_NAME, PACKAGE_NAME_KO, SYSTEM_ID FROM PACKAGE_NAME";
     public static final String UPDATE_CODES_QUERY = "UPDATE REPORT_TABLE SET CODES = ? WHERE FILE_DATE = ? AND FILE_NAME = ? AND FUNTION_NAME = ?";
 
-    public static void putInsertQueryInPrepared(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws Exception {
+    public static synchronized void putInsertQueryInPrepared(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws Exception {
         try {
             for (Map.Entry<String, Properties> entry : sourceFile.getMethodContent().entrySet()) {
                 preparedStatement.setString(1, sourceFile.date); // FILE_DATE
