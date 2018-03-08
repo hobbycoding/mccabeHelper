@@ -205,12 +205,21 @@ public class DBInsert extends McCabeConfig {
 
         private void parseCoverdLineTextFile(String reportPath) throws IOException {
             log("[Parse File] : " + reportPath + ".txt");
-            List<String> list;
+            List<String> list = null;
+            boolean exception = false;
             try {
                 list = Files.readAllLines(Paths.get(reportPath + ".txt"), StandardCharsets.UTF_8);
             } catch (MalformedInputException e) {
                 log("MalformedInputException. try encoding EUC-KR");
-                list = Files.readAllLines(Paths.get(reportPath + ".txt"), Charset.forName("EUC-KR"));
+                exception = true;
+            }
+            if (exception) {
+                try {
+                    list = Files.readAllLines(Paths.get(reportPath + ".txt"), Charset.forName("EUC-KR"));
+                } catch (MalformedInputException ex) {
+                    log("MalformedInputException. parsing Faild.");
+                    throw ex;
+                }
             }
             List<Properties> temp = new ArrayList<>();
             int index = 1;
