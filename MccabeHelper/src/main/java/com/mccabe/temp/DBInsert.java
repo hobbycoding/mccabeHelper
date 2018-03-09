@@ -236,36 +236,35 @@ public class DBInsert extends McCabeConfig {
                     }
                 }
             }
-            int index = 1;
-            for (int i = 0; i < methodContent.size(); ) {
-                String line = "", method = "";
-                if (index < list.size() - 1 && list.get(++index).startsWith(MCCABERoleSet.getModuleLetter(i))) {
-                    while (!list.get(index).startsWith(MCCABERoleSet.getModuleLetter(i + 1)) && list.get(index).length() != 0) {
-                        line += list.get(index++) + "\n";
-                    }
-                    index--;
-                    String module = "", start = "", num = "";
-                    for (String in : line.split("\n")) {
-                        String[] raw = in.split("\\s+");
-                        if (raw.length > 2) {
-                            module = raw[2];
-                            start = raw[raw.length - 2];
-                            num = raw[raw.length - 1];
-                        } else module = module.trim().concat(in.trim());
-                    }
-                    method = MCCABERoleSet.convert(module.substring(module.indexOf(".") + 1, module.length()));
-                    methodProperties.add(methodContent.get(method));
-                    methodContent.get(method).setProperty(REPORT_TABLE.START_LINE.name(), start);
-                    methodContent.get(method).setProperty(REPORT_TABLE.NUM_OF_LINE.name(), num);
-                    i++;
+            int letter = 0;
+            for (int i = 0; i < rawMethodString.size(); i++) {
+                String module = "";
+                if (rawMethodString.get(i).startsWith(MCCABERoleSet.getModuleLetter(letter))) {
+                    module+= rawMethodString.get(i) + "\n";
+                    letter++;
                 }
+                while (i + 1 < rawMethodString.size() && !rawMethodString.get(i + 1).startsWith(MCCABERoleSet.getModuleLetter(letter)))
+                    module+=rawMethodString.get(++i).trim();
+                String methodName = "", start = "", num = "";
+                for (String in : module.split("\n")) {
+                    String[] raw = in.split("\\s+");
+                    if (raw.length > 2) {
+                        methodName = raw[2];
+                        start = raw[raw.length - 2];
+                        num = raw[raw.length - 1];
+                    } else methodName = methodName.trim().concat(in.trim());
+                }
+                String RoleName = MCCABERoleSet.convert(methodName.substring(methodName.indexOf(".") + 1, methodName.length()));
+                methodProperties.add(methodContent.get(RoleName));
+                methodContent.get(RoleName).setProperty(REPORT_TABLE.START_LINE.name(), start);
+                methodContent.get(RoleName).setProperty(REPORT_TABLE.NUM_OF_LINE.name(), num);
             }
-
             log("method parsing Done.");
-            String code = "";
-            while (list.get(++index).length() == 0) {
+            int index = rawMethodString.size();
+            while (list.get(index++).length() != 0) {
             }
             for (Properties properties : methodProperties) {
+                String code = "";
                 while (list.get(index).length() != 0) {
                     code += list.get(index++) + "\n";
                 }
