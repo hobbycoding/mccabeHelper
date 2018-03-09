@@ -61,13 +61,17 @@ public class DBInsert extends McCabeConfig {
             for (File file : fileList) {
                 SourceFile sourceFile = new SourceFile(file);
                 sourceFile.parse();
-                log("[Start Insert / Update]");
-                KyoboUtil.putInsertQueryInPrepared(sourceFile, preparedStatement);
-                sourceFiles.add(sourceFile);
+                if (!sourceFile.isSkip()) {
+                    log("[Start Insert / Update]");
+                    KyoboUtil.putInsertQueryInPrepared(sourceFile, preparedStatement);
+                    sourceFiles.add(sourceFile);
+                }
             }
             connection.setAutoCommit(false);
-            for (SourceFile file : sourceFiles) {
-                KyoboUtil.updateCodes(file, preparedStatement2);
+            for (SourceFile sourceFile : sourceFiles) {
+                if (!sourceFile.isSkip()) {
+                    KyoboUtil.updateCodes(sourceFile, preparedStatement2);
+                }
             }
             executeQuery(preparedStatement2);
             connection.commit();
@@ -128,6 +132,7 @@ public class DBInsert extends McCabeConfig {
         private final Map<String, Properties> methodContent = new HashMap<>();
         private final Properties classContent = new Properties();
         private final File file;
+        private boolean skip = false;
         public String className;
         public String packageName;
         public String pakageName_ko = "UNKNOWN";
@@ -155,6 +160,7 @@ public class DBInsert extends McCabeConfig {
             } catch (Exception e) {
                 log("[Error] " + e.getMessage() + "\n skip file. [" + file.getName() + "]");
                 e.printStackTrace();
+                skip = true;
             }
             log("Parse Done");
         }
@@ -171,6 +177,10 @@ public class DBInsert extends McCabeConfig {
             if (!classContent.containsKey(TAG.logicalName.name()))
                 classContent.setProperty(TAG.logicalName.name(), "");
             return classContent;
+        }
+
+        public boolean isSkip() {
+            return skip;
         }
 
         protected String parseReportCSVFile(String reportPath) throws IOException {
