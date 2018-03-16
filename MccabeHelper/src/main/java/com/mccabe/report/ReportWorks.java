@@ -218,7 +218,6 @@ public class ReportWorks extends McCabeConfig {
                     for (String command : commands) {
                         OSUtil.executeCommand(command);
                     }
-                    doSubJobProcess(subJobList, pcf);
                 }
             }
         } catch (IOException e) {
