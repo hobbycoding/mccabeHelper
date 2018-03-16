@@ -218,7 +218,6 @@ public class ReportWorks extends McCabeConfig {
                     for (String command : commands) {
                         OSUtil.executeCommand(command);
                     }
-                    defaultJob.write(pcf.getProjectName());
                     doSubJobProcess(subJobList, pcf);
                 }
             }
