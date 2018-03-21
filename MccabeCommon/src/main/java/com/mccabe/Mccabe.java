@@ -65,7 +65,8 @@ public class Mccabe {
 
     public enum McCABE_Properties {
         programName("string", ""), isWindows("boolean", "false"), fileType("array", "[\"java\"]"),
-        exceptionFileNames("array", "[]"), splitFileInProject("boolean", "false"), traceFileOutPath("string", "");
+        exceptionFileNames("array", "[]"), splitFileInProject("boolean", "false"), traceFileOutPath("string", ""),
+        removeReportDir("boolean", "false"), reportTemplateName("string", "");
         private String kind;
         private String value;
 

@@ -1,11 +1,11 @@
 package com.mccabe.inst;
 
 import com.mccabe.Mccabe;
+import com.mccabe.util.CommandUtil;
 import com.mccabe.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -14,9 +14,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.mccabe.Mccabe.McCABE_PATH.*;
-import static com.mccabe.Mccabe.McCABE_Properties.fileType;
-import static com.mccabe.Mccabe.McCABE_Properties.programName;
-import static com.mccabe.Mccabe.McCABE_Properties.splitFileInProject;
+import static com.mccabe.Mccabe.McCABE_Properties.*;
 import static java.nio.file.StandardOpenOption.CREATE;
 
 public class Instrument extends Mccabe {
@@ -46,7 +44,7 @@ public class Instrument extends Mccabe {
                 PCF.INSTOUT.setValue(TRACEFILE_HOME.getPath() + fs + programName.getString() + fs + roleFileName + "_inst.out");
                 PCF.COMDIR.setValue(PROJECT_PROGRAM_DIR.getPath());
                 createPCFFile(file);
-                runCommand(PCF.getFilePath().toString(), PROJECT_DIR.getPath());
+                CommandUtil.runCommand(PCF.getFilePath().toString(), PROJECT_DIR.getPath());
                 new PathVecChanger().start();
             }
         } else {
@@ -56,7 +54,7 @@ public class Instrument extends Mccabe {
             PCF.INSTOUT.setValue(TRACEFILE_HOME.getPath() + fs + programName.getString() + "_inst.out");
             PCF.COMDIR.setValue(PROJECT_PROGRAM_DIR.getPath());
             createPCFFile(fileList);
-            runCommand(PCF.getFilePath().toString(), PROJECT_DIR.getPath());
+            CommandUtil.runCommand(PCF.getFilePath().toString(), PROJECT_DIR.getPath());
             new PathVecChanger().start();
         }
     }
@@ -75,18 +73,5 @@ public class Instrument extends Mccabe {
         if (!fileListPath.exists())
             throw new Exception("source directory does not exist.");
         return FileUtils.listFiles(fileListPath, fileType.getArray(), true);
-    }
-
-    private void runCommand(String pcfPath, String workingDir) throws Exception {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            pcfPath = CLI.getPath() +  pcfPath + " MC_WRITE_LOG=1";
-            Process child = rt.exec(pcfPath, null, new File(workingDir));
-            child.waitFor();
-        } catch (IOException e1) {
-            throw new Exception("Error running CLI: " + e1.getMessage());
-        } catch (InterruptedException e2) {
-            throw new Exception("Error running CLI: " + e2.getMessage());
-        }
     }
 }

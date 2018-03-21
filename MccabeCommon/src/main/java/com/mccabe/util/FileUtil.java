@@ -2,6 +2,7 @@ package com.mccabe.util;
 
 import com.mccabe.Mccabe;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileReader;
@@ -13,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import static com.mccabe.Mccabe.McCABE_PATH.INSTRUMENTED_SRC_DIR;
+import static com.mccabe.Mccabe.McCABE_PATH.SRC_DIR;
 import static com.mccabe.Mccabe.McCABE_Properties.exceptionFileNames;
 
 
@@ -49,22 +52,22 @@ public class FileUtil extends Mccabe {
 
             for (File file : fileList) {
                 String absoutePath = file.getAbsolutePath();
-                String packageName = absoutePath.substring(prop.getProperty("srcDir").length());
+                String packageName = absoutePath.substring(SRC_DIR.getPath().length());
                 if ("".equals(packageName)) continue;
                 boolean flag = false;
                 for (String fileName : exceptionFileNames.getArray()) {
                     if (packageName.endsWith(fileName)) {
                         flag = true;
-                        break;    // 예외 파일은 복사하지 않음. 예. .svn 파일
+                        break;
                     }
                 }
                 if (flag) continue;
 
-                logger.debug("copySrcToInst : " + prop.getProperty("instDir") + packageName);
+                logger.debug("copySrcToInst : " + INSTRUMENTED_SRC_DIR.getPath() + packageName);
                 if (file.isDirectory()) {
-                    new File(prop.getProperty("instDir") + packageName).mkdirs();
+                    new File(INSTRUMENTED_SRC_DIR.getPath() + packageName).mkdirs();
                 } else {
-                    File dest = new File(prop.getProperty("instDir") + packageName);
+                    File dest = new File(INSTRUMENTED_SRC_DIR.getPath() + packageName);
                     fr = new FileReader(file);
                     fw = new FileWriter(dest);
                     int c;
@@ -77,5 +80,60 @@ public class FileUtil extends Mccabe {
             logger.error(this.getClass().getName() + "\n" + e);
         }
         return fileList;
+    }
+
+    public static ArrayList<File> getFilesRecursive(File path, String startWord, String searchWord, String extension, long beforeSecond) throws Exception {
+        long timeTemp;
+        ArrayList<File> list = new ArrayList<>();
+        if (path.isDirectory()) {
+            for (File file : path.listFiles()) {
+                if (file.isDirectory()) {
+                    list.addAll(getFilesRecursive(file, startWord, searchWord, extension, beforeSecond));
+                } else {
+                    if (file.getName().toUpperCase().startsWith(startWord.toUpperCase()) && file.getName().indexOf(searchWord) > -1 && file.getName().toUpperCase().endsWith(extension.toUpperCase())) {
+                        timeTemp = file.lastModified();
+                        timeTemp = new java.util.Date().getTime() - timeTemp;
+                        timeTemp /= 1000; // from mili-sec to sec
+                        if (beforeSecond == 0) {
+                            list.add(file);
+                        } else if (beforeSecond != 0 && timeTemp <= beforeSecond) {//only file modified within one day
+                            list.add(file);
+                        }
+                    }
+                }
+            }
+        } else {
+            System.out.println(path.getAbsolutePath() + " is not directory!");
+        }
+        return list;
+    }
+
+    public static ArrayList<File> findPCFFilesFromProjectDir(String dirPath) throws Exception {
+        File dir = new File(dirPath);
+        if (!dir.exists())
+            throw new Exception("not found dir. [" + dirPath + "]");
+        return findPCFFilesFromProjectDir(dir, StringUtils.countMatches(dir.getPath(), fs) + 3);
+    }
+
+    public static ArrayList<File> findPCFFilesFromProjectDir(File dir) throws Exception {
+        return findPCFFilesFromProjectDir(dir, StringUtils.countMatches(dir.getPath(), fs) + 3);
+    }
+
+    public static ArrayList<File> findPCFFilesFromProjectDir(File dir, int cnt) throws Exception {
+        ArrayList<File> list = new ArrayList<>();
+        if (dir.isDirectory()) {
+            for (File e : dir.listFiles()) {
+                if (e.isDirectory()) {
+                    if (StringUtils.countMatches(e.getPath(), fs) > cnt)
+                        break;
+                    list.addAll(findPCFFilesFromProjectDir(e, cnt));
+                } else {
+                    if (e.getName().endsWith(".pcf")) {
+                        list.add(e);
+                    }
+                }
+            }
+        }
+        return list;
     }
 }

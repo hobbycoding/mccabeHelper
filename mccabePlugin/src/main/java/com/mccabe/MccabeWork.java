@@ -1,6 +1,7 @@
 package com.mccabe;
 
 import com.mccabe.inst.Instrument;
+import com.mccabe.report.ReportWork;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -44,6 +45,9 @@ public class MccabeWork extends AbstractMojo {
                     instrument.start();
                     break;
                 case REPORT :
+                    ReportWork reportWork = new ReportWork();
+                    reportWork.checkAndSetProperties(makeProperties());
+                    reportWork.start();
                     break;
             }
         } catch (Exception e) {
