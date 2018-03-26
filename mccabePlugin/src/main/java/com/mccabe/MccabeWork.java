@@ -13,7 +13,7 @@ import java.util.Properties;
 public class MccabeWork extends AbstractMojo {
     private static final String INST = "instrument";
     private static final String REPORT = "report";
-    @Parameter(property = "type",defaultValue = "instrument")
+    @Parameter(property = "type", defaultValue = "instrument")
     private String type;
     // PATH
     @Parameter(property = "MCCABE_HOME")

@@ -24,6 +24,7 @@
                 <artifactId>mccabe-plugin</artifactId>
                 <version>1.1</version>
                 <configuration>
+                    <!--<type>report</type>-->
                     <type>instrument</type>
                     <MCCABE_HOME>${mccabe.home}</MCCABE_HOME>
                     <MCCABE_BIN>${mccabe.bin}</MCCABE_BIN>
