@@ -84,7 +84,7 @@ public class FileUtil extends Mccabe {
 
     public static ArrayList<File> getFilesRecursive(File path, String startWord, String searchWord, String extension, long beforeSecond) throws Exception {
         long timeTemp;
-        ArrayList<File> list = new ArrayList<>();
+        ArrayList<File> list = new ArrayList<File>();
         if (path.isDirectory()) {
             for (File file : path.listFiles()) {
                 if (file.isDirectory()) {
@@ -120,7 +120,7 @@ public class FileUtil extends Mccabe {
     }
 
     public static ArrayList<File> findPCFFilesFromProjectDir(File dir, int cnt) throws Exception {
-        ArrayList<File> list = new ArrayList<>();
+        ArrayList<File> list = new ArrayList<File>();
         if (dir.isDirectory()) {
             for (File e : dir.listFiles()) {
                 if (e.isDirectory()) {

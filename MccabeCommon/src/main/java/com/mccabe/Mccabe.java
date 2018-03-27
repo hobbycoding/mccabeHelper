@@ -100,8 +100,8 @@ public class Mccabe {
     public enum PCF {
         PROGRAM, INSTDIR, INSTOUT, COMDIR, DIR;
         private static Path filePath;
-        private static List<String> options = new ArrayList<>();
-        private static List<String> cwOptions = new ArrayList<>();
+        private static List<String> options = new ArrayList<String>();
+        private static List<String> cwOptions = new ArrayList<String>();
         private static String jdkVersion;
         private String value;
 

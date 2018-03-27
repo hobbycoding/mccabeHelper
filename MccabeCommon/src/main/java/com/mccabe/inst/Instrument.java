@@ -60,7 +60,7 @@ public class Instrument extends Mccabe {
     }
 
     private void createPCFFile(Object file) throws Exception {
-        List<String> lines = new ArrayList<>();
+        List<String> lines = new ArrayList<String>();
         PCF.INSTDIR.setValue(INSTRUMENTED_SRC_DIR.getPath());
         PCF.DIR.setValue(SRC_DIR.getPath());
         PCF.export(lines, file);

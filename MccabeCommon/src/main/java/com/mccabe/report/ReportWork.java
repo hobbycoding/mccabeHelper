@@ -71,7 +71,7 @@ public class ReportWork extends Mccabe {
     }
 
     private ArrayList<String> makeCommandSetForReport(PCFObject pcf, Job job) throws Exception {
-        ArrayList<String> commands = new ArrayList<>();
+        ArrayList<String> commands = new ArrayList<String>();
 
         // purge project database
         commands.add(CLI + "purge -LEVEL all -PCF " + pcf.getPcfFile().getAbsolutePath());
