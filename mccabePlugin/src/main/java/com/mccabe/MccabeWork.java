@@ -38,17 +38,14 @@ public class MccabeWork extends AbstractMojo {
 
     public void execute() throws MojoExecutionException {
         try {
-            switch (type) {
-                case INST :
-                    Instrument instrument = new Instrument();
-                    instrument.checkAndSetProperties(makeProperties());
-                    instrument.start();
-                    break;
-                case REPORT :
-                    ReportWork reportWork = new ReportWork();
-                    reportWork.checkAndSetProperties(makeProperties());
-                    reportWork.start();
-                    break;
+            if (type.equalsIgnoreCase(INST)) {
+                Instrument instrument = new Instrument();
+                instrument.checkAndSetProperties(makeProperties());
+                instrument.start();
+            } else if (type.equalsIgnoreCase(REPORT)) {
+                ReportWork reportWork = new ReportWork();
+                reportWork.checkAndSetProperties(makeProperties());
+                reportWork.start();
             }
         } catch (Exception e) {
             throw new MojoExecutionException("error", e);
