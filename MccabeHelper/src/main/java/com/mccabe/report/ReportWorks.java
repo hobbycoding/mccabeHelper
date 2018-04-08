@@ -208,8 +208,6 @@ public class ReportWorks extends McCabeConfig {
             JSONArray fileList = getFileListFromJson();
             ArrayList<File> pcfFiles;
             pcfFiles = FileUtil.findPCFFilesFromProjectDir(new File(projectFolder.getPath()), fileList);
-            FileJob defaultJob = new FileJob(job.getSysName());
-            HashMap<String, FileJob> subJobList = getSubJobList();
             for (File file : pcfFiles) {
                 PCF pcf = parse(file);
                 if (existOriginalSource(pcf)) {
