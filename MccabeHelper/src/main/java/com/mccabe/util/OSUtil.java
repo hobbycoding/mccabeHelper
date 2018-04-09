@@ -15,11 +15,11 @@ public class OSUtil {
         Process proc = Runtime.getRuntime().exec(command);
         br = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
         while ((line = br.readLine()) != null) {
-            McCabeConfig.log("[Error] " + line);
+            McCabeConfig.log(line);
         }
         br = new BufferedReader(new InputStreamReader(proc.getInputStream()));
         while ((line = br.readLine()) != null) {
-            McCabeConfig.log("[Error] " + line);
+            McCabeConfig.log(line);
         }
         try {
             proc.waitFor();
