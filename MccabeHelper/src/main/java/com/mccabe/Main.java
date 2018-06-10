@@ -3,6 +3,7 @@ package com.mccabe;
 import com.mccabe.inst.McProcess;
 import com.mccabe.report.ReportWorks;
 import com.mccabe.temp.DBInsert;
+import com.mccabe.temp.DeletesDataFromFile;
 import com.mccabe.temp.PathVecChanger;
 import com.mccabe.util.LibClassLoader;
 import com.mccabe.util.PackageAdder;
@@ -33,6 +34,9 @@ public class Main {
                 break;
             case "insertDB" :
                 DBInsert.main(args);
+                break;
+            case "Deletes the file data of the last file by fileList" :
+                DeletesDataFromFile.main(args);
                 break;
             default: System.out.println("uses. [inst | sftp | report | pathvec | PackageAdd | insertDB]");
         }

@@ -5,9 +5,9 @@ import com.mccabe.temp.PathVecChanger;
 import com.mccabe.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class McProcess extends McCabeConfig {
@@ -17,6 +17,7 @@ public class McProcess extends McCabeConfig {
     }
 
     public void process() {
+        JSONArray fileListJson = new JSONArray();
         try {
             property = setConfig();
             Instrument inst = new Instrument(property, log);
@@ -37,6 +38,7 @@ public class McProcess extends McCabeConfig {
                     PathVecChanger changer = new PathVecChanger(property);
                     changer.start();
                     FileUtils.copyDirectory(new File(property.getProperty("COMDIR")), new File(property.getProperty("projectDir") + fs + fileName.split("_")[0]));
+                    fileListJson.add(file.getAbsolutePath());
                 }
             } else {
                 List<File> fileListAll = inst.gatheringAll(property, "");
@@ -50,11 +52,16 @@ public class McProcess extends McCabeConfig {
             log(e.getMessage());
         } finally {
             try {
-                if (log != null) log.close();
+                FileUtils.writeStringToFile(new File(property.getProperty("projectDir") + fs + FILE_LIST_JSON),
+                        fileListJson.toJSONString(), StandardCharsets.UTF_8, false);
             } catch (Exception e) {
+                log("[ERROR] can't make fileList.");
+            }
+            try {
+                if (log != null) log.close();
+            } catch (Exception ignore) {
             }
         }
-
     }
 
     public Properties setConfig() {

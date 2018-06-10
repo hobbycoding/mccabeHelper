@@ -47,6 +47,7 @@ public class KyoboUtil {
     public static final String UPDATE_REPORT_QUERY = "UPDATE REPORT_TABLE SET FILE_DATE = '{new}' WHERE FILE_DATE = '{old}'";
     public static final String SELECT_PACKAGE_NAME = "SELECT PACKAGE_NAME, PACKAGE_NAME_KO, SYSTEM_ID FROM PACKAGE_NAME";
     public static final String UPDATE_CODES_QUERY = "UPDATE REPORT_TABLE SET CODES = ? WHERE FILE_DATE = ? AND FILE_NAME = ? AND FUNTION_NAME = ?";
+    public static final String UPDATE_CODE_COVERED = "UPDATE REPORT_TABLE SET BRANCH_COVERAGE = '0', COV_COVERED_LINE = '0' WHERE FILE_DATE = ? AND FILE_PACKAGE = ? AND FILE_NAME = ?";
 
     public static synchronized void putInsertQueryInPrepared(DBInsert.SourceFile sourceFile, PreparedStatement preparedStatement) throws Exception {
         try {

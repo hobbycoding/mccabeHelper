@@ -19,15 +19,12 @@ import org.json.simple.parser.ParseException;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-
-import static com.mccabe.util.KyoboUtil.getMatchedFiles;
 
 public class ReportWorks extends McCabeConfig {
 
