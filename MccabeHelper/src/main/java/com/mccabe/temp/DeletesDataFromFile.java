@@ -30,7 +30,7 @@ public class DeletesDataFromFile extends McCabeConfig {
     public void start() {
         try (Connection connection = createConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(UPDATE_CODE_COVERED)) {
-            JSONArray jsonArray = (JSONArray) new JSONParser().parse(new FileReader(property.getProperty("projectDir") + fs + FILE_LIST_JSON));
+            JSONArray jsonArray = (JSONArray) new JSONParser().parse(new FileReader(PROJECT_DIR + fs + PROGRAM_NAME + fs + FILE_LIST_JSON));
             int count = 0;
             for (Object object : jsonArray) {
                 File file = new File(object.toString());
@@ -43,6 +43,7 @@ public class DeletesDataFromFile extends McCabeConfig {
                 count += preparedStatement.executeUpdate();
             }
             log("[Update] "+ count +" Done.");
+            new File(PROJECT_DIR + fs + PROGRAM_NAME + fs + FILE_LIST_JSON).delete();
         } catch (Exception e) {
             log(e.getMessage());
             e.printStackTrace();
