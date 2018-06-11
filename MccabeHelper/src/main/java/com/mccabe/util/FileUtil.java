@@ -113,8 +113,6 @@ public class FileUtil extends McCabeConfig {
         if (dir.isDirectory()) {
             for (File e : dir.listFiles()) {
                 if (e.isDirectory()) {
-                    if (StringUtils.countMatches(e.getPath(), fs) > cnt)
-                        break;
                     list.addAll(findPCFFilesFromProjectDir(e, nameList, cnt));
                 } else {
                     if (e.getName().endsWith(".pcf") ) {
