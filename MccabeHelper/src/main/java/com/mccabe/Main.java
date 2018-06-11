@@ -35,7 +35,7 @@ public class Main {
             case "insertDB" :
                 DBInsert.main(args);
                 break;
-            case "Deletes the file data of the last file by fileList" :
+            case "Deletes_the_file_data_of_the_last_file_by_fileList" :
                 DeletesDataFromFile.main(args);
                 break;
             default: System.out.println("uses. [inst | sftp | report | pathvec | PackageAdd | insertDB]");
