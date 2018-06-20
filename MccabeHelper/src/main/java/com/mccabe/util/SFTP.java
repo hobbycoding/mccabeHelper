@@ -4,11 +4,8 @@ import com.jcraft.jsch.*;
 import com.mccabe.McCabeConfig;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class SFTP extends McCabeConfig {
     private static final String HOST = "server.ip";
@@ -35,7 +32,7 @@ public class SFTP extends McCabeConfig {
         try {
             connect();
             createFolder();
-            getFileFromDst();
+            getFileFromDst(getSrcList());
             end();
         } catch (Exception e) {
             e.printStackTrace();
@@ -47,22 +44,23 @@ public class SFTP extends McCabeConfig {
         OSUtil.executeCommand((OS.equalsIgnoreCase("windows") ? "cmd /c mkdir " : "mkdir -p ") + TRACEFILE_HOME + fs + property.getProperty("programName"));
     }
 
-    private List<String> getSrcList() throws Exception {
-        List<String> projectList = new ArrayList<>();
-        File folder = new File(PROJECT_DIR);
-        if (!folder.isDirectory())
-            throw new Exception(PROJECT_DIR + " is not a directory. please check [MCCABE_HOME] property.");
-        for (File file : folder.listFiles()) {
-            if (file.isDirectory() && isProjectDir(file)) {
-                projectList.add(file.getName());
+    private Map<String, File> getSrcList() throws Exception {
+        HashMap<String, File> outFileList = new HashMap<>();
+        String srcListPath = TRACEFILE_HOME + fs + property.getProperty("programName");
+        File outFileFolder = new File(srcListPath);
+        if (!outFileFolder.isDirectory())
+            throw new Exception(srcListPath + " is not a directory. please check [TRACEFILE_HOME] property.");
+        for (File file : outFileFolder.listFiles()) {
+            if (!file.isDirectory()) {
+                outFileList.put(file.getName(), file);
             }
         }
         log("== project List ==");
-        log(projectList);
-        return projectList;
+        log(outFileList);
+        return outFileList;
     }
 
-    private void getFileFromDst() throws SftpException {
+    private void getFileFromDst(Map<String, File> srcList) throws SftpException {
         for (Object o : channelSftp.ls(property.getProperty("remote.dir"))) {
             ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) o;
             if (entry.getFilename().endsWith(".out")) {
@@ -70,19 +68,24 @@ public class SFTP extends McCabeConfig {
                 if (property.containsKey("traceout_suffix")) {
                     dstFileName = dstFileName.replace(".out", property.getProperty("traceout_suffix") + ".out");
                 }
-                log("get [" + entry.getFilename() + "], put in [" + dstFileName + "]");
-                channelSftp.get(property.getProperty("remote.dir") + "/" + entry.getFilename(), dstFileName);
+                if (srcList.containsKey(dstFileName)) {
+                     if (srcList.get(dstFileName).length() < entry.getAttrs().getSize()) {
+                         log("get [" + entry.getFilename() + "], put in [" + dstFileName + "]");
+                         channelSftp.get(property.getProperty("remote.dir") + "/" + entry.getFilename(), dstFileName);
+                     }
+                } else {
+                    log("get [" + entry.getFilename() + "], put in [" + dstFileName + "]");
+                    channelSftp.get(property.getProperty("remote.dir") + "/" + entry.getFilename(), dstFileName);
+                }
             }
         }
     }
 
-    private boolean isProjectDir(File file) {
-        if (file.listFiles(new FilenameFilter() {
-            public boolean accept(File dir, String name) {
-                if (name.contains("pcf"))
-                    return true;
-                return false;
-            }
+    private boolean isTraceDirIn(File file) {
+        if (file.listFiles((dir, name) -> {
+            if (name.contains("out"))
+                return true;
+            return false;
         }).length >= 1) {
             return true;
         }
