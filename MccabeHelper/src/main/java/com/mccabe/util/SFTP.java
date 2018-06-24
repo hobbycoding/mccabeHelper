@@ -68,8 +68,8 @@ public class SFTP extends McCabeConfig {
                 if (property.containsKey("traceout_suffix")) {
                     dstFileName = dstFileName.replace(".out", property.getProperty("traceout_suffix") + ".out");
                 }
-                if (srcList.containsKey(dstFileName)) {
-                     if (srcList.get(dstFileName).length() < entry.getAttrs().getSize()) {
+                if (srcList.containsKey(entry.getFilename())) {
+                     if (srcList.get(entry.getFilename()).length() < entry.getAttrs().getSize()) {
                          log("get [" + entry.getFilename() + "], put in [" + dstFileName + "]");
                          channelSftp.get(property.getProperty("remote.dir") + "/" + entry.getFilename(), dstFileName);
                      }
