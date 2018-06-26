@@ -52,6 +52,7 @@ public class McProcess extends McCabeConfig {
             log(e.getMessage());
         } finally {
             try {
+                log("[INFO] start make fileList. : " + fileListJson.toJSONString());
                 FileUtils.writeStringToFile(new File(property.getProperty("projectDir") + fs + FILE_LIST_JSON),
                         fileListJson.toJSONString(), StandardCharsets.UTF_8, false);
             } catch (Exception e) {
