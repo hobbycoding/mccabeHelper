@@ -18,10 +18,11 @@ public class McProcess extends McCabeConfig {
 
     public void process() {
         JSONArray fileListJson = new JSONArray();
+        List<File> fileList;
         try {
             property = setConfig();
             Instrument inst = new Instrument(property, log);
-            List<File> fileList = inst.gathering(property, "");
+            fileList = inst.gathering(property, "");
             //TODO : shit code...but i don't really do anything
             if (SPLIT_FILE) {
                 for (File file : fileList) {

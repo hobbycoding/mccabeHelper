@@ -64,18 +64,20 @@ public class SFTP extends McCabeConfig {
         for (Object o : channelSftp.ls(property.getProperty("remote.dir"))) {
             ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) o;
             if (entry.getFilename().endsWith(".out")) {
-                String dstFileName = TRACEFILE_HOME + fs + property.getProperty("programName") + fs + entry.getFilename();
+                String dstPath = TRACEFILE_HOME + fs + property.getProperty("programName") + fs;
+                String dstFileName = entry.getFilename();
                 if (property.containsKey("traceout_suffix")) {
                     dstFileName = dstFileName.replace(".out", property.getProperty("traceout_suffix") + ".out");
                 }
-                if (srcList.containsKey(entry.getFilename())) {
-                     if (srcList.get(entry.getFilename()).length() < entry.getAttrs().getSize()) {
-                         log("get [" + entry.getFilename() + "], put in [" + dstFileName + "]");
-                         channelSftp.get(property.getProperty("remote.dir") + "/" + entry.getFilename(), dstFileName);
+                if (srcList.containsKey(dstFileName)) {
+                     if (srcList.get(dstFileName).length() < entry.getAttrs().getSize()) {
+                         log("src size : " + srcList.get(dstFileName).length() + "|| remote size : " + entry.getAttrs().getSize());
+                         log("get [" + entry.getFilename() + "], put in [" + dstPath + dstFileName + "]");
+                         channelSftp.get(property.getProperty("remote.dir") + "/" + entry.getFilename(), dstPath + dstFileName);
                      }
                 } else {
-                    log("get [" + entry.getFilename() + "], put in [" + dstFileName + "]");
-                    channelSftp.get(property.getProperty("remote.dir") + "/" + entry.getFilename(), dstFileName);
+                    log("get [" + entry.getFilename() + "], put in [" + dstPath + dstFileName + "]");
+                    channelSftp.get(property.getProperty("remote.dir") + "/" + entry.getFilename(), dstPath + dstFileName);
                 }
             }
         }
