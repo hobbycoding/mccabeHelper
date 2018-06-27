@@ -5,6 +5,7 @@ import com.mccabe.temp.PathVecChanger;
 import com.mccabe.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
+import org.json.simple.parser.JSONParser;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -17,15 +18,18 @@ public class McProcess extends McCabeConfig {
     }
 
     public void process() {
-        JSONArray fileListJson = new JSONArray();
-        List<File> fileList;
+        JSONArray fileListJson = new JSONArray();;
+        List<File> fileLists;
         try {
             property = setConfig();
             Instrument inst = new Instrument(property, log);
-            fileList = inst.gathering(property, "");
+            fileLists = inst.gathering(property, "");
+            File jsonFileList = new File(property.getProperty("projectDir") + fs + FILE_LIST_JSON);
+            if (jsonFileList.exists())
+                fileListJson = (JSONArray) new JSONParser().parse(new FileReader(jsonFileList));
             //TODO : shit code...but i don't really do anything
             if (SPLIT_FILE) {
-                for (File file : fileList) {
+                for (File file : fileLists) {
                     String srcDir = property.containsKey("tempDir") ? property.getProperty("tempDir") : property.getProperty("srcDir");
                     String fileName = FileUtil.getRoleFileName(file, srcDir);
                     String instDir = property.getProperty("projectDir") + fs + fileName;
@@ -39,13 +43,14 @@ public class McProcess extends McCabeConfig {
                     PathVecChanger changer = new PathVecChanger(property);
                     changer.start();
                     FileUtils.copyDirectory(new File(property.getProperty("COMDIR")), new File(property.getProperty("projectDir") + fs + fileName.split("_")[0]));
-                    fileListJson.add(file.getAbsolutePath());
+                    if (!fileListJson.contains(file.getAbsolutePath()))
+                        fileListJson.add(file.getAbsolutePath());
                 }
             } else {
                 List<File> fileListAll = inst.gatheringAll(property, "");
                 property.setProperty("fileName", property.getProperty("projectDir") + property.getProperty("fs") + property.getProperty("projectName"));
                 inst.copySrcToInst(property, fileListAll);    // src 에서 java를 제외한 나머지를 inst에 복사 해 둠.
-                inst.pcfCreate(property, fileList);
+                inst.pcfCreate(property, fileLists);
                 inst.cliExport(property);
             }
         } catch (Exception e) {
