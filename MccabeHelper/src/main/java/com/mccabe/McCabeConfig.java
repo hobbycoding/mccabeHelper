@@ -5,11 +5,16 @@ import com.mccabe.temp.WLog;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class McCabeConfig {
+    public static final String REGEX_BASE64 = "^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{4}|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)$";
     public static final String FILE_LIST_JSON = "fileList.json";
 
     public static String OS = "unix";
@@ -68,7 +73,7 @@ public class McCabeConfig {
             properties.load(new FileInputStream(args[0]));
             if (System.getProperty("os.name").toString().toLowerCase().contains("win"))
                 OS = "windows";
-            for (Map.Entry<Object, Object> entry : properties.entrySet()) {
+            for (Map.Entry<Object, Object> entry : ((Properties)properties.clone()).entrySet()) {
                 switch (entry.getKey().toString()) {
                     case "OS":
                         OS = entry.getValue().toString();
@@ -139,9 +144,23 @@ public class McCabeConfig {
                     case "REPORT_DIR" :
                         REPORT_DIR = entry.getValue().toString();
                         break;
+                    case "db_pass" :
+                        String entryValue = entry.getValue().toString();
+                        if (!properties.containsKey("isEncrypt")) {
+                            properties.setProperty("isEncrypt", "true");
+                            properties.setProperty("db_pass", Base64.getEncoder().encodeToString(entryValue.getBytes()));
+                            properties.store(new FileOutputStream(args[0]), null);
+                        } else if (!Boolean.parseBoolean(properties.getProperty("isEncrypt"))) {
+                            properties.setProperty("isEncrypt", "true");
+                            properties.setProperty("db_pass", Base64.getEncoder().encodeToString(entryValue.getBytes()));
+                            properties.store(new FileOutputStream(args[0]), null);
+                        } else {
+                            properties.setProperty("db_pass", new String(Base64.getDecoder().decode(entryValue.getBytes())));
+                        }
+                        break;
                 }
             }
-            log("SYSTEM_PROPERTIES : " + properties);
+//            log("SYSTEM_PROPERTIES : " + properties);
             return properties;
         }
         return System.getProperties();
